@@ -212,9 +212,20 @@ func (e *Endpoint) Build() (*graphql.Schema, error) {
 	return &gqlSchema, nil
 }
 
-func NewHTTPHandler(client gripql.Client) (http.Handler, error) {
+func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
 
-	file, err := os.Open("config.js")
+	configPath := "config.js"
+	graph := "testGraph"
+	if c, ok := config["config"]; ok {
+		configPath = c
+	}
+	if c, ok := config["graph"]; ok {
+		graph = c
+	}
+
+	fmt.Printf("Plugin config: %s\n", config)
+
+	file, err := os.Open(configPath)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +237,7 @@ func NewHTTPHandler(client gripql.Client) (http.Handler, error) {
 	vm := goja.New()
 	vm.SetFieldNameMapper(JSRenamer{})
 
-	jsClient, err := GetJSClient(client, vm)
+	jsClient, err := GetJSClient(graph, client, vm)
 	if err != nil {
 		fmt.Printf("js error: %s\n", err)
 	}
@@ -274,11 +285,12 @@ var sandBox = `
 </script>`
 
 func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	log.Infof("Request: %s", request.URL.Path)
 	if request.URL.Path == "" || request.URL.Path == "/" {
 		writer.Write([]byte(sandBox))
 		return
 	}
-	if request.URL.Path == "/graphql" {
+	if request.URL.Path == "/api" || request.URL.Path == "api" {
 		gh.gjHandler.ServeHTTP(writer, request)
 	}
 }

@@ -7,6 +7,6 @@ import (
 	"github.com/bmeg/grip/gripql"
 )
 
-func NewHTTPHandler(client gripql.Client) (http.Handler, error) {
-	return gripgraphql.NewHTTPHandler(client)
+func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
+	return gripgraphql.NewHTTPHandler(client, config)
 }

@@ -16,6 +16,7 @@ type jsClientWrapper struct {
 	vm     *goja.Runtime
 	client gripql.Client
 	query  goja.Callable
+	graph  string
 }
 
 type JSRenamer struct{}
@@ -74,7 +75,7 @@ func (cw *jsClientWrapper) ToList(args goja.Value) goja.Value {
 	fmt.Printf("%s\n", queryJSON)
 	query := gripql.GraphQuery{}
 	err = protojson.Unmarshal(queryJSON, &query)
-	query.Graph = "test-db" //TODO: Get this to be configured
+	query.Graph = cw.graph
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return nil
@@ -106,7 +107,7 @@ func (cw *jsClientWrapper) V(args goja.Value) goja.Value {
 	return out
 }
 
-func GetJSClient(client gripql.Client, vm *goja.Runtime) (goja.Value, error) {
+func GetJSClient(graph string, client gripql.Client, vm *goja.Runtime) (goja.Value, error) {
 	//TODO: more error checking
 	gripqljs, _ := gripqljs.Asset("gripql.js")
 	vm.RunString(string(gripqljs))
@@ -114,7 +115,7 @@ func GetJSClient(client gripql.Client, vm *goja.Runtime) (goja.Value, error) {
 	qVal := vm.Get("query")
 	query, _ := goja.AssertFunction(qVal)
 
-	myWrapper := &jsClientWrapper{vm, client, query}
+	myWrapper := &jsClientWrapper{vm, client, query, graph}
 	clientWrapper := vm.ToValue(myWrapper)
 	return clientWrapper, nil
 }

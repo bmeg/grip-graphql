@@ -3,6 +3,23 @@
 Configurable GraphQL endpoint for the GRaph Integration Platform
 
 
+## Build
+
+Run `make` to build both the plugin (grip-graphql-endpoint.so) and proxy server (grip-graphql-proxy).
+
+
+## Plugin
+Run as a shared object within the GRIP server
+```
+grip server -w graphql=grip-graphql-endpoint.so -l graphql:config=./config/config.js -l graphql:graph=test-db
+```
+
+## Proxy
+Run the server as a proxy endpoint connected to an external GRIP service
+```
+./grip-graphql-proxy <grip server> <server port> <config> <database>
+```
+
 ## Example configuration file
 
 ```javascript
