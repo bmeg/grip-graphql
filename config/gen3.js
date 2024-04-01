@@ -70,7 +70,7 @@ endpoint.add({
         limit: 100
     },
     handler: (G, args) => {
-        return G.V().hasLabel("Specimen").outE().out().skip(args.offset).unique().limit(args.limit).toList()
+        return G.V().hasLabel("Specimen").outE().out().skip(args.offset).limit(args.limit).toList()
     }
 })
 
