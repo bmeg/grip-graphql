@@ -5,13 +5,15 @@ import (
 	"io"
 	"net/http"
 	"os"
+    "regexp"
+    "strings"
 
 	"github.com/bmeg/grip/gripql"
-
 	"github.com/bmeg/grip/log"
 	"github.com/dop251/goja"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
+    middleware "github.com/bmeg/grip-graphql/middleware"
 )
 
 type QueryField struct {
@@ -22,6 +24,7 @@ type QueryField struct {
 type GraphQLJS struct {
 	client    gripql.Client
 	gjHandler *handler.Handler
+    gen3      bool
 }
 
 type Endpoint struct {
@@ -130,7 +133,7 @@ func (e *Endpoint) Add(x map[string]any) {
 		objField, err := parseField(name, schemaA)
 		if err == nil {
 			objField.Resolve = func(params graphql.ResolveParams) (interface{}, error) {
-				fmt.Printf("Calling resolver\n")
+				//fmt.Printf("Calling resolver\n")
 				uArgs := map[string]any{}
 				for k, v := range defaults {
 					uArgs[k] = v
@@ -138,13 +141,16 @@ func (e *Endpoint) Add(x map[string]any) {
 				for k, v := range params.Args {
 					uArgs[k] = v
 				}
+				if gen3, ok := x["gen3"]; ok{
+					uArgs["gen3"] = gen3
+				}
 				vArgs := e.vm.ToValue(uArgs)
 				args := goja.FunctionCall{
 					Arguments: []goja.Value{e.gObject, vArgs},
 				}
 				val := jHandler(args)
 				out := jsExport(val)
-				fmt.Printf("Handler returned: %#v\n", out)
+				//fmt.Printf("Handler returned: %#v\n", out)
 				return out, nil
 			}
 
@@ -253,7 +259,9 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 
 	vm.Set("print", fmt.Printf)
 
-	_, err = vm.RunString(string(data))
+
+    // fmt.Println("string DATA: ", string(data))
+    _, err = vm.RunString(string(data))
 	if err != nil {
 		return nil, err
 	}
@@ -267,7 +275,22 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 		Schema: schema,
 	})
 
-	return &GraphQLJS{client: client, gjHandler: hnd}, nil
+    // circus code to look for gen3 key in config 
+    var gen3Bool bool;
+    re := regexp.MustCompile(`gen3:\s+true`)
+    matches := re.FindAllStringSubmatch(string(data), -1)
+    for _, match := range matches {
+        parts := strings.Split(match[0], ":")
+        value := strings.TrimSpace(parts[1])
+        if value == "true"{
+            gen3Bool = true
+            break
+        }
+	}
+    if gen3Bool{
+        return &GraphQLJS{client: client, gjHandler: hnd, gen3: true}, nil
+    }
+    return &GraphQLJS{client: client, gjHandler: hnd, gen3: false}, nil
 }
 
 // Static HTML that links to Apollo GraphQL query editor
@@ -290,6 +313,11 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 		writer.Write([]byte(sandBox))
 		return
 	}
+
+    if gh.gen3{ 
+        middleware.setup(gh, writer, request)
+        log.Infof("HELLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+    }
 	if request.URL.Path == "/api" || request.URL.Path == "api" {
 		gh.gjHandler.ServeHTTP(writer, request)
 	}

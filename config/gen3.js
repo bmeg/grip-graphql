@@ -1,5 +1,6 @@
 endpoint.add({
     name: "DocumentReference",
+    gen3: true,
     schema: [{
         id: "String",
         status: "String",
@@ -38,6 +39,7 @@ endpoint.add({
 // Returns all Patient Ids that have a docref edge connected to them.
 endpoint.add({
     name: "PatientIdsWithDocumentEdge",
+    gen3: true,
     schema: [{
         id: "String"
     }],
@@ -57,6 +59,7 @@ endpoint.add({
 
 endpoint.add({
     name: "PatientIdsWithSpecimenEdge",
+    gen3: true,
     schema: [{
         id: "String"
     }],
@@ -76,6 +79,7 @@ endpoint.add({
 
 endpoint.add({
     name: "PatientIdsWithEncounterEdge",
+    gen3: true,
     schema: [{
         id: "String"
     }],
@@ -97,6 +101,7 @@ endpoint.add({
 // {"query":"query Query($limit: Int){ PatientIdsWithEncounterEdge(limit: $limit) { id }}","variables":{"limit":100000000},"operationName":"Query"}
 endpoint.add({
     name: "PatientIdsWithObservationEdge",
+    gen3: true,
     schema: [{
         id: "String"
     }],
