@@ -13,7 +13,7 @@ import (
 	"github.com/dop251/goja"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
-    middleware "github.com/bmeg/grip-graphql/middleware"
+    "github.com/bmeg/grip-graphql/middleware"
 )
 
 type QueryField struct {
@@ -22,9 +22,11 @@ type QueryField struct {
 }
 
 type GraphQLJS struct {
-	client    gripql.Client
-	gjHandler *handler.Handler
-    gen3      bool
+     Client    gripql.Client
+     GjHandler *handler.Handler
+     Gen3      bool
+     GraphName string
+     Config    string
 }
 
 type Endpoint struct {
@@ -288,9 +290,9 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
         }
 	}
     if gen3Bool{
-        return &GraphQLJS{client: client, gjHandler: hnd, gen3: true}, nil
+        return &GraphQLJS{Client: client, GjHandler: hnd, Gen3: true}, nil
     }
-    return &GraphQLJS{client: client, gjHandler: hnd, gen3: false}, nil
+    return &GraphQLJS{Client: client, GjHandler: hnd, Gen3: false, GraphName: graph, Config: configPath}, nil
 }
 
 // Static HTML that links to Apollo GraphQL query editor
@@ -313,12 +315,31 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 		writer.Write([]byte(sandBox))
 		return
 	}
+    if gh.Gen3{ 
+        data := &middleware.GraphQLJS{
+             Client:    gh.Client,
+             GjHandler: gh.GjHandler,
+             Gen3:      gh.Gen3,
+             GraphName: gh.GraphName,
+             Config:    gh.Config,
+        }
+        gql := &middleware.GraphQLJSDATA{
+            Data: data,
+        }
+        err, resourceList := gql.Setup(writer, request)
+        //ts, _ := gh.client.GetTimestamp(gh.graph)
 
-    if gh.gen3{ 
-        middleware.setup(gh, writer, request)
-        log.Infof("HELLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+        if err == nil { 
+            log.Infof("HELLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOO", resourceList)
+        }
+        if request.URL.Path == "api"   {
+             gh.GjHandler.ServeHTTP(writer, request)
+        }
     }
-	if request.URL.Path == "/api" || request.URL.Path == "api" {
-		gh.gjHandler.ServeHTTP(writer, request)
-	}
+    if !gh.Gen3{
+        //log.Infof("REQUEST.URL.PATH: %s", request.URL.Path)
+        if request.URL.Path == "api" {
+		    gh.GjHandler.ServeHTTP(writer, request)
+	    }
+    }
 }

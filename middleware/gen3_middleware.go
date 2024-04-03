@@ -1,50 +1,126 @@
 package middleware
 
-import ( 
+import (
+    "errors"
     "net/http"
+    "github.com/bmeg/grip/log"
     "fmt"
+    "io"
+    "encoding/json"
+
+
     "github.com/bmeg/grip/gripql"
     "github.com/graphql-go/handler"
 )
 
 type GraphQLJS struct {
-	client    gripql.Client
-	gjHandler *handler.Handler
-    gen3      bool
-    graphName string
-    config    string
+    Client    gripql.Client
+    GjHandler *handler.Handler
+    Gen3      bool
+    GraphName string
+    Config    string
 }
 
-func setup(gh *GraphQLJS, writer http.ResponseWriter, request *http.Request){
-	//var handler *GraphQLJS
-	//var ok bool
-    fmt.Println("HANDLER", gh.gjHandler)
-
-    /*
-	if handler, ok = gh.gjHandler; ok {
-		//Call the setup function. If nothing has changed it will return without doing anything
-		err := handler.setup(request.Header)
-        if err != nil{
-            handleError(err, writer)
-            return
-        }
-	} else {
-        tokenCache := NewTokenCache()
-		//Graph handler was not found, so we'll need to set it up
-		var err error
-		handler, err = newGraphHandler(graphName, gh.client, request.Header, tokenCache)
-        if err != nil{
-            handleError(err, writer)
-            return
-        }
-		gh.handlers[graphName] = handler
-	}
-	if handler != nil && handler.gqlHandler != nil {
-		handler.gqlHandler.ServeHTTP(writer, request)
-	} else {
-         response := ServerError{StatusCode: http.StatusInternalServerError, Message: fmt.Sprintf("General error occured while setting up graphql handler")}
-         jsonResponse, _ := json.Marshal(response)
-         writer.Write(jsonResponse)
-	}
-    */
+type GraphQLInterface interface {
+    Setup()
 }
+
+type GraphQLJSDATA struct {
+    Data *GraphQLJS 
+}
+
+type Gen3ServerError struct {
+    StatusCode int
+    Message string
+}
+
+func (e *Gen3ServerError) Error() string {
+    return e.Message
+}
+
+func getAuthMappings(url string, token string) (any, error) {
+     GetRequest, err := http.NewRequest("GET", url, nil)
+     if err != nil {
+         log.Error(err)
+         return nil, err
+     }
+     GetRequest.Header.Set("Authorization", token)
+     GetRequest.Header.Set("Accept", "application/json")
+     fetchedData, err := http.DefaultClient.Do(GetRequest)
+     if err != nil {
+         log.Error(err)
+         return nil, err
+     }
+     defer fetchedData.Body.Close()
+
+     if fetchedData.StatusCode == http.StatusOK {
+         bodyBytes, err := io.ReadAll(fetchedData.Body)
+         if err != nil {
+             log.Error(err)
+         }
+
+         var parsedData any
+         err = json.Unmarshal(bodyBytes, &parsedData)
+         if err != nil {
+             log.Error(err)
+             return nil, err
+         }
+         return parsedData, nil
+
+     }
+     empty_map :=  make(map[string]any)
+     err = errors.New("Arborist auth/mapping GET returned a non-200 status code: " + fetchedData.Status)
+     return empty_map, err
+ }
+
+func hasPermission(permissions []any) bool {
+     for _, permission := range permissions {
+         permission := permission.(map[string]any)
+         if (permission["service"] == "*" || permission["service"] == "peregrine") &&
+             (permission["method"] == "*" || permission["method"] == "read") {
+             // fmt.Println("PERMISSIONS: ", permission)
+             return true
+         }
+     }
+     return false
+}
+
+func getAllowedProjects(url string, token string) ([]any, error) {
+     var readAccessResources []string
+     authMappings, err := getAuthMappings(url, token)
+     if err != nil {
+         return nil, err
+     }
+
+     // Iterate through /auth/mapping resultant dict checking for valid read permissions
+     for resourcePath, permissions := range authMappings.(map[string]any) {
+         if hasPermission(permissions.([]any)) {
+             readAccessResources = append(readAccessResources, resourcePath)
+         }
+     }
+
+     s := make([]interface{}, len(readAccessResources))
+     for i, v := range readAccessResources {
+         s[i] = v
+     }
+     return s, nil
+}
+
+func (gh *GraphQLJSDATA) Setup(writer http.ResponseWriter, request *http.Request) (error, []any){
+     authHeaders, ok := request.Header["Authorization"]
+     if !ok || len(authHeaders) == 0 {
+         return &Gen3ServerError{StatusCode: http.StatusUnauthorized, Message: "No authorization header provided."}, nil
+     }
+     authToken := authHeaders[0]
+     //ts, _ := gh.client.GetTimestamp(gh.graph)
+     fmt.Println("HEADERS: ", authHeaders)
+
+     resourceList, err := getAllowedProjects("http://arborist-service/auth/mapping", authToken)
+     if err != nil {
+         log.WithFields(log.Fields{"graph": gh.Data.GraphName, "error": err}).Error("auth/mapping fetch and processing step failed")
+         return  &Gen3ServerError{StatusCode: http.StatusUnauthorized, Message: fmt.Sprintf("%s", err)}, nil
+     }
+     return nil, resourceList
+
+}
+

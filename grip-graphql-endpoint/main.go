@@ -5,7 +5,6 @@ import (
 
 	"github.com/bmeg/grip-graphql/gripgraphql"
 	"github.com/bmeg/grip/gripql"
-    "github.com/bmeg/grip-graphql/middleware"
 )
 
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
