@@ -5,15 +5,12 @@ import (
 	"io"
 	"net/http"
 	"os"
-    "regexp"
-    "strings"
 
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/log"
 	"github.com/dop251/goja"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
-    "github.com/bmeg/grip-graphql/middleware"
 )
 
 type QueryField struct {
@@ -24,7 +21,6 @@ type QueryField struct {
 type GraphQLJS struct {
      Client    gripql.Client
      GjHandler *handler.Handler
-     Gen3      bool
      GraphName string
      Config    string
 }
@@ -143,16 +139,16 @@ func (e *Endpoint) Add(x map[string]any) {
 				for k, v := range params.Args {
 					uArgs[k] = v
 				}
-				if gen3, ok := x["gen3"]; ok{
-					uArgs["gen3"] = gen3
-				}
+
 				vArgs := e.vm.ToValue(uArgs)
+                //fmt.Printf("e.gObject: %#v vArgs: %#v\n", e.gObject, vArgs)
 				args := goja.FunctionCall{
 					Arguments: []goja.Value{e.gObject, vArgs},
 				}
+                //fmt.Printf("ARGS: %#v\n", args)
 				val := jHandler(args)
 				out := jsExport(val)
-				//fmt.Printf("Handler returned: %#v\n", out)
+				fmt.Printf("Handler returned: %#v\n", out)
 				return out, nil
 			}
 
@@ -203,6 +199,7 @@ func (e *Endpoint) Build() (*graphql.Schema, error) {
 
 	qf := graphql.Fields{}
 	for k, v := range e.queryNodes {
+        //log.Infof("fields: %+v", v.field)
 		qf[k] = v.field
 	}
 
@@ -221,7 +218,6 @@ func (e *Endpoint) Build() (*graphql.Schema, error) {
 }
 
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
-
 	configPath := "config.js"
 	graph := "testGraph"
 	if c, ok := config["config"]; ok {
@@ -231,7 +227,7 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 		graph = c
 	}
 
-	fmt.Printf("Plugin config: %s\n", config)
+	//fmt.Printf("Plugin config: %s\n", config)
 
 	file, err := os.Open(configPath)
 	if err != nil {
@@ -241,6 +237,8 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	if err != nil {
 		return nil, err
 	}
+
+    //fmt.Printf("DATA: %s", data)
 
 	vm := goja.New()
 	vm.SetFieldNameMapper(JSRenamer{})
@@ -261,7 +259,6 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 
 	vm.Set("print", fmt.Printf)
 
-
     // fmt.Println("string DATA: ", string(data))
     _, err = vm.RunString(string(data))
 	if err != nil {
@@ -277,22 +274,7 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 		Schema: schema,
 	})
 
-    // circus code to look for gen3 key in config 
-    var gen3Bool bool;
-    re := regexp.MustCompile(`gen3:\s+true`)
-    matches := re.FindAllStringSubmatch(string(data), -1)
-    for _, match := range matches {
-        parts := strings.Split(match[0], ":")
-        value := strings.TrimSpace(parts[1])
-        if value == "true"{
-            gen3Bool = true
-            break
-        }
-	}
-    if gen3Bool{
-        return &GraphQLJS{Client: client, GjHandler: hnd, Gen3: true}, nil
-    }
-    return &GraphQLJS{Client: client, GjHandler: hnd, Gen3: false, GraphName: graph, Config: configPath}, nil
+    return &GraphQLJS{Client: client, GjHandler: hnd, GraphName: graph, Config: configPath}, nil
 }
 
 // Static HTML that links to Apollo GraphQL query editor
@@ -329,17 +311,7 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
         err, resourceList := gql.Setup(writer, request)
         //ts, _ := gh.client.GetTimestamp(gh.graph)
 
-        if err == nil { 
-            log.Infof("HELLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOO", resourceList)
-        }
-        if request.URL.Path == "api"   {
-             gh.GjHandler.ServeHTTP(writer, request)
-        }
-    }
-    if !gh.Gen3{
-        //log.Infof("REQUEST.URL.PATH: %s", request.URL.Path)
-        if request.URL.Path == "api" {
-		    gh.GjHandler.ServeHTTP(writer, request)
-	    }
-    }
+    if request.URL.Path == "/api" || request.URL.Path == "api" {
+	    gh.GjHandler.ServeHTTP(writer, request)
+	}
 }

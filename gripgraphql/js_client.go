@@ -66,13 +66,14 @@ func toInterface(qr *gripql.QueryResult) any {
 func (cw *jsClientWrapper) ToList(args goja.Value) goja.Value {
 
 	obj := args.Export()
+    fmt.Printf("obj: %#v", args)
 
 	queryJSON, err := json.Marshal(obj)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return nil
 	}
-	fmt.Printf("%s\n", queryJSON)
+    fmt.Printf("Query: %s\n", queryJSON)
 	query := gripql.GraphQuery{}
 	err = protojson.Unmarshal(queryJSON, &query)
 	query.Graph = cw.graph
@@ -90,7 +91,7 @@ func (cw *jsClientWrapper) ToList(args goja.Value) goja.Value {
 	for row := range res {
 		out = append(out, cw.vm.ToValue(toInterface(row)))
 	}
-	fmt.Printf("ToList: %s\n", out)
+	//fmt.Printf("ToList: %s\n", out)
 	return cw.vm.ToValue(out)
 }
 
