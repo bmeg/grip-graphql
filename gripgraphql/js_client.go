@@ -6,13 +6,17 @@ import (
 	"reflect"
 	"strings"
 
+	//"net/http"
+	//"context"
+
 	"github.com/bmeg/grip/gripql"
 	gripqljs "github.com/bmeg/grip/gripql/javascript"
 	"github.com/dop251/goja"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
-type jsClientWrapper struct {
+type JSClientWrapper struct {
 	vm     *goja.Runtime
 	client gripql.Client
 	query  goja.Callable
@@ -63,20 +67,43 @@ func toInterface(qr *gripql.QueryResult) any {
 	return qr
 }
 
-func (cw *jsClientWrapper) ToList(args goja.Value) goja.Value {
+func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 
+	//fmt.Printf("ARGS: %s", args.String)
 	obj := args.Export()
-    fmt.Printf("obj: %#v", args)
+	fmt.Printf("obj: %#v", args)
 
 	queryJSON, err := json.Marshal(obj)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return nil
 	}
-    fmt.Printf("Query: %s\n", queryJSON)
+	ResourceList := cw.vm.Get("ResourceList").Export().([]any)
+	// Testing to make sure passing empty list would filter out everything
+	//var ResourceList []interface{} = []interface{}{}
+
 	query := gripql.GraphQuery{}
 	err = protojson.Unmarshal(queryJSON, &query)
+	sValue, _ := structpb.NewValue(ResourceList)
+	Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{
+		Has: &gripql.HasExpression{Expression: &gripql.HasExpression_Condition{
+			Condition: &gripql.HasCondition{
+				Condition: gripql.Condition_WITHIN,
+				Key:       "auth_resource_path",
+				Value:     sValue,
+			},
+		}},
+	}}
+
+	// gripql.Within("auth_resource_path", ResourceList...)
+	// query.Query = append(query.Query, Has_Statement) // .Has
 	query.Graph = cw.graph
+	FilteredGS := []*gripql.GraphStatement{}
+	for _, v := range query.Query {
+		FilteredGS = append(FilteredGS, v, Has_Statement)
+	}
+
+	fmt.Println("QUERY: ", FilteredGS)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return nil
@@ -95,7 +122,10 @@ func (cw *jsClientWrapper) ToList(args goja.Value) goja.Value {
 	return cw.vm.ToValue(out)
 }
 
-func (cw *jsClientWrapper) V(args goja.Value) goja.Value {
+func (cw *JSClientWrapper) V(args goja.Value) goja.Value {
+
+	//ResourceList := cw.vm.Get("ResourceList")
+	//fmt.Printf("JS LAND PART 2 %s\n", ResourceList)
 	gRes, err := cw.query(goja.Undefined(), cw.vm.ToValue(cw))
 	if err != nil {
 		return goja.Undefined()
@@ -104,11 +134,15 @@ func (cw *jsClientWrapper) V(args goja.Value) goja.Value {
 	vObj := gObj.Get("V")
 	vFunc, _ := goja.AssertFunction(vObj)
 	out, _ := vFunc(gObj, args)
-	//fmt.Printf("%s %s %s\n", args, gObj, out)
+	//fmt.Printf("JS LAND: %s %s %s\n", args, gObj, out)
 	return out
 }
 
-func GetJSClient(graph string, client gripql.Client, vm *goja.Runtime) (goja.Value, error) {
+func (cw *JSClientWrapper) toValue() goja.Value {
+	return cw.vm.ToValue(cw)
+}
+
+func GetJSClient(graph string, client gripql.Client, vm *goja.Runtime) (*JSClientWrapper, error) { // ctx context.Context
 	//TODO: more error checking
 	gripqljs, _ := gripqljs.Asset("gripql.js")
 	vm.RunString(string(gripqljs))
@@ -116,7 +150,7 @@ func GetJSClient(graph string, client gripql.Client, vm *goja.Runtime) (goja.Val
 	qVal := vm.Get("query")
 	query, _ := goja.AssertFunction(qVal)
 
-	myWrapper := &jsClientWrapper{vm, client, query, graph}
-	clientWrapper := vm.ToValue(myWrapper)
-	return clientWrapper, nil
+	myWrapper := &JSClientWrapper{vm, client, query, graph}
+	//clientWrapper := vm.ToValue(myWrapper)
+	return myWrapper, nil
 }

@@ -5,12 +5,15 @@ import (
 	"io"
 	"net/http"
 	"os"
+    "context"
 
 	"github.com/bmeg/grip/gripql"
+
 	"github.com/bmeg/grip/log"
 	"github.com/dop251/goja"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
+    "github.com/bmeg/grip-graphql/middleware"
 )
 
 type QueryField struct {
@@ -19,16 +22,14 @@ type QueryField struct {
 }
 
 type GraphQLJS struct {
-     Client    gripql.Client
-     GjHandler *handler.Handler
-     GraphName string
-     Config    string
+	client    gripql.Client
+	gjHandler *handler.Handler
 }
 
 type Endpoint struct {
 	client     gripql.Client
 	vm         *goja.Runtime
-	gObject    goja.Value
+	cw    *JSClientWrapper
 	queryNodes map[string]QueryField
 }
 
@@ -131,7 +132,7 @@ func (e *Endpoint) Add(x map[string]any) {
 		objField, err := parseField(name, schemaA)
 		if err == nil {
 			objField.Resolve = func(params graphql.ResolveParams) (interface{}, error) {
-				//fmt.Printf("Calling resolver\n")
+			    //	fmt.Printf("Calling resolver\n")
 				uArgs := map[string]any{}
 				for k, v := range defaults {
 					uArgs[k] = v
@@ -140,10 +141,17 @@ func (e *Endpoint) Add(x map[string]any) {
 					uArgs[k] = v
 				}
 
+                ctx := params.Context
+                //requestHeaders := ctx.Value("Header")
+                //resourceList := ctx.Value("ResourceList")
+                //log.Infof("THE RESOURCE LIST : %s \n AND THE HEADERS: %s", resourceList, requestHeaders)
+
+
 				vArgs := e.vm.ToValue(uArgs)
-                //fmt.Printf("e.gObject: %#v vArgs: %#v\n", e.gObject, vArgs)
+                // find out difference between set and export
+                e.vm.Set("ResourceList", ctx.Value("ResourceList"))
 				args := goja.FunctionCall{
-					Arguments: []goja.Value{e.gObject, vArgs},
+					Arguments: []goja.Value{e.cw.toValue(), vArgs},
 				}
                 //fmt.Printf("ARGS: %#v\n", args)
 				val := jHandler(args)
@@ -236,19 +244,21 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	data, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err
-	}
+    }
 
     //fmt.Printf("DATA: %s", data)
 
 	vm := goja.New()
+    //ctx := context.TODO()
 	vm.SetFieldNameMapper(JSRenamer{})
 
 	jsClient, err := GetJSClient(graph, client, vm)
 	if err != nil {
 		fmt.Printf("js error: %s\n", err)
 	}
-	e := Endpoint{queryNodes: map[string]QueryField{}, client: client, vm: vm, gObject: jsClient}
+	e := Endpoint{queryNodes: map[string]QueryField{}, client: client, vm: vm, cw: jsClient}
 
+	// try to fish out variables from here
 	vm.Set("endpoint", map[string]any{
 		"add":     e.Add,
 		"String":  "String",
@@ -259,8 +269,7 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 
 	vm.Set("print", fmt.Printf)
 
-    // fmt.Println("string DATA: ", string(data))
-    _, err = vm.RunString(string(data))
+	_, err = vm.RunString(string(data))
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +283,7 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 		Schema: schema,
 	})
 
-    return &GraphQLJS{Client: client, GjHandler: hnd, GraphName: graph, Config: configPath}, nil
+    return &GraphQLJS{client: client, gjHandler: hnd}, nil
 }
 
 // Static HTML that links to Apollo GraphQL query editor
@@ -291,13 +300,14 @@ var sandBox = `
  // advanced options: https://www.apollographql.com/docs/studio/explorer/sandbox#embedding-sandbox
 </script>`
 
+// The only way I can see to route the token into the JS environment is through the GraphQLJS object. 
 func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	log.Infof("Request: %s", request.URL.Path)
+	//log.Infof("Request: %s", request.URL.Path)
 	if request.URL.Path == "" || request.URL.Path == "/" {
 		writer.Write([]byte(sandBox))
 		return
 	}
-    if gh.Gen3{ 
+    if gh.Gen3{
         data := &middleware.GraphQLJS{
              Client:    gh.Client,
              GjHandler: gh.GjHandler,
@@ -311,7 +321,18 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
         err, resourceList := gql.Setup(writer, request)
         //ts, _ := gh.client.GetTimestamp(gh.graph)
 
-    if request.URL.Path == "/api" || request.URL.Path == "api" {
-	    gh.GjHandler.ServeHTTP(writer, request)
+	if request.URL.Path == "/api" || request.URL.Path == "api" {
+        requestHeaders := request.Header
+        ctx := context.WithValue(context.Background(),"Header",requestHeaders)
+
+        //fmt.Println("HEADERS: ", requestHeaders)
+        if val, ok := requestHeaders["Authorization"]; ok{
+            Token := val[0]
+            resourceList, _ := middleware.GetAllowedProjects("http://arborist-service/auth/mapping", Token)
+            //log.Infof("RESOURCE LSIT: %s", resourceList)
+            ctx = context.WithValue(ctx, "ResourceList", resourceList)
+        }
+
+		gh.gjHandler.ServeHTTP(writer, request.WithContext(ctx))
 	}
 }
