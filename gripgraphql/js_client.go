@@ -118,7 +118,7 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	for row := range res {
 		out = append(out, cw.vm.ToValue(toInterface(row)))
 	}
-	//fmt.Printf("ToList: %s\n", out)
+	fmt.Printf("ToList: %s\n", out)
 	return cw.vm.ToValue(out)
 }
 

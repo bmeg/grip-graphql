@@ -307,19 +307,6 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 		writer.Write([]byte(sandBox))
 		return
 	}
-    if gh.Gen3{
-        data := &middleware.GraphQLJS{
-             Client:    gh.Client,
-             GjHandler: gh.GjHandler,
-             Gen3:      gh.Gen3,
-             GraphName: gh.GraphName,
-             Config:    gh.Config,
-        }
-        gql := &middleware.GraphQLJSDATA{
-            Data: data,
-        }
-        err, resourceList := gql.Setup(writer, request)
-        //ts, _ := gh.client.GetTimestamp(gh.graph)
 
 	if request.URL.Path == "/api" || request.URL.Path == "api" {
         requestHeaders := request.Header
