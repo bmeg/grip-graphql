@@ -1,12 +1,12 @@
 package middleware
 
 import (
-	    //"errors"
 	    "encoding/json"
 	    "net/http"
 	    "fmt"
-)
 
+        "github.com/bmeg/grip/log"
+)
 
 
 type ServerError struct {
@@ -14,22 +14,19 @@ type ServerError struct {
     Message string
 }
 
-
 func (e *ServerError) Error() string {
-    return e.Message
+        return fmt.Sprintf("StatusCode: %d, Message: %s", e.StatusCode, e.Message)
 }
 
-func handleError(err error, writer http.ResponseWriter) {
+func HandleError(err error, writer http.ResponseWriter) (error){
     if ae, ok := err.(*ServerError); ok {
         response := ServerError{StatusCode: ae.StatusCode, Message: ae.Message}
+        log.Infof(ae.Error())
         jsonResponse, _ := json.Marshal(response)
         writer.WriteHeader(ae.StatusCode)
         writer.Write(jsonResponse)
-    }else {
-        response := ServerError{StatusCode: http.StatusInternalServerError, Message: fmt.Sprintf("General error occured while setting up graphql handler")}
-        jsonResponse, _ := json.Marshal(response)
-        writer.WriteHeader(http.StatusInternalServerError)
-        writer.Write(jsonResponse)
+        return err
     }
+    log.Infof("Bad code ERROR, shouldn't have made it here, make sure to pass errors to error middleware data in form ServerError")
+    return nil
 }
-

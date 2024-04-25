@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	//"net/http"
-	//"context"
+	"context"
 
 	"github.com/bmeg/grip/gripql"
 	gripqljs "github.com/bmeg/grip/gripql/javascript"
@@ -71,7 +69,7 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 
 	//fmt.Printf("ARGS: %s", args.String)
 	obj := args.Export()
-	fmt.Printf("obj: %#v", args)
+	//fmt.Printf("obj: %#v", args)
 
 	queryJSON, err := json.Marshal(obj)
 	if err != nil {
@@ -82,6 +80,11 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	// Testing to make sure passing empty list would filter out everything
 	//var ResourceList []interface{} = []interface{}{}
 
+    Header := cw.vm.Get("Header").Export().(any)
+    ctx := context.WithValue(context.Background(),"Header", Header)
+    ctx = context.WithValue(ctx, "ResourceList", ResourceList)
+
+    // This hasn't gotten connected. Too slow
 	query := gripql.GraphQuery{}
 	err = protojson.Unmarshal(queryJSON, &query)
 	sValue, _ := structpb.NewValue(ResourceList)
@@ -103,13 +106,15 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 		FilteredGS = append(FilteredGS, v, Has_Statement)
 	}
 
-	fmt.Println("QUERY: ", FilteredGS)
+    // Too slow to be useful.
+    //query.Query = FilteredGS
+
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return nil
 	}
 	out := []any{}
-	res, err := cw.client.Traversal(&query)
+	res, err := cw.client.Traversal(ctx, &query)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return nil
@@ -125,7 +130,6 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 func (cw *JSClientWrapper) V(args goja.Value) goja.Value {
 
 	//ResourceList := cw.vm.Get("ResourceList")
-	//fmt.Printf("JS LAND PART 2 %s\n", ResourceList)
 	gRes, err := cw.query(goja.Undefined(), cw.vm.ToValue(cw))
 	if err != nil {
 		return goja.Undefined()
@@ -151,6 +155,5 @@ func GetJSClient(graph string, client gripql.Client, vm *goja.Runtime) (*JSClien
 	query, _ := goja.AssertFunction(qVal)
 
 	myWrapper := &JSClientWrapper{vm, client, query, graph}
-	//clientWrapper := vm.ToValue(myWrapper)
 	return myWrapper, nil
 }

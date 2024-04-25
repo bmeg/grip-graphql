@@ -1,20 +1,34 @@
 package gripgraphql
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-    "context"
+	"sync"
 
+	"github.com/bmeg/grip-graphql/middleware"
 	"github.com/bmeg/grip/gripql"
-
 	"github.com/bmeg/grip/log"
 	"github.com/dop251/goja"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
-    "github.com/bmeg/grip-graphql/middleware"
 )
+
+// Static HTML that links to Apollo GraphQL query editor
+var sandBox = `
+ <div id="sandbox" style="position:absolute;top:0;right:0;bottom:0;left:0"></div>
+ <script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
+ <script>
+  new window.EmbeddedSandbox({
+    target: "#sandbox",
+    // Pass through your server href if you are embedding on an endpoint.
+    // Otherwise, you can pass whatever endpoint you want Sandbox to start up with here.
+    initialEndpoint: window.location.href,
+  });
+  // advanced options: https://www.apollographql.com/docs/studio/explorer/sandbox#embedding-sandbox
+ </script>`
 
 type QueryField struct {
 	field   *graphql.Field
@@ -24,12 +38,13 @@ type QueryField struct {
 type GraphQLJS struct {
 	client    gripql.Client
 	gjHandler *handler.Handler
+	Pool      sync.Pool
 }
 
 type Endpoint struct {
 	client     gripql.Client
 	vm         *goja.Runtime
-	cw    *JSClientWrapper
+	cw         *JSClientWrapper
 	queryNodes map[string]QueryField
 }
 
@@ -53,7 +68,6 @@ func parseField(name string, x any) (*graphql.Field, error) {
 			return nil, fmt.Errorf("incorrect elements in schema array (only 1)")
 		}
 		if lf, err := parseField(name, v[0]); err == nil {
-			log.Infof("Found array\n")
 			l := graphql.NewList(lf.Type)
 			return &graphql.Field{Name: name, Type: l}, nil
 		} else {
@@ -132,7 +146,7 @@ func (e *Endpoint) Add(x map[string]any) {
 		objField, err := parseField(name, schemaA)
 		if err == nil {
 			objField.Resolve = func(params graphql.ResolveParams) (interface{}, error) {
-			    //	fmt.Printf("Calling resolver\n")
+				//	fmt.Printf("Calling resolver\n")
 				uArgs := map[string]any{}
 				for k, v := range defaults {
 					uArgs[k] = v
@@ -141,22 +155,25 @@ func (e *Endpoint) Add(x map[string]any) {
 					uArgs[k] = v
 				}
 
-                ctx := params.Context
-                //requestHeaders := ctx.Value("Header")
-                //resourceList := ctx.Value("ResourceList")
-                //log.Infof("THE RESOURCE LIST : %s \n AND THE HEADERS: %s", resourceList, requestHeaders)
+				ctx := params.Context
 
+				/*requestHeaders := ctx.Value("Header")
+				  resourceList := ctx.Value("ResourceList")
+				  log.Infof("THE RESOURCE LIST : %s \n AND THE HEADERS: %s", resourceList, requestHeaders)*/
 
 				vArgs := e.vm.ToValue(uArgs)
-                // find out difference between set and export
-                e.vm.Set("ResourceList", ctx.Value("ResourceList"))
+				// find out difference between set and export
+				e.vm.Set("ResourceList", ctx.Value("ResourceList"))
+				e.vm.Set("Header", ctx.Value("Header"))
+
 				args := goja.FunctionCall{
 					Arguments: []goja.Value{e.cw.toValue(), vArgs},
 				}
-                //fmt.Printf("ARGS: %#v\n", args)
+
+				//fmt.Printf("ARGS: %#v\n", args)
 				val := jHandler(args)
 				out := jsExport(val)
-				fmt.Printf("Handler returned: %#v\n", out)
+				//fmt.Printf("Handler returned: %#v\n", out)
 				return out, nil
 			}
 
@@ -207,7 +224,7 @@ func (e *Endpoint) Build() (*graphql.Schema, error) {
 
 	qf := graphql.Fields{}
 	for k, v := range e.queryNodes {
-        //log.Infof("fields: %+v", v.field)
+		//log.Infof("fields: %+v", v.field)
 		qf[k] = v.field
 	}
 
@@ -217,7 +234,6 @@ func (e *Endpoint) Build() (*graphql.Schema, error) {
 		Query: queryObj,
 	}
 
-	// Setup the GraphQL schema based on the objects there have been created
 	gqlSchema, err := graphql.NewSchema(schemaConfig)
 	if err != nil {
 		return nil, fmt.Errorf("graphql.NewSchema error: %v", err)
@@ -234,9 +250,6 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	if c, ok := config["graph"]; ok {
 		graph = c
 	}
-
-	//fmt.Printf("Plugin config: %s\n", config)
-
 	file, err := os.Open(configPath)
 	if err != nil {
 		return nil, err
@@ -244,82 +257,88 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	data, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err
-    }
-
-    //fmt.Printf("DATA: %s", data)
-
-	vm := goja.New()
-    //ctx := context.TODO()
-	vm.SetFieldNameMapper(JSRenamer{})
-
-	jsClient, err := GetJSClient(graph, client, vm)
-	if err != nil {
-		fmt.Printf("js error: %s\n", err)
 	}
-	e := Endpoint{queryNodes: map[string]QueryField{}, client: client, vm: vm, cw: jsClient}
+	var hnd *handler.Handler
+	pool := sync.Pool{
+		New: func() any {
+			vm := goja.New()
+			vm.SetFieldNameMapper(JSRenamer{})
+			jsClient, err := GetJSClient(graph, client, vm)
+			if err != nil {
+				fmt.Printf("js error: %s\n", err)
+			}
+			e := &Endpoint{queryNodes: map[string]QueryField{}, client: client, vm: vm, cw: jsClient}
 
-	// try to fish out variables from here
-	vm.Set("endpoint", map[string]any{
-		"add":     e.Add,
-		"String":  "String",
-		"Int":     "Int",
-		"Float":   "Float",
-		"Boolean": "Boolean",
-	})
+			vm.Set("endpoint", map[string]any{
+				"add":     e.Add,
+				"String":  "String",
+				"Int":     "Int",
+				"Float":   "Float",
+				"Boolean": "Boolean",
+			})
 
-	vm.Set("print", fmt.Printf)
+			_, err = vm.RunString(string(data))
+			if err != nil {
+				log.Errorf("Error running data config", err)
+			}
 
-	_, err = vm.RunString(string(data))
-	if err != nil {
-		return nil, err
+			schema, err := e.Build()
+			if err != nil {
+				log.Errorf("Error building Handler: %s", err)
+			}
+			hnd = handler.New(&handler.Config{
+				Schema: schema,
+			})
+			gh := &GraphQLJS{client: client, gjHandler: hnd}
+			return gh
+		},
 	}
 
-	schema, err := e.Build()
-	if err != nil {
-		log.Errorf("Error building Handler: %s", err)
-		return nil, err
-	}
-	hnd := handler.New(&handler.Config{
-		Schema: schema,
-	})
-
-    return &GraphQLJS{client: client, gjHandler: hnd}, nil
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		log.Infof("Getting graph handler from Sync Pool +++++++++++++++++++++++++++++++++++++++++++++++++++++")
+		gh := pool.Get().(*GraphQLJS)
+		defer func() {
+			log.Infof("Putting graph handler back to Pool ---------------------------------------------------")
+			pool.Put(gh)
+		}()
+		gh.ServeHTTP(writer, request)
+	}), nil
 }
 
-// Static HTML that links to Apollo GraphQL query editor
-var sandBox = `
-<div id="sandbox" style="position:absolute;top:0;right:0;bottom:0;left:0"></div>
-<script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
-<script>
- new window.EmbeddedSandbox({
-   target: "#sandbox",
-   // Pass through your server href if you are embedding on an endpoint.
-   // Otherwise, you can pass whatever endpoint you want Sandbox to start up with here.
-   initialEndpoint: window.location.href,
- });
- // advanced options: https://www.apollographql.com/docs/studio/explorer/sandbox#embedding-sandbox
-</script>`
+func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request) error {
 
-// The only way I can see to route the token into the JS environment is through the GraphQLJS object. 
-func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	//log.Infof("Request: %s", request.URL.Path)
 	if request.URL.Path == "" || request.URL.Path == "/" {
 		writer.Write([]byte(sandBox))
-		return
+		return nil
 	}
-
 	if request.URL.Path == "/api" || request.URL.Path == "api" {
-        requestHeaders := request.Header
-        ctx := context.WithValue(context.Background(),"Header",requestHeaders)
+		requestHeaders := request.Header
+		ctx := context.WithValue(context.Background(), "Header", requestHeaders)
+		if val, ok := requestHeaders["Authorization"]; ok {
+			Token := val[0]
+			resourceList, err := middleware.HandleJWTToken(Token)
+			if err != nil {
+				middleware.HandleError(err, writer)
+				return err
+			}
 
-        //fmt.Println("HEADERS: ", requestHeaders)
-        if val, ok := requestHeaders["Authorization"]; ok{
-            Token := val[0]
-            resourceList, _ := middleware.GetAllowedProjects("http://arborist-service/auth/mapping", Token)
-            //log.Infof("RESOURCE LSIT: %s", resourceList)
-            ctx = context.WithValue(ctx, "ResourceList", resourceList)
-        }
+			if len(resourceList) == 0 || err != nil {
+				if len(resourceList) == 0 {
+					err = &middleware.ServerError{StatusCode: http.StatusUnauthorized, Message: "No authorization header provided."}
+				}
+
+				middleware.HandleError(err, writer)
+				return err
+			}
+			ctx = context.WithValue(ctx, "ResourceList", resourceList)
+		} else {
+			err := middleware.HandleError(&middleware.ServerError{StatusCode: http.StatusUnauthorized, Message: "No authorization header provided."}, writer)
+
+			// The user could be logged out and a header won't be passed. Need to pass gen3 config option from Grip
+			return err
+		}
 
 		gh.gjHandler.ServeHTTP(writer, request.WithContext(ctx))
 	}
+	return nil
 }

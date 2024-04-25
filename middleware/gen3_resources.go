@@ -3,41 +3,14 @@ package middleware
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"regexp"
 
 	"github.com/bmeg/grip/log"
 
-	"github.com/bmeg/grip/gripql"
-	"github.com/graphql-go/handler"
 )
 
-type GraphQLJS struct {
-	Client    gripql.Client
-	GjHandler *handler.Handler
-	Gen3      bool
-	GraphName string
-	Config    string
-}
-
-type GraphQLInterface interface {
-	Setup()
-}
-
-type GraphQLJSDATA struct {
-	Data *GraphQLJS
-}
-
-type Gen3ServerError struct {
-	StatusCode int
-	Message    string
-}
-
-func (e *Gen3ServerError) Error() string {
-	return e.Message
-}
 
 func getAuthMappings(url string, token string) (any, error) {
 	GetRequest, err := http.NewRequest("GET", url, nil)
@@ -121,20 +94,3 @@ func filterProjects(input []string, pattern *regexp.Regexp) []string {
 	return filtered
 }
 
-func (gh *GraphQLJSDATA) Setup(writer http.ResponseWriter, request *http.Request) (error, []any) {
-	authHeaders, ok := request.Header["Authorization"]
-	if !ok || len(authHeaders) == 0 {
-		return &Gen3ServerError{StatusCode: http.StatusUnauthorized, Message: "No authorization header provided."}, nil
-	}
-	authToken := authHeaders[0]
-	//ts, _ := gh.client.GetTimestamp(gh.graph)
-	fmt.Println("HEADERS: ", authHeaders)
-
-	resourceList, err := GetAllowedProjects("http://arborist-service/auth/mapping", authToken)
-	if err != nil {
-		log.WithFields(log.Fields{"graph": gh.Data.GraphName, "error": err}).Error("auth/mapping fetch and processing step failed")
-		return &Gen3ServerError{StatusCode: http.StatusUnauthorized, Message: fmt.Sprintf("%s", err)}, nil
-	}
-	return nil, resourceList
-
-}
