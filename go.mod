@@ -2,13 +2,13 @@ module github.com/bmeg/grip-graphql
 
 go 1.21.3
 
-replace github.com/bmeg/grip v0.0.0-20240320205609-4df877ba31b8 => /home/grip-graphql/grip
-
 require (
-	github.com/bmeg/grip v0.0.0-20240320205609-4df877ba31b8
+	github.com/bmeg/grip v0.0.0-20240415163427-09f1a5562c65
 	github.com/dop251/goja v0.0.0-20240220182346-e401ed450204
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/graphql-go/graphql v0.8.1
 	github.com/graphql-go/handler v0.2.3
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/pflag v1.0.5
 	google.golang.org/protobuf v1.33.0
 )
