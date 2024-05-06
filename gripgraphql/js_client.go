@@ -1,13 +1,17 @@
 package gripgraphql
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
-	"context"
 
 	"github.com/bmeg/grip/gripql"
+	"github.com/bmeg/grip/gripql/inspect"
+
+	//"github.com/bmeg/grip/log"
 	gripqljs "github.com/bmeg/grip/gripql/javascript"
 	"github.com/dop251/goja"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -80,11 +84,11 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	// Testing to make sure passing empty list would filter out everything
 	//var ResourceList []interface{} = []interface{}{}
 
-    Header := cw.vm.Get("Header").Export().(any)
-    ctx := context.WithValue(context.Background(),"Header", Header)
-    ctx = context.WithValue(ctx, "ResourceList", ResourceList)
+	Header := cw.vm.Get("Header").Export().(any)
+	ctx := context.WithValue(context.Background(), "Header", Header)
+	ctx = context.WithValue(ctx, "ResourceList", ResourceList)
 
-    // This hasn't gotten connected. Too slow
+	// This hasn't gotten connected. Too slow
 	query := gripql.GraphQuery{}
 	err = protojson.Unmarshal(queryJSON, &query)
 	sValue, _ := structpb.NewValue(ResourceList)
@@ -100,14 +104,28 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 
 	// gripql.Within("auth_resource_path", ResourceList...)
 	// query.Query = append(query.Query, Has_Statement) // .Has
+
+	steps := inspect.PipelineSteps(query.Query)
 	query.Graph = cw.graph
 	FilteredGS := []*gripql.GraphStatement{}
-	for _, v := range query.Query {
-		FilteredGS = append(FilteredGS, v, Has_Statement)
+
+	for i, v := range query.Query {
+		//fmt.Println("V: ", v)
+		steps_index, err := strconv.Atoi(steps[i])
+		if err != nil {
+			fmt.Printf("Error: %s\n", err)
+			return nil
+		}
+		//fmt.Println("I: ", i, "steps_index: ", steps_index)
+		if i == steps_index {
+			FilteredGS = append(FilteredGS, v, Has_Statement)
+		} else {
+			FilteredGS = append(FilteredGS, v)
+		}
 	}
 
-    // Too slow to be useful.
-    //query.Query = FilteredGS
+	fmt.Println("FILTERED GS: ", FilteredGS)
+	query.Query = FilteredGS
 
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
@@ -147,7 +165,6 @@ func (cw *JSClientWrapper) toValue() goja.Value {
 }
 
 func GetJSClient(graph string, client gripql.Client, vm *goja.Runtime) (*JSClientWrapper, error) { // ctx context.Context
-	//TODO: more error checking
 	gripqljs, _ := gripqljs.Asset("gripql.js")
 	vm.RunString(string(gripqljs))
 

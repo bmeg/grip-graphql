@@ -3,14 +3,13 @@ package middleware
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"regexp"
 
 	"github.com/bmeg/grip/log"
-
 )
-
 
 func getAuthMappings(url string, token string) (any, error) {
 	GetRequest, err := http.NewRequest("GET", url, nil)
@@ -63,7 +62,7 @@ func GetAllowedProjects(url string, token string) ([]any, error) {
 	var readAccessResources []string
 	authMappings, err := getAuthMappings(url, token)
 	if err != nil {
-		return nil, err
+		return nil, &ServerError{StatusCode: 400, Message: fmt.Sprintf("%s", err)}
 	}
 
 	// Iterate through /auth/mapping resultant dict checking for valid read permissions
@@ -93,4 +92,3 @@ func filterProjects(input []string, pattern *regexp.Regexp) []string {
 	}
 	return filtered
 }
-

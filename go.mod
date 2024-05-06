@@ -16,6 +16,7 @@ require (
 require (
 	github.com/akuity/grpc-gateway-client v0.0.0-20230321170839-38ca1b4b439c // indirect
 	github.com/alevinval/sse v1.0.1 // indirect
+	github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
 	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect

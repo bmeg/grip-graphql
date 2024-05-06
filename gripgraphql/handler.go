@@ -39,6 +39,7 @@ type GraphQLJS struct {
 	client    gripql.Client
 	gjHandler *handler.Handler
 	Pool      sync.Pool
+	//Once      sync.Once
 }
 
 type Endpoint struct {
@@ -241,6 +242,11 @@ func (e *Endpoint) Build() (*graphql.Schema, error) {
 	return &gqlSchema, nil
 }
 
+/*
+var Pool sync.Pool
+var poolInited bool
+var poolInitMux sync.Mutex
+*/
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
 	configPath := "config.js"
 	graph := "testGraph"
@@ -259,7 +265,14 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 		return nil, err
 	}
 	var hnd *handler.Handler
-	pool := sync.Pool{
+
+	/*if !poolInited {
+	  poolInitMux.Lock()
+	  defer poolInitMux.Unlock()
+	  if !poolInited {*/
+
+	fmt.Println("NEW POOL IS BEING MADE ==============================================================+")
+	Pool := sync.Pool{
 		New: func() any {
 			vm := goja.New()
 			vm.SetFieldNameMapper(JSRenamer{})
@@ -293,13 +306,18 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 			return gh
 		},
 	}
+	/*poolInited = true
+	  }}*/
 
+	//gh := pool.Get().(*GraphQLJS)
+	//gh.Pool = pool
+	//return gh
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		log.Infof("Getting graph handler from Sync Pool +++++++++++++++++++++++++++++++++++++++++++++++++++++")
-		gh := pool.Get().(*GraphQLJS)
+		gh := Pool.Get().(*GraphQLJS)
 		defer func() {
 			log.Infof("Putting graph handler back to Pool ---------------------------------------------------")
-			pool.Put(gh)
+			Pool.Put(gh)
 		}()
 		gh.ServeHTTP(writer, request)
 	}), nil
