@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+    "slices"
+    "fmt"
 	"net/http"
 	"regexp"
 
@@ -90,5 +92,6 @@ func filterProjects(input []string, pattern *regexp.Regexp) []string {
 			filtered = append(filtered, str)
 		}
 	}
+    slices.Sort(filtered)
 	return filtered
 }

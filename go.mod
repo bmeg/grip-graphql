@@ -2,6 +2,8 @@ module github.com/bmeg/grip-graphql
 
 go 1.21.3
 
+replace github.com/bmeg/grip v0.0.0-20240415163427-09f1a5562c65 => /grip-graphql/grip
+
 require (
 	github.com/bmeg/grip v0.0.0-20240415163427-09f1a5562c65
 	github.com/dop251/goja v0.0.0-20240220182346-e401ed450204
@@ -24,9 +26,11 @@ require (
 	github.com/google/pprof v0.0.0-20230207041349-798e818bf904 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2 // indirect
+	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/logrusorgru/aurora v0.0.0-20190428105938-cea283e61946 // indirect
+	github.com/mitchellh/hashstructure/v2 v2.0.1 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect

@@ -8,6 +8,8 @@ import (
 	"os"
 	"sync"
 
+	//"encoding/json"
+
 	"github.com/bmeg/grip-graphql/middleware"
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/log"
@@ -114,7 +116,6 @@ func (e *Endpoint) Add(x map[string]any) {
 	}
 
 	var jHandler func(goja.FunctionCall) goja.Value
-
 	if handlerA, ok := x["handler"]; ok {
 		if handler, ok := handlerA.(func(goja.FunctionCall) goja.Value); ok {
 			jHandler = handler
@@ -147,7 +148,7 @@ func (e *Endpoint) Add(x map[string]any) {
 		objField, err := parseField(name, schemaA)
 		if err == nil {
 			objField.Resolve = func(params graphql.ResolveParams) (interface{}, error) {
-				//	fmt.Printf("Calling resolver\n")
+				fmt.Printf("Calling resolver \n")
 				uArgs := map[string]any{}
 				for k, v := range defaults {
 					uArgs[k] = v
@@ -156,12 +157,12 @@ func (e *Endpoint) Add(x map[string]any) {
 					uArgs[k] = v
 				}
 
+				/*if cacheA, ok := x["cached"]; ok {
+				      uArgs["cached"] = cacheA
+				  }
+				  fmt.Println("\n\n\n\n\n\nCACHED ARGS: ", uArgs["cached"].(bool))*/
+
 				ctx := params.Context
-
-				/*requestHeaders := ctx.Value("Header")
-				  resourceList := ctx.Value("ResourceList")
-				  log.Infof("THE RESOURCE LIST : %s \n AND THE HEADERS: %s", resourceList, requestHeaders)*/
-
 				vArgs := e.vm.ToValue(uArgs)
 				// find out difference between set and export
 				e.vm.Set("ResourceList", ctx.Value("ResourceList"))
@@ -171,10 +172,8 @@ func (e *Endpoint) Add(x map[string]any) {
 					Arguments: []goja.Value{e.cw.toValue(), vArgs},
 				}
 
-				//fmt.Printf("ARGS: %#v\n", args)
 				val := jHandler(args)
 				out := jsExport(val)
-				//fmt.Printf("Handler returned: %#v\n", out)
 				return out, nil
 			}
 
@@ -182,7 +181,7 @@ func (e *Endpoint) Add(x map[string]any) {
 				args := graphql.FieldConfigArgument{}
 				for k, v := range arguments {
 					if v == "String" {
-						args[k] = &graphql.ArgumentConfig{Type: graphql.String} // DefaultValue: 100,
+						args[k] = &graphql.ArgumentConfig{Type: graphql.String}
 					}
 					if v == "Int" {
 						args[k] = &graphql.ArgumentConfig{Type: graphql.Int}
@@ -222,7 +221,6 @@ func jsExport(val goja.Value) any {
 }
 
 func (e *Endpoint) Build() (*graphql.Schema, error) {
-
 	qf := graphql.Fields{}
 	for k, v := range e.queryNodes {
 		//log.Infof("fields: %+v", v.field)
@@ -249,7 +247,7 @@ var poolInitMux sync.Mutex
 */
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
 	configPath := "config.js"
-	graph := "testGraph"
+	graph := "gdc"
 	if c, ok := config["config"]; ok {
 		configPath = c
 	}
@@ -266,11 +264,6 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	}
 	var hnd *handler.Handler
 
-	/*if !poolInited {
-	  poolInitMux.Lock()
-	  defer poolInitMux.Unlock()
-	  if !poolInited {*/
-
 	fmt.Println("NEW POOL IS BEING MADE ==============================================================+")
 	Pool := sync.Pool{
 		New: func() any {
@@ -280,8 +273,8 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 			if err != nil {
 				fmt.Printf("js error: %s\n", err)
 			}
-			e := &Endpoint{queryNodes: map[string]QueryField{}, client: client, vm: vm, cw: jsClient}
 
+			e := &Endpoint{queryNodes: map[string]QueryField{}, client: client, vm: vm, cw: jsClient}
 			vm.Set("endpoint", map[string]any{
 				"add":     e.Add,
 				"String":  "String",
@@ -332,17 +325,21 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 	if request.URL.Path == "/api" || request.URL.Path == "api" {
 		requestHeaders := request.Header
 		ctx := context.WithValue(context.Background(), "Header", requestHeaders)
+
+		//fmt.Println("REQUEST HEADERS:::: +++++++++++++++++++", requestHeaders)
 		if val, ok := requestHeaders["Authorization"]; ok {
 			Token := val[0]
 			resourceList, err := middleware.HandleJWTToken(Token)
+			//resourceList := []any{"/programs/cbds/projects/demo", "/programs/cbds/projects/welcome", "/programs/synthea/projects/test"}
 			if err != nil {
 				middleware.HandleError(err, writer)
 				return err
 			}
 
 			if len(resourceList) == 0 || err != nil {
+				//fmt.Println("_+_+_+__+_+_+__+_+_+_+_+_+_+_+_+_+_+_+_+_+_", err)
 				if len(resourceList) == 0 {
-					err = &middleware.ServerError{StatusCode: http.StatusUnauthorized, Message: "No authorization header provided."}
+					err = &middleware.ServerError{StatusCode: http.StatusUnauthorized, Message: "resource list is len 0 or error has occured"}
 				}
 
 				middleware.HandleError(err, writer)
@@ -351,12 +348,12 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 			ctx = context.WithValue(ctx, "ResourceList", resourceList)
 		} else {
 			err := middleware.HandleError(&middleware.ServerError{StatusCode: http.StatusUnauthorized, Message: "No authorization header provided."}, writer)
-
-			// The user could be logged out and a header won't be passed. Need to pass gen3 config option from Grip
+			fmt.Println("ERR: ", err)
 			return err
 		}
 
 		gh.gjHandler.ServeHTTP(writer, request.WithContext(ctx))
 	}
+
 	return nil
 }

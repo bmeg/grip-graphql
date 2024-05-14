@@ -70,7 +70,6 @@ func HandleJWTToken(token string) ([]any, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		return resourceList, nil
 	}
 	return nil, &ServerError{StatusCode: 401, Message: fmt.Sprintf("Token validation failed for token: %s", token)}
@@ -82,7 +81,7 @@ func AddJWTToken(token string, expiration time.Time) ([]any, error) {
 		return nil, err
 	}
 
-	fmt.Printf("Adding new token: %s", token)
+	//fmt.Printf("Adding new token: %s", token)
 	tokenData := TokenData{
 		Expiration:   expiration,
 		ResourceList: resourceList,

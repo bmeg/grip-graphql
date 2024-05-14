@@ -1,5 +1,6 @@
 endpoint.add({
     name: "PatientIdsWithDocumentEdge",
+    //cached: true,
     schema: [{
         id: "String"
     }],
@@ -40,6 +41,7 @@ endpoint.add({
 
 endpoint.add({
     name: "PatientIdsWithEncounterEdge",
+    //cached: false,
     schema: [{
         id: "String"
     }],
@@ -63,6 +65,7 @@ endpoint.add({
 // {"query":"query Query($limit: Int){ PatientIdsWithEncounterEdge(limit: $limit) { id }}","variables":{"limit":100000000},"operationName":"Query"}
 endpoint.add({
     name: "PatientIdsWithObservationEdge",
+    //cached: false,
     schema: [{
         id: "String"
     }],
