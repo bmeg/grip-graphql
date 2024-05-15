@@ -10,6 +10,8 @@ import (
 
 	//"encoding/json"
 
+	//"encoding/json"
+
 	"github.com/bmeg/grip-graphql/middleware"
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/log"
@@ -299,12 +301,6 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 			return gh
 		},
 	}
-	/*poolInited = true
-	  }}*/
-
-	//gh := pool.Get().(*GraphQLJS)
-	//gh.Pool = pool
-	//return gh
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		log.Infof("Getting graph handler from Sync Pool +++++++++++++++++++++++++++++++++++++++++++++++++++++")
 		gh := Pool.Get().(*GraphQLJS)

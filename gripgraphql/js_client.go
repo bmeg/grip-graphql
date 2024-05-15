@@ -11,6 +11,7 @@ import (
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/gripql/inspect"
 
+	//"github.com/bmeg/grip-graphql/middleware"
 	//"github.com/bmeg/grip/jobstorage"
 	//"github.com/bmeg/grip/log"
 	gripqljs "github.com/bmeg/grip/gripql/javascript"
@@ -80,25 +81,17 @@ func graphStmtsEqual(stmts1 []*gripql.GraphStatement, stmts2 []*gripql.GraphStat
 	return true
 }
 func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
-
-	//fmt.Printf("ENTERED TO LIST FUNC: ARGS: %s\n\n", args.String)
 	obj := args.Export()
-	//fmt.Printf("obj: %#v", args)
-
 	queryJSON, err := json.Marshal(obj)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return nil
 	}
 	ResourceList := cw.vm.Get("ResourceList").Export()
-	// Testing to make sure passing empty list would filter out everything
-	//var ResourceList []interface{} = []interface{}{}
-
 	Header := cw.vm.Get("Header").Export().(any)
 	ctx := context.WithValue(context.Background(), "Header", Header)
 	ctx = context.WithValue(ctx, "ResourceList", ResourceList)
 
-	// This hasn't gotten connected. Too slow
 	query := gripql.GraphQuery{}
 	err = protojson.Unmarshal(queryJSON, &query)
 
@@ -138,68 +131,30 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	}
 
 	query.Query = FilteredGS
-	status, err := cw.client.ListJobs(cw.graph)
+	resultChan, err := cw.GetCachedJob(query, CachedGS, RemainingGS)
 	if err != nil {
-		fmt.Println("ERR: ", err)
+		fmt.Printf("Error: %s\n", err)
 		return nil
 	}
-
-	var result chan *gripql.QueryResult
-	var jobList []string
-	for _, elem := range status {
-		jobList = append(jobList, elem.Id)
-	}
-	fmt.Println("JOB LIST: ", jobList)
-
-	// this is used to kick off jobs so that there is something in the cache
-	/*if len(jobList) < 3{
-	    submit, err := cw.client.Submit(&gripql.GraphQuery{Graph: cw.graph, Query: CachedGS })
-	             if err != nil{
-	                 fmt.Printf("ERR: %s", err)
-	                 return nil
-	             }
-	             fmt.Printf("Job not found submitting new job: %#v\n", submit)
-	}*/
-	for _, jobId := range jobList {
-		job, err := cw.client.GetJob(cw.graph, jobId)
-		if err != nil {
-			fmt.Printf("ERR: %s", err)
-			return nil
+	if resultChan != nil {
+		cachedOut := []any{}
+		for row := range resultChan {
+			cachedOut = append(cachedOut, cw.vm.ToValue(toInterface(row)))
 		}
-		fmt.Printf("JOB: %#v\n", job)
-
-		if len(job.Query) == len(CachedGS) {
-			equal := graphStmtsEqual(job.Query, CachedGS)
-			if equal == true {
-				fmt.Println("RESUMING JOB")
-				// check to make sure that the job is finished
-				if job.State == 2 {
-					result, err = cw.client.ResumeJob(job.Graph, job.Id, &gripql.GraphQuery{Graph: job.Graph, Query: RemainingGS})
-					if err != nil {
-						fmt.Println("ERR: ", err)
-						return nil
-					}
-					out := []any{}
-					for row := range result {
-						out = append(out, cw.vm.ToValue(toInterface(row)))
-					}
-					fmt.Println("OUT RESUMED JOB FINISHED")
-					return cw.vm.ToValue(out)
-				}
-			}
-		}
-
+		return cw.vm.ToValue(cachedOut)
 	}
 
-	out := []any{}
 	res, err := cw.client.Traversal(ctx, &query)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return nil
 	}
+
+	out := []any{}
 	for row := range res {
 		out = append(out, cw.vm.ToValue(toInterface(row)))
 	}
+
 	//fmt.Printf("EXIT TOLIST FUNCTION", out)
 	return cw.vm.ToValue(out)
 }
