@@ -76,3 +76,9 @@ endpoint.add({
     }
 })
 ```
+
+
+## GRIP setup with frontend framework
+
+1. setup frontendframework see docs
+2. grip server -c mongo.yml -w graphql=grip-graphql-endpoint.so -l graphql:config=config/gen3.js -l graphql:graph=gdc
