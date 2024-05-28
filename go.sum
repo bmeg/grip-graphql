@@ -2,6 +2,8 @@ github.com/akuity/grpc-gateway-client v0.0.0-20230321170839-38ca1b4b439c h1:+TGl
 github.com/akuity/grpc-gateway-client v0.0.0-20230321170839-38ca1b4b439c/go.mod h1:2LXcIC4bAFvsZitqz5qtaTfYS5vCbz4BTA/BgkJLM0g=
 github.com/alevinval/sse v1.0.1 h1:cFubh2lMNdHT6niFLCsyTuhAgljaAWbdmceAe6qPIfo=
 github.com/alevinval/sse v1.0.1/go.mod h1:Bvl1EawUlmW1y1vSU5uDl03+1Zsqqz/+6D2PAUvftcw=
+github.com/bmeg/grip v0.0.0-20240514232957-3b618e0ba087 h1:QQum2Hsif6prO63NnU8H/6bP8AZWRSjpN+qQfmi3iis=
+github.com/bmeg/grip v0.0.0-20240514232957-3b618e0ba087/go.mod h1:KA1daX/k7BKU3g5Emq5t6lJGq7clUeVNRdueR943UGs=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad h1:ICgBexeLB7iv/IQz4rsP+MimOXFZUwWSPojEypuOaQ8=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad/go.mod h1:ft96Irkp72C7ZrUWRenG7LrF0NKMxXdRvsypo5Njhm4=
 github.com/chzyer/logex v1.2.0/go.mod h1:9+9sk7u7pGNWYMkh0hdiL++6OeibzJccyQU4p4MedaY=

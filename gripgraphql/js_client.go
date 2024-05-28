@@ -71,15 +71,6 @@ func toInterface(qr *gripql.QueryResult) any {
 	return qr
 }
 
-func graphStmtsEqual(stmts1 []*gripql.GraphStatement, stmts2 []*gripql.GraphStatement) bool {
-	for i := range stmts1 {
-		fmt.Println("REFLECT DEEP EQUAL: ", reflect.DeepEqual(stmts1[i], stmts2[i]), stmts1[i], stmts2[i])
-		if !(reflect.TypeOf(stmts1[i].GetStatement()) == reflect.TypeOf(stmts2[i].GetStatement()) && reflect.DeepEqual(stmts1[i], stmts2[i])) {
-			return false
-		}
-	}
-	return true
-}
 func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	obj := args.Export()
 	queryJSON, err := json.Marshal(obj)
