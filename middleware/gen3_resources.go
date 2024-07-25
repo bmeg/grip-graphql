@@ -47,11 +47,11 @@ func getAuthMappings(url string, token string) (any, error) {
 	return empty_map, err
 }
 
-func hasPermission(permissions []any) bool {
+func hasPermission(permissions []any, method string) bool {
 	for _, permission := range permissions {
 		permission := permission.(map[string]any)
-		if (permission["service"] == "*" || permission["service"] == "peregrine") &&
-			(permission["method"] == "*" || permission["method"] == "read") {
+		if (permission["service"] == "*" || permission["service"] == "grip") &&
+			(permission["method"] == "*" || permission["method"] == method) {
 			// fmt.Println("PERMISSIONS: ", permission)
 			return true
 		}
@@ -59,7 +59,7 @@ func hasPermission(permissions []any) bool {
 	return false
 }
 
-func GetAllowedProjects(url string, token string) ([]any, error) {
+func GetAllowedProjects(url string, token string, method string) ([]any, error) {
 	var readAccessResources []string
 	authMappings, err := getAuthMappings(url, token)
 	if err != nil {
@@ -68,7 +68,7 @@ func GetAllowedProjects(url string, token string) ([]any, error) {
 
 	// Iterate through /auth/mapping resultant dict checking for valid read permissions
 	for resourcePath, permissions := range authMappings.(map[string]any) {
-		if hasPermission(permissions.([]any)) {
+		if hasPermission(permissions.([]any), method) {
 			readAccessResources = append(readAccessResources, resourcePath)
 		}
 	}

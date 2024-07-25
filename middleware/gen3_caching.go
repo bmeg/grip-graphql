@@ -39,7 +39,7 @@ func GetExpiration(tokenString string) (time.Time, error) {
 	return time.Time{}, fmt.Errorf("Expiration field 'exp' type float64 not found in token %s", token)
 }
 
-func HandleJWTToken(token string) ([]any, error) {
+func HandleJWTToken(token string, perm_method string) ([]any, error) {
 	cachedData, found := jwtCache.Get(token)
 
 	// If cache hit check expiration and return resourceList
@@ -66,7 +66,7 @@ func HandleJWTToken(token string) ([]any, error) {
 	}
 
 	if expiration.After(time.Now()) {
-		resourceList, err := AddJWTToken(token, expiration)
+		resourceList, err := AddJWTToken(token, expiration, perm_method)
 		if err != nil {
 			return nil, err
 		}
@@ -75,8 +75,8 @@ func HandleJWTToken(token string) ([]any, error) {
 	return nil, &ServerError{StatusCode: 401, Message: fmt.Sprintf("Token validation failed for token: %s", token)}
 }
 
-func AddJWTToken(token string, expiration time.Time) ([]any, error) {
-	resourceList, err := GetAllowedProjects("http://arborist-service/auth/mapping", token)
+func AddJWTToken(token string, expiration time.Time, method string) ([]any, error) {
+	resourceList, err := GetAllowedProjects("http://arborist-service/auth/mapping", token, method)
 	if err != nil {
 		return nil, err
 	}
