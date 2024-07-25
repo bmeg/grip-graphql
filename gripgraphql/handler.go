@@ -325,7 +325,7 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 		//fmt.Println("REQUEST HEADERS:::: +++++++++++++++++++", requestHeaders)
 		if val, ok := requestHeaders["Authorization"]; ok {
 			Token := val[0]
-			resourceList, err := middleware.HandleJWTToken(Token)
+			resourceList, err := middleware.HandleJWTToken(Token, "read")
 			//resourceList := []any{"/programs/cbds/projects/demo", "/programs/cbds/projects/welcome", "/programs/synthea/projects/test"}
 			if err != nil {
 				middleware.HandleError(err, writer)
