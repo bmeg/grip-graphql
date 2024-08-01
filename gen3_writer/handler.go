@@ -7,6 +7,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -92,7 +93,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			fmt.Println("RESOURCE LIST: ", resourceList)
+			//fmt.Println("RESOURCE LIST: ", resourceList)
 			/* This is probably a bit too strict since there might only be 1 graph we're writing to.
 			   Instead, having create method access on at least one project is good enough permissions
 			   err = ParseAccess(c, resourceList, method)
@@ -225,53 +226,52 @@ func (gh *Handler) GetSchema(c *gin.Context, writer http.ResponseWriter, request
 }
 
 func (gh *Handler) AddSchema(c *gin.Context, writer http.ResponseWriter, request *http.Request, graph string) {
-    err := request.ParseMultipartForm(1024 * 1024 * 1024) // 10 GB limit
-    if err != nil {
-        RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("Error parsing form: %s", err)})
-        return
-    }
-    file, _, err := request.FormFile("file")
-    if err != nil {
-        RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("failed to parse attached file: %s", err)})
-        return
-    }
-    file.Close()
+	err := request.ParseMultipartForm(1024 * 1024 * 1024) // 10 GB limit
+	if err != nil {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("Error parsing form: %s", err)})
+		return
+	}
+	file, _, err := request.FormFile("file")
+	if err != nil {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("failed to parse attached file: %s", err)})
+		return
+	}
+	file.Close()
 
 	conn, err := gripql.Connect(rpc.ConfigWithDefaults("localhost:8202"), true)
 	if err != nil {
-        fmt.Println("HELLO 2.5", err)
+		fmt.Println("HELLO 2.5", err)
 		RegError(c, writer, graph, err)
 		return
 	}
 
 	var graphs []*gripql.Graph
 
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, file); err != nil {
+		RegError(c, writer, graph, err)
+		return
+	}
 
-    buf := bytes.NewBuffer(nil)
-    if _, err := io.Copy(buf, file); err != nil {
-        RegError(c, writer, graph, err)
-        return
-    }
-
-    graphs, err = gripql.ParseJSONGraphs(buf.Bytes())
+	graphs, err = gripql.ParseJSONGraphs(buf.Bytes())
 	if err != nil {
-        fmt.Println("HELLO 3:", err)
+		fmt.Println("HELLO 3:", err)
 		RegError(c, writer, graph, err)
 		return
 	}
 	for _, g := range graphs {
 		err := conn.AddSchema(g)
 		if err != nil {
-            fmt.Println("HELLO 4: ", err)
+			fmt.Println("HELLO 4: ", err)
 			RegError(c, writer, graph, err)
 			return
 		}
 	}
-    c.JSON(200, gin.H{
-        "status":  200,
-        "message": "OK",
-        "data":    nil,
-    })
+	c.JSON(200, gin.H{
+		"status":  200,
+		"message": "OK",
+		"data":    nil,
+	})
 }
 
 func (gh *Handler) GetGraph(c *gin.Context, writer http.ResponseWriter, request *http.Request, graph string) {
@@ -593,6 +593,17 @@ func (gh *Handler) BulkStream(c *gin.Context, writer http.ResponseWriter, reques
 	}
 	defer file.Close()
 
+	var reader io.Reader = file
+	if strings.HasSuffix(handler.Filename, ".gz") {
+		gzReader, err := gzip.NewReader(file)
+		if err != nil {
+			RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("Unable to create gzip reader for file %s: err %s", handler.Filename, err)})
+			return
+		}
+		defer gzReader.Close()
+		reader = gzReader
+	}
+
 	conn, err := gripql.Connect(rpc.ConfigWithDefaults(host), true)
 	elemChan := make(chan *gripql.GraphElement)
 	wait := make(chan bool)
@@ -605,7 +616,7 @@ func (gh *Handler) BulkStream(c *gin.Context, writer http.ResponseWriter, reques
 
 	if request_type == "vertex" {
 		log.Infof("Loading vertex file: %s", handler.Filename)
-		VertChan, err := StreamVerticesFromReader(file, 5)
+		VertChan, err := StreamVerticesFromReader(reader, 5)
 		if err != nil {
 			RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)})
 			return
@@ -622,7 +633,7 @@ func (gh *Handler) BulkStream(c *gin.Context, writer http.ResponseWriter, reques
 	}
 	if request_type == "edge" {
 		log.Infof("Loading edge file: %s", handler.Filename)
-		EdgeChan, err := StreamEdgesFromReader(file, 5)
+		EdgeChan, err := StreamEdgesFromReader(reader, 5)
 		if err != nil {
 			RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)})
 			return

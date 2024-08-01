@@ -4,13 +4,15 @@ RUN apk add make git bash build-base libc-dev binutils-gold
 ENV GOPATH=/go
 ENV PATH="/go/bin:${PATH}"
 
-WORKDIR /go/src/github.com/bmeg/grip-endpoints
-ADD ./ /go/src/github.com/bmeg/grip-endpoints
+WORKDIR /go/src/github.com/bmeg/grip-graphql
+ADD ./ /go/src/github.com/bmeg/grip-graphql
 
-RUN go install github.com/bmeg/grip@v0.0.0-20240716192419-f0f1023b66b6
+RUN go install github.com/bmeg/grip@v0.0.0-20240718225637-aeb30dee3d35
 RUN go build  --buildmode=plugin ./graphql_gen3
 RUN go build  --buildmode=plugin ./gen3_writer
-RUN cp /go/src/github.com/bmeg/grip-endpoints/mongo.yml /mongo.yml
+RUN go build  --buildmode=plugin ./grip-graphql-endpoint
+
+RUN cp /go/src/github.com/bmeg/grip-graphql/mongo.yml /mongo.yml
 
 
 #FROM alpine
