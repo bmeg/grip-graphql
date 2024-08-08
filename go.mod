@@ -1,13 +1,12 @@
 module github.com/bmeg/grip-graphql
 
-go 1.22.5
+go 1.22.6
 
 require (
-	github.com/bmeg/grip v0.0.0-20240718225637-aeb30dee3d35
+	github.com/bmeg/grip v0.0.0-20240808185832-ab51dee8a7aa
 	github.com/dop251/goja v0.0.0-20240707163329-b1681fb2a2f5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
-
 	github.com/graphql-go/graphql v0.8.1
 	github.com/graphql-go/handler v0.2.4
 	github.com/mongodb/mongo-tools v0.0.0-20240715143021-aa6a140d3f17
