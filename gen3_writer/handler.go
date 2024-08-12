@@ -89,6 +89,8 @@ func ParseAccess(c *gin.Context, resourceList []string, method string) error {
 }
 
 func TokenAuthMiddleware() gin.HandlerFunc {
+    // Authentication middleware function. Maps HTTP method to expected permssions.
+    // If user permissions don't match, abort command and return 401
 	return func(c *gin.Context) {
 		requestHeaders := c.Request.Header
 		if val, ok := requestHeaders["Authorization"]; ok {
@@ -127,7 +129,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 			       return
 			       }*/
 			if len(resourceList) == 0 {
-				RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("User does not have access to at least one project for method %", method)})
+				RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 401, Message: fmt.Sprintf("User does not have access to at least one project for method %", method)})
 				c.Abort()
 				return
 			}
@@ -148,10 +150,17 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	// Was getting 404s before adding this. Not 100% sure why
 	r.RemoveExtraSlash = true
 
+    // 404 catcher
 	r.NoRoute(func(c *gin.Context) {
-		fmt.Printf("RAW PATH 404: %#v\n", c.Request.URL.RawPath)
-		fmt.Printf("PATH 404: %#v\n", c.Request.URL.Path)
-
+        log.WithFields(log.Fields{
+            "graph":  nil,
+            "status": "404",
+        }).Info(c.Request.URL.Path + " Not Found")
+        c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+            "status":  "404",
+            "message": c.Request.URL.Path + " Not Found",
+            "data":    nil,
+        })
 	})
 
 	h := &Handler{
@@ -163,6 +172,9 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	r.POST(":graph/add-vertex", func(c *gin.Context) {
 		h.WriteVertex(c)
 	})
+    r.POST(":graph/add-edge", func(c *gin.Context){
+        h.WriteEdge(c)
+    })
 	r.POST(":graph/add-graph", func(c *gin.Context) {
 		h.AddGraph(c)
 	})
@@ -234,12 +246,13 @@ func RegError(c *gin.Context, writer http.ResponseWriter, graph string, err erro
 			"message": ae.Message,
 			"data":    nil,
 		})
+        return
 	}
 	log.WithFields(log.Fields{
 		"graph":  graph,
 		"status": "500",
 	}).Info("Internal Server Error")
-	c.JSON(http.StatusInternalServerError, gin.H{
+	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 		"status":  "500",
 		"message": "[500] Internal Server Error",
 		"data":    nil,
@@ -452,6 +465,33 @@ func (gh *Handler) WriteVertex(c *gin.Context) {
 		return
 	}
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] write-vertex: %s", v.GetGid()))
+}
+
+func (gh *Handler) WriteEdge(c *gin.Context) {
+    writer, request, graph := getFields(c)
+
+    var body []byte
+    var err error
+    e := &gripql.Edge{}
+
+    if body, err = io.ReadAll(request.Body); err != nil {
+        RegError(c, writer, graph, err)
+        return
+    }
+    if body == nil {
+        RegError(c, writer, graph,  &middleware.ServerError{StatusCode: 400, Message: "Request body empty. Cannot parse request"})
+        return
+    } else {
+        if err := protojson.Unmarshal([]byte(body), e); err != nil {
+            RegError(c, writer, graph, err)
+            return
+        }
+    }
+    if err := gh.client.AddEdge(graph, e); err != nil {
+        RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)})
+        return
+    }
+    Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] write-edge: %s", e.GetGid()))
 }
 
 func (gh *Handler) MongoBulk(c *gin.Context) {
