@@ -89,8 +89,8 @@ func ParseAccess(c *gin.Context, resourceList []string, method string) error {
 }
 
 func TokenAuthMiddleware() gin.HandlerFunc {
-    // Authentication middleware function. Maps HTTP method to expected permssions.
-    // If user permissions don't match, abort command and return 401
+	// Authentication middleware function. Maps HTTP method to expected permssions.
+	// If user permissions don't match, abort command and return 401
 	return func(c *gin.Context) {
 		requestHeaders := c.Request.Header
 		if val, ok := requestHeaders["Authorization"]; ok {
@@ -150,17 +150,17 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	// Was getting 404s before adding this. Not 100% sure why
 	r.RemoveExtraSlash = true
 
-    // 404 catcher
+	// 404 catcher
 	r.NoRoute(func(c *gin.Context) {
-        log.WithFields(log.Fields{
-            "graph":  nil,
-            "status": "404",
-        }).Info(c.Request.URL.Path + " Not Found")
-        c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-            "status":  "404",
-            "message": c.Request.URL.Path + " Not Found",
-            "data":    nil,
-        })
+		log.WithFields(log.Fields{
+			"graph":  nil,
+			"status": "404",
+		}).Info(c.Request.URL.Path + " Not Found")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"status":  "404",
+			"message": c.Request.URL.Path + " Not Found",
+			"data":    nil,
+		})
 	})
 
 	h := &Handler{
@@ -172,9 +172,9 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	r.POST(":graph/add-vertex", func(c *gin.Context) {
 		h.WriteVertex(c)
 	})
-    r.POST(":graph/add-edge", func(c *gin.Context){
-        h.WriteEdge(c)
-    })
+	r.POST(":graph/add-edge", func(c *gin.Context) {
+		h.WriteEdge(c)
+	})
 	r.POST(":graph/add-graph", func(c *gin.Context) {
 		h.AddGraph(c)
 	})
@@ -223,6 +223,10 @@ func (gh *Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) 
 	gh.router.ServeHTTP(writer, request)
 }
 
+func GetInternalServerErr(err error) *middleware.ServerError {
+	return &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)}
+}
+
 func Response(c *gin.Context, writer http.ResponseWriter, graph string, data any, statusCode int, message string) {
 	log.WithFields(log.Fields{
 		"graph":  graph,
@@ -246,7 +250,7 @@ func RegError(c *gin.Context, writer http.ResponseWriter, graph string, err erro
 			"message": ae.Message,
 			"data":    nil,
 		})
-        return
+		return
 	}
 	log.WithFields(log.Fields{
 		"graph":  graph,
@@ -263,7 +267,7 @@ func (gh *Handler) ListLabels(c *gin.Context) {
 	writer, _, graph := getFields(c)
 	labels, err := gh.client.ListLabels(graph)
 	if err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, graph, labels, 200, fmt.Sprintf("[200] list-labels on graph %s", graph))
@@ -273,7 +277,7 @@ func (gh *Handler) GetSchema(c *gin.Context) {
 	writer, _, graph := getFields(c)
 	schema, err := gh.client.GetSchema(graph)
 	if err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, graph, schema, 200, fmt.Sprintf("[200] get-schema on graph %s", graph))
@@ -329,7 +333,7 @@ func (gh *Handler) GetGraph(c *gin.Context) {
 	writer, _, graph := getFields(c)
 	graph_data, err := gh.client.GetMapping(graph)
 	if err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, graph, graph_data, 200, "[200] get-graph")
@@ -338,7 +342,7 @@ func (gh *Handler) GetGraph(c *gin.Context) {
 func (gh *Handler) ListGraphs(c *gin.Context, writer http.ResponseWriter) {
 	graphs, err := gh.client.ListGraphs()
 	if err != nil {
-		RegError(c, writer, "", err)
+		RegError(c, writer, "", GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, "", graphs, 200, "[200] list-graphs")
@@ -348,7 +352,7 @@ func (gh *Handler) AddGraph(c *gin.Context) {
 	writer, _, graph := getFields(c)
 	err := gh.client.AddGraph(graph)
 	if err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] add-graph added: %s", graph))
@@ -358,7 +362,7 @@ func (gh *Handler) DeleteGraph(c *gin.Context) {
 	writer, _, graph := getFields(c)
 	err := gh.client.DeleteGraph(graph)
 	if err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] delete-graph deleted: %s", graph))
@@ -368,7 +372,7 @@ func (gh *Handler) GetVertex(c *gin.Context, vertex string) {
 	writer, _, graph := getFields(c)
 	gql_vertex, err := gh.client.GetVertex(graph, vertex)
 	if err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, graph, gql_vertex, 200, fmt.Sprintf("[200] get-vertex: %s", gql_vertex))
@@ -378,7 +382,7 @@ func (gh *Handler) GetEdge(c *gin.Context, edge string) {
 	writer, _, graph := getFields(c)
 	gql_edge, err := gh.client.GetEdge(graph, edge)
 	if err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, graph, gql_edge, 200, fmt.Sprintf("[200] get-edge: %s", gql_edge))
@@ -389,12 +393,12 @@ func (gh *Handler) DeleteEdge(c *gin.Context, edgeId string) {
 	if _, err := gh.client.GetEdge(graph, edgeId); err == nil {
 		err := gh.client.DeleteEdge(graph, edgeId)
 		if err != nil {
-			RegError(c, writer, graph, err)
+			RegError(c, writer, graph, GetInternalServerErr(err))
 			return
 		}
 		Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] delete-edge: %s", edgeId))
 	} else {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 	}
 }
 
@@ -402,12 +406,12 @@ func (gh *Handler) DeleteVertex(c *gin.Context, vertexId string) {
 	writer, _, graph := getFields(c)
 	_, err := gh.client.GetVertex(graph, vertexId)
 	if err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	err = gh.client.DeleteVertex(graph, vertexId)
 	if err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] delete-vertex: %s", vertexId))
@@ -420,7 +424,7 @@ func (gh *Handler) BulkDelete(c *gin.Context) {
 	var err error
 	delData := &gripql.DeleteData{}
 	if body, err = io.ReadAll(request.Body); err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	if body == nil {
@@ -434,7 +438,7 @@ func (gh *Handler) BulkDelete(c *gin.Context) {
 	}
 
 	if err := gh.client.BulkDelete(delData); err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] bulk-delete on graph %s", graph))
@@ -461,37 +465,37 @@ func (gh *Handler) WriteVertex(c *gin.Context) {
 		}
 	}
 	if err := gh.client.AddVertex(graph, v); err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] write-vertex: %s", v.GetGid()))
 }
 
 func (gh *Handler) WriteEdge(c *gin.Context) {
-    writer, request, graph := getFields(c)
+	writer, request, graph := getFields(c)
 
-    var body []byte
-    var err error
-    e := &gripql.Edge{}
+	var body []byte
+	var err error
+	e := &gripql.Edge{}
 
-    if body, err = io.ReadAll(request.Body); err != nil {
-        RegError(c, writer, graph, err)
-        return
-    }
-    if body == nil {
-        RegError(c, writer, graph,  &middleware.ServerError{StatusCode: 400, Message: "Request body empty. Cannot parse request"})
-        return
-    } else {
-        if err := protojson.Unmarshal([]byte(body), e); err != nil {
-            RegError(c, writer, graph, err)
-            return
-        }
-    }
-    if err := gh.client.AddEdge(graph, e); err != nil {
-        RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)})
-        return
-    }
-    Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] write-edge: %s", e.GetGid()))
+	if body, err = io.ReadAll(request.Body); err != nil {
+		RegError(c, writer, graph, err)
+		return
+	}
+	if body == nil {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: "Request body empty. Cannot parse request"})
+		return
+	} else {
+		if err := protojson.Unmarshal([]byte(body), e); err != nil {
+			RegError(c, writer, graph, err)
+			return
+		}
+	}
+	if err := gh.client.AddEdge(graph, e); err != nil {
+		RegError(c, writer, graph, GetInternalServerErr(err))
+		return
+	}
+	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] write-edge: %s", e.GetGid()))
 }
 
 func (gh *Handler) MongoBulk(c *gin.Context) {
@@ -537,13 +541,13 @@ func (gh *Handler) MongoBulk(c *gin.Context) {
 
 	client, err := mgo.NewClient(options.Client().ApplyURI(mongoHost))
 	if err != nil {
-		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)})
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 
 	err = client.Connect(context.TODO())
 	if err != nil {
-		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)})
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 
@@ -559,7 +563,7 @@ func (gh *Handler) MongoBulk(c *gin.Context) {
 
 		vertChan, err := StreamVerticesFromReader(file, workerCount)
 		if err != nil {
-			RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)})
+			RegError(c, writer, graph, GetInternalServerErr(err))
 			return
 		}
 		dataChan := vertexSerialize(vertChan, workerCount)
@@ -583,7 +587,7 @@ func (gh *Handler) MongoBulk(c *gin.Context) {
 
 		edgeChan, err := StreamEdgesFromReader(file, workerCount)
 		if err != nil {
-			RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)})
+			RegError(c, writer, graph, GetInternalServerErr(err))
 			return
 		}
 		dataChan := edgeSerialize(edgeChan, fill_gid, workerCount)
@@ -702,7 +706,7 @@ func (gh *Handler) BulkStream(c *gin.Context) {
 		log.Infof("Loading vertex file: %s", handler.Filename)
 		VertChan, err := StreamVerticesFromReader(reader, 5)
 		if err != nil {
-			RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)})
+			RegError(c, writer, graph, GetInternalServerErr(err))
 			return
 		}
 		count := 0
@@ -719,7 +723,7 @@ func (gh *Handler) BulkStream(c *gin.Context) {
 		log.Infof("Loading edge file: %s", handler.Filename)
 		EdgeChan, err := StreamEdgesFromReader(reader, 5)
 		if err != nil {
-			RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("%s", err)})
+			RegError(c, writer, graph, GetInternalServerErr(err))
 			return
 		}
 		count := 0
