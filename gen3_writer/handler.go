@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -42,57 +41,52 @@ func getFields(c *gin.Context) (gin.ResponseWriter, *http.Request, string) {
 	return c.Writer, c.Request, c.Param("graph")
 }
 
-func HandleBody(request *http.Request) (map[string]any, error) {
-	var body []byte
-	var err error
-	json_map := map[string]any{}
-
-	if body, err = io.ReadAll(request.Body); err != nil {
-		return nil, err
-	}
-
-	if body == nil {
-		return nil, err
-	}
-
-	if err := json.Unmarshal([]byte(body), &json_map); err != nil {
-		return nil, err
-	}
-
-	return json_map, nil
-}
-
 func convertAnyToStringSlice(anySlice []any) ([]string, error) {
+    /* converts []any to []string */
 	var stringSlice []string
 	for _, v := range anySlice {
 		str, ok := v.(string)
 		if !ok {
-			return nil, fmt.Errorf("element %v is not a string", v)
+			return nil, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("Element %v is not a string", v)}
 		}
 		stringSlice = append(stringSlice, str)
 	}
 	return stringSlice, nil
 }
 
-func ParseAccess(c *gin.Context, resourceList []string, method string) error {
+func ParseAccess(c *gin.Context, resourceList []string, resource string, method string) error {
+    /*  Iterates through a list of Gen3 resoures and returns true if 
+        resource matches the allowable list of resource types for the provided method */
+
 	if len(resourceList) == 0 {
-		return &middleware.ServerError{StatusCode: 401, Message: fmt.Sprintf("User is not allowed to %s on any graph", method)}
+		return &middleware.ServerError{StatusCode: 401, Message: fmt.Sprintf("User is not allowed to %s on any resource path", method)}
 	}
 	for _, v := range resourceList {
-		// currently checking if the project == the graph name, but could change it so that the graph name is of form program-project and then check the full resource path
-		project := strings.Split(v, "/projects/")
-		// list-graphs whitelisted method
-		if project[1] == c.Param("graph") || c.Request.URL.Path == "list-graphs" {
+		if resource == v {
 			return nil
 		}
 	}
-	return &middleware.ServerError{StatusCode: 401, Message: fmt.Sprintf("User is not allowed to %s on graph: %s", method, c.Param("graph"))}
+	return &middleware.ServerError{StatusCode: 401, Message: fmt.Sprintf("User is not allowed to %s on resource path: %s", method, resource)}
 }
 
 func TokenAuthMiddleware() gin.HandlerFunc {
-	// Authentication middleware function. Maps HTTP method to expected permssions.
-	// If user permissions don't match, abort command and return 401
+    /*  Authentication middleware function. Maps HTTP method to expected permssions.
+        If user permissions don't match, abort command and return 401 */
+
 	return func(c *gin.Context) {
+        // If request path is open access then no token needed no project_id needed.
+        if c.Request.URL.Path == "list-graphs"{
+            c.Next()
+            return
+        }
+
+        project_split := strings.Split(c.Param("project-id"), "-")
+        if len(project_split) != 2{
+            // This error usually occurs when part of the path is correct or a typo in path, 
+            RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 404, Message: fmt.Sprintf("incorrect path %s", c.Request.URL)})
+            return
+        }
+        project_id := "/programs/" + project_split[0] + "/projects/" + project_split[1]
 		requestHeaders := c.Request.Header
 		if val, ok := requestHeaders["Authorization"]; ok {
 			Token := val[0]
@@ -103,47 +97,36 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 				method = "create"
 			} else {
 				RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 405, Message: fmt.Sprintf("Method %s not allowed", c.Request.Method)})
-				c.Abort()
 				return
 			}
 
 			anyList, err := middleware.HandleJWTToken(Token, method)
 			if err != nil {
 				RegError(c, c.Writer, c.Param("graph"), err)
-				c.Abort()
 				return
 			}
 
 			resourceList, convErr := convertAnyToStringSlice(anyList)
 			if convErr != nil {
 				RegError(c, c.Writer, c.Param("graph"), convErr)
-				c.Abort()
 				return
 			}
-            log.Infoln("Perms Resource List: ", resourceList)
-			/* This is probably a bit too strict since there might only be 1 graph we're writing to.
-			   Instead, having create method access on at least one project is good enough permissions
-			   err = ParseAccess(c, resourceList, method)
-			   if  err != nil{
-			       RegError(c, c.Writer, c.Param("graph"), err)
-			       c.Abort()
-			       return
-			       }*/
-			if len(resourceList) == 0 {
-				RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 401, Message: fmt.Sprintf("User does not have access to at least one project for method %", method)})
-				c.Abort()
-				return
+
+            log.Infof("Resource List for method '%s': %s", method, resourceList)
+			err = ParseAccess(c, resourceList, project_id, method)
+			if  err != nil{
+			    RegError(c, c.Writer, c.Param("graph"), err)
+			    return
 			}
 		} else {
 			RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 400, Message: "Authorization token not provided"})
-			c.Abort()
 			return
 		}
 		c.Next()
 	}
 }
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
-    // Run in prod mode
+    // Including below line to run in prod mode
     gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 
@@ -155,24 +138,25 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
     log.ConfigureLogger(logConfig)
 
 	r.Use(gin.Logger())
+
+    r.NoRoute(func(c *gin.Context) {
+         log.WithFields(log.Fields{
+             "graph":  nil,
+             "status": "404",
+         }).Info(c.Request.URL.Path + " Not Found")
+         c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+             "status":  "404",
+             "message": c.Request.URL.Path + " Not Found",
+             "data":    nil,
+         })
+    })
+
 	r.Use(TokenAuthMiddleware())
 	r.Use(gin.Recovery())
 
-	// Was getting 404s before adding this. Not 100% sure why
+	// Was getting 404s before adding this.
 	r.RemoveExtraSlash = true
 
-	// 404 catcher
-	r.NoRoute(func(c *gin.Context) {
-		log.WithFields(log.Fields{
-			"graph":  nil,
-			"status": "404",
-		}).Info(c.Request.URL.Path + " Not Found")
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"status":  "404",
-			"message": c.Request.URL.Path + " Not Found",
-			"data":    nil,
-		})
-	})
 
 	h := &Handler{
 		router: r,
@@ -180,46 +164,46 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 		config: config,
 	}
 
-	r.POST(":graph/add-vertex", func(c *gin.Context) {
+    r.POST(":graph/add-vertex/:project-id", func(c *gin.Context) {
 		h.WriteVertex(c)
 	})
-	r.POST(":graph/add-edge", func(c *gin.Context) {
+    r.POST(":graph/add-edge/:project-id", func(c *gin.Context) {
 		h.WriteEdge(c)
 	})
-	r.POST(":graph/add-graph", func(c *gin.Context) {
+    r.POST(":graph/add-graph/:project-id", func(c *gin.Context) {
 		h.AddGraph(c)
 	})
-	r.POST(":graph/mongo-load", func(c *gin.Context) {
+    r.POST(":graph/mongo-load/:project-id", func(c *gin.Context) {
 		h.MongoBulk(c)
 	})
-	r.POST(":graph/bulk-load", func(c *gin.Context) {
+    r.POST(":graph/bulk-load/:project-id", func(c *gin.Context) {
 		h.BulkStream(c)
 	})
-	r.POST(":graph/add-schema", func(c *gin.Context) {
+    r.POST(":graph/add-schema/:project-id", func(c *gin.Context) {
 		h.AddSchema(c)
 	})
-	r.DELETE(":graph/del-graph", func(c *gin.Context) {
+    r.DELETE(":graph/del-graph/:project-id", func(c *gin.Context) {
 		h.DeleteGraph(c)
 	})
-	r.DELETE(":graph/del-edge/:edge-id", func(c *gin.Context) {
+    r.DELETE(":graph/del-edge/:edge-id/:project-id", func(c *gin.Context) {
 		h.DeleteEdge(c, c.Param("edge-id"))
 	})
-	r.DELETE(":graph/del-vertex/:vertex-id", func(c *gin.Context) {
+    r.DELETE(":graph/del-vertex/:vertex-id/:project-id", func(c *gin.Context) {
 		h.DeleteVertex(c, c.Param("vertex-id"))
 	})
-	r.DELETE(":graph/bulk-delete", func(c *gin.Context) {
+    r.DELETE(":graph/bulk-delete/:project-id", func(c *gin.Context) {
 		h.BulkDelete(c)
 	})
-	r.GET(":graph/list-labels", func(c *gin.Context) {
+    r.GET(":graph/list-labels/:project-id", func(c *gin.Context) {
 		h.ListLabels(c)
 	})
-	r.GET(":graph/get-schema", func(c *gin.Context) {
+    r.GET(":graph/get-schema/:project-id", func(c *gin.Context) {
 		h.GetSchema(c)
 	})
-	r.GET(":graph/get-graph", func(c *gin.Context) {
+    r.GET(":graph/get-graph/:project-id", func(c *gin.Context) {
 		h.GetGraph(c)
 	})
-	r.GET(":graph/get-vertex/:vertex-id", func(c *gin.Context) {
+    r.GET(":graph/get-vertex/:vertex-id/:project-id", func(c *gin.Context) {
 		h.GetVertex(c, c.Param("vertex-id"))
 	})
 	r.GET("list-graphs", func(c *gin.Context) {
