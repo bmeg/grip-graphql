@@ -31,6 +31,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+
 type Handler struct {
 	router *gin.Engine
 	client gripql.Client
@@ -119,7 +120,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			fmt.Println("AVAILABLE RESOURCES: ", resourceList)
+            log.Infoln("Perms Resource List: ", resourceList)
 			/* This is probably a bit too strict since there might only be 1 graph we're writing to.
 			   Instead, having create method access on at least one project is good enough permissions
 			   err = ParseAccess(c, resourceList, method)
@@ -142,7 +143,17 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 	}
 }
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
+    // Run in prod mode
+    gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
+
+    // Since using Grip logging functions, log config needs to be set to properly format JSON data outputs
+    logConfig := log.Logger{
+        Level:     "info",
+        Formatter: "json",
+    }
+    log.ConfigureLogger(logConfig)
+
 	r.Use(gin.Logger())
 	r.Use(TokenAuthMiddleware())
 	r.Use(gin.Recovery())
@@ -299,8 +310,7 @@ func (gh *Handler) AddSchema(c *gin.Context) {
 
 	conn, err := gripql.Connect(rpc.ConfigWithDefaults("localhost:8202"), true)
 	if err != nil {
-		fmt.Println("HELLO 2.5", err)
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 
@@ -308,21 +318,19 @@ func (gh *Handler) AddSchema(c *gin.Context) {
 
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, file); err != nil {
-		RegError(c, writer, graph, err)
+		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
 
 	graphs, err = gripql.ParseJSONGraphs(buf.Bytes())
 	if err != nil {
-		fmt.Println("HELLO 3:", err)
-		RegError(c, writer, graph, err)
+        RegError(c, writer, graph, GetInternalServerErr(fmt.Errorf("json parse error: %s", err)))
 		return
 	}
 	for _, g := range graphs {
 		err := conn.AddSchema(g)
 		if err != nil {
-			fmt.Println("HELLO 4: ", err)
-			RegError(c, writer, graph, err)
+			RegError(c, writer, graph, GetInternalServerErr(err))
 			return
 		}
 	}
