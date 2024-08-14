@@ -82,7 +82,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 
         project_split := strings.Split(c.Param("project-id"), "-")
         if len(project_split) != 2{
-            // This error usually occurs when part of the path is correct or a typo in path, 
+            // This error usually occurs when part of the path is correct or a typo in path. 
             RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 404, Message: fmt.Sprintf("incorrect path %s", c.Request.URL)})
             return
         }
@@ -125,8 +125,11 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
     // Including below line to run in prod mode
+
     gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 
@@ -194,6 +197,9 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
     r.DELETE(":graph/bulk-delete/:project-id", func(c *gin.Context) {
 		h.BulkDelete(c)
 	})
+    r.DELETE(":graph/proj-delete/:project-id", func(c *gin.Context) {
+        h.ProjectDelete(c)
+    })
     r.GET(":graph/list-labels/:project-id", func(c *gin.Context) {
 		h.ListLabels(c)
 	})
@@ -209,6 +215,7 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	r.GET("list-graphs", func(c *gin.Context) {
 		h.ListGraphs(c, c.Writer)
 	})
+
 
 	return h, nil
 }
@@ -434,6 +441,40 @@ func (gh *Handler) BulkDelete(c *gin.Context) {
 		return
 	}
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] bulk-delete on graph %s", graph))
+}
+
+func (gh *Handler) ProjectDelete(c *gin.Context) {
+    ctx := context.Background()
+    var delVs []string
+
+    writer, _, graph := getFields(c)
+    project_id := c.Param("project-id")
+    str_split := strings.Split(project_id, "-")
+    project := "/programs/" + str_split[0] + "/projects/" + str_split[1]
+
+
+    Vquery := gripql.V().Has(gripql.Eq("auth_resource_path", project)).Render("_gid")
+    query := &gripql.GraphQuery{Graph: c.Param("graph"), Query: Vquery.Statements}
+    result, err := gh.client.Traversal(ctx, query);
+    if err != nil{
+        RegError(c, writer, graph, GetInternalServerErr(err))
+        return
+    }
+
+    /* Running bulkDelete with only the vertex ids specified will remove all of the disconnected edges caused by removing 
+      All vertices in the graph. */
+    for i := range result {
+       v := i.ToInterface().(map[string]any)["render"].(string)
+       delVs  = append(delVs, v)
+    }
+
+    delData := &gripql.DeleteData{Graph: graph, Vertices: delVs, Edges: []string{}}
+    
+    if err := gh.client.BulkDelete(delData); err != nil {
+        RegError(c, writer, graph, GetInternalServerErr(err))
+        return
+    }
+    Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] project-delete on project %s", project_id))
 }
 
 func (gh *Handler) WriteVertex(c *gin.Context) {
