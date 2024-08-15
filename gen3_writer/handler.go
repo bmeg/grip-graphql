@@ -196,7 +196,9 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	g.DELETE("/bulk-delete/:project-id", func(c *gin.Context) {
 		h.BulkDelete(c)
 	})
-	g.DELETE("/proj-delete/:project-id")
+	g.DELETE("/proj-delete/:project-id", func(c *gin.Context) {
+		h.ProjectDelete(c)
+	})
 	g.GET("/list-labels", func(c *gin.Context) {
 		h.ListLabels(c)
 	})
