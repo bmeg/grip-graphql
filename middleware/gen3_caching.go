@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bmeg/grip/log"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/patrickmn/go-cache"
 )
@@ -52,7 +53,7 @@ func HandleJWTToken(token string, perm_method string) ([]any, error) {
 		fmt.Println("expiration:", tokenData.Expiration)
 
 		if tokenData.Expiration.After(time.Now()) {
-			fmt.Println("Retrieved Cached token")
+			log.Infoln("Retrieved Cached token")
 			return tokenData.ResourceList, nil
 		}
 		jwtCache.Delete(token)
@@ -81,7 +82,6 @@ func AddJWTToken(token string, expiration time.Time, method string) ([]any, erro
 		return nil, err
 	}
 
-	//fmt.Printf("Adding new token: %s", token)
 	tokenData := TokenData{
 		Expiration:   expiration,
 		ResourceList: resourceList,

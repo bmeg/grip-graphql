@@ -150,7 +150,7 @@ func (e *Endpoint) Add(x map[string]any) {
 		objField, err := parseField(name, schemaA)
 		if err == nil {
 			objField.Resolve = func(params graphql.ResolveParams) (interface{}, error) {
-				fmt.Printf("Calling resolver \n")
+				log.Infof("Calling resolver \n")
 				uArgs := map[string]any{}
 				for k, v := range defaults {
 					uArgs[k] = v
@@ -266,14 +266,14 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	}
 	var hnd *handler.Handler
 
-	fmt.Println("NEW POOL IS BEING MADE ==============================================================+")
+	log.Infof("Creating new pool ==============================================================")
 	Pool := sync.Pool{
 		New: func() any {
 			vm := goja.New()
 			vm.SetFieldNameMapper(JSRenamer{})
 			jsClient, err := GetJSClient(graph, client, vm)
 			if err != nil {
-				fmt.Printf("js error: %s\n", err)
+				log.Infof("js error: %s\n", err)
 			}
 
 			e := &Endpoint{queryNodes: map[string]QueryField{}, client: client, vm: vm, cw: jsClient}
@@ -344,7 +344,7 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 			ctx = context.WithValue(ctx, "ResourceList", resourceList)
 		} else {
 			err := middleware.HandleError(&middleware.ServerError{StatusCode: http.StatusUnauthorized, Message: "No authorization header provided."}, writer)
-			fmt.Println("ERR: ", err)
+			log.Infoln("ERR: ", err)
 			return err
 		}
 

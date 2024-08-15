@@ -3,7 +3,6 @@ package gripgraphql
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -13,8 +12,8 @@ import (
 
 	//"github.com/bmeg/grip-graphql/middleware"
 	//"github.com/bmeg/grip/jobstorage"
-	//"github.com/bmeg/grip/log"
 	gripqljs "github.com/bmeg/grip/gripql/javascript"
+	"github.com/bmeg/grip/log"
 	"github.com/dop251/goja"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -75,7 +74,7 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	obj := args.Export()
 	queryJSON, err := json.Marshal(obj)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
+		log.Infof("Error: %s\n", err)
 		return nil
 	}
 	ResourceList := cw.vm.Get("ResourceList").Export()
@@ -103,7 +102,7 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	for i, v := range query.Query {
 		steps_index, err := strconv.Atoi(steps[i])
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
+			log.Infof("Error: %s\n", err)
 			return nil
 		}
 		if i > steps_index {
@@ -124,7 +123,7 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	query.Query = FilteredGS
 	resultChan, err := cw.GetCachedJob(query, CachedGS, RemainingGS)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
+		log.Infof("Error: %s\n", err)
 		return nil
 	}
 	if resultChan != nil {
@@ -137,7 +136,7 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 
 	res, err := cw.client.Traversal(ctx, &query)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
+		log.Infof("Error: %s\n", err)
 		return nil
 	}
 
