@@ -30,7 +30,6 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-
 type Handler struct {
 	router *gin.Engine
 	client gripql.Client
@@ -42,7 +41,7 @@ func getFields(c *gin.Context) (gin.ResponseWriter, *http.Request, string) {
 }
 
 func convertAnyToStringSlice(anySlice []any) ([]string, error) {
-    /* converts []any to []string */
+	/* converts []any to []string */
 	var stringSlice []string
 	for _, v := range anySlice {
 		str, ok := v.(string)
@@ -55,8 +54,8 @@ func convertAnyToStringSlice(anySlice []any) ([]string, error) {
 }
 
 func ParseAccess(c *gin.Context, resourceList []string, resource string, method string) error {
-    /*  Iterates through a list of Gen3 resoures and returns true if 
-        resource matches the allowable list of resource types for the provided method */
+	/*  Iterates through a list of Gen3 resoures and returns true if
+	    resource matches the allowable list of resource types for the provided method */
 
 	if len(resourceList) == 0 {
 		return &middleware.ServerError{StatusCode: 401, Message: fmt.Sprintf("User is not allowed to %s on any resource path", method)}
@@ -70,23 +69,19 @@ func ParseAccess(c *gin.Context, resourceList []string, resource string, method 
 }
 
 func TokenAuthMiddleware() gin.HandlerFunc {
-    /*  Authentication middleware function. Maps HTTP method to expected permssions.
-        If user permissions don't match, abort command and return 401 */
+	/*  Authentication middleware function. Maps HTTP method to expected permssions.
+	    If user permissions don't match, abort command and return 401 */
 
 	return func(c *gin.Context) {
-        // If request path is open access then no token needed no project_id needed.
-        if c.Request.URL.Path == "list-graphs"{
-            c.Next()
-            return
-        }
+		// If request path is open access then no token needed no project_id needed.
+		project_split := strings.Split(c.Param("project-id"), "-")
+		if len(project_split) != 2 {
+			// This error usually occurs when part of the path is correct or a typo in path.
+			RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 404, Message: fmt.Sprintf("incorrect path %s", c.Request.URL)})
+			return
+		}
 
-        project_split := strings.Split(c.Param("project-id"), "-")
-        if len(project_split) != 2{
-            // This error usually occurs when part of the path is correct or a typo in path. 
-            RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 404, Message: fmt.Sprintf("incorrect path %s", c.Request.URL)})
-            return
-        }
-        project_id := "/programs/" + project_split[0] + "/projects/" + project_split[1]
+		project_id := "/programs/" + project_split[0] + "/projects/" + project_split[1]
 		requestHeaders := c.Request.Header
 		if val, ok := requestHeaders["Authorization"]; ok {
 			Token := val[0]
@@ -112,11 +107,11 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 				return
 			}
 
-            log.Infof("Resource List for method '%s': %s", method, resourceList)
+			log.Infof("Resource List for method '%s': %s", method, resourceList)
 			err = ParseAccess(c, resourceList, project_id, method)
-			if  err != nil{
-			    RegError(c, c.Writer, c.Param("graph"), err)
-			    return
+			if err != nil {
+				RegError(c, c.Writer, c.Param("graph"), err)
+				return
 			}
 		} else {
 			RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 400, Message: "Authorization token not provided"})
@@ -126,40 +121,35 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
-    // Including below line to run in prod mode
+	// Including below line to run in prod mode
 
-    gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 
-    // Since using Grip logging functions, log config needs to be set to properly format JSON data outputs
-    logConfig := log.Logger{
-        Level:     "info",
-        Formatter: "json",
-    }
-    log.ConfigureLogger(logConfig)
+	// Since using Grip logging functions, log config needs to be set to properly format JSON data outputs
+	logConfig := log.Logger{
+		Level:     "info",
+		Formatter: "json",
+	}
+	log.ConfigureLogger(logConfig)
 
 	r.Use(gin.Logger())
-
-    r.NoRoute(func(c *gin.Context) {
-         log.WithFields(log.Fields{
-             "graph":  nil,
-             "status": "404",
-         }).Info(c.Request.URL.Path + " Not Found")
-         c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-             "status":  "404",
-             "message": c.Request.URL.Path + " Not Found",
-             "data":    nil,
-         })
-    })
-
-	r.Use(TokenAuthMiddleware())
+	r.NoRoute(func(c *gin.Context) {
+		log.WithFields(log.Fields{
+			"graph":  nil,
+			"status": "404",
+		}).Info(c.Request.URL.Path + " Not Found")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"status":  "404",
+			"message": c.Request.URL.Path + " Not Found",
+			"data":    nil,
+		})
+	})
 	r.Use(gin.Recovery())
 
 	// Was getting 404s before adding this.
 	r.RemoveExtraSlash = true
-
 
 	h := &Handler{
 		router: r,
@@ -167,56 +157,60 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 		config: config,
 	}
 
-    r.POST(":graph/add-vertex/:project-id", func(c *gin.Context) {
-		h.WriteVertex(c)
-	})
-    r.POST(":graph/add-edge/:project-id", func(c *gin.Context) {
-		h.WriteEdge(c)
-	})
-    r.POST(":graph/add-graph/:project-id", func(c *gin.Context) {
-		h.AddGraph(c)
-	})
-    r.POST(":graph/mongo-load/:project-id", func(c *gin.Context) {
-		h.MongoBulk(c)
-	})
-    r.POST(":graph/bulk-load/:project-id", func(c *gin.Context) {
-		h.BulkStream(c)
-	})
-    r.POST(":graph/add-schema/:project-id", func(c *gin.Context) {
-		h.AddSchema(c)
-	})
-    r.DELETE(":graph/del-graph/:project-id", func(c *gin.Context) {
-		h.DeleteGraph(c)
-	})
-    r.DELETE(":graph/del-edge/:edge-id/:project-id", func(c *gin.Context) {
-		h.DeleteEdge(c, c.Param("edge-id"))
-	})
-    r.DELETE(":graph/del-vertex/:vertex-id/:project-id", func(c *gin.Context) {
-		h.DeleteVertex(c, c.Param("vertex-id"))
-	})
-    r.DELETE(":graph/bulk-delete/:project-id", func(c *gin.Context) {
-		h.BulkDelete(c)
-	})
-    r.DELETE(":graph/proj-delete/:project-id", func(c *gin.Context) {
-        h.ProjectDelete(c)
-    })
-    r.GET(":graph/list-labels/:project-id", func(c *gin.Context) {
-		h.ListLabels(c)
-	})
-    r.GET(":graph/get-schema/:project-id", func(c *gin.Context) {
-		h.GetSchema(c)
-	})
-    r.GET(":graph/get-graph/:project-id", func(c *gin.Context) {
-		h.GetGraph(c)
-	})
-    r.GET(":graph/get-vertex/:vertex-id/:project-id", func(c *gin.Context) {
-		h.GetVertex(c, c.Param("vertex-id"))
-	})
 	r.GET("list-graphs", func(c *gin.Context) {
 		h.ListGraphs(c, c.Writer)
 	})
+	r.GET("_status", func(c *gin.Context) {
+		Response(c, c.Writer, "", 200, 200, fmt.Sprintf("[200] healthy _status"))
+	})
 
-
+	g := r.Group(":graph")
+	g.Use(TokenAuthMiddleware())
+	g.POST("/add-vertex/:project-id", func(c *gin.Context) {
+		h.WriteVertex(c)
+	})
+	g.POST("/add-edge/:project-id", func(c *gin.Context) {
+		h.WriteEdge(c)
+	})
+	g.POST("/add-graph/:project-id", func(c *gin.Context) {
+		h.AddGraph(c)
+	})
+	g.POST("/mongo-load/:project-id", func(c *gin.Context) {
+		h.MongoBulk(c)
+	})
+	g.POST("/bulk-load/:project-id", func(c *gin.Context) {
+		h.BulkStream(c)
+	})
+	g.POST("/add-schema/:project-id", func(c *gin.Context) {
+		h.AddSchema(c)
+	})
+	g.DELETE("/del-graph/:project-id", func(c *gin.Context) {
+		h.DeleteGraph(c)
+	})
+	g.DELETE("/del-edge/:edge-id/:project-id", func(c *gin.Context) {
+		h.DeleteEdge(c, c.Param("edge-id"))
+	})
+	g.DELETE("/del-vertex/:vertex-id/:project-id", func(c *gin.Context) {
+		h.DeleteVertex(c, c.Param("vertex-id"))
+	})
+	g.DELETE("/bulk-delete/:project-id", func(c *gin.Context) {
+		h.BulkDelete(c)
+	})
+	g.DELETE("/proj-delete/:project-id", func(c *gin.Context) {
+		h.ProjectDelete(c)
+	})
+	g.GET("/list-labels", func(c *gin.Context) {
+		h.ListLabels(c)
+	})
+	g.GET("/get-schema/:project-id", func(c *gin.Context) {
+		h.GetSchema(c)
+	})
+	g.GET("/get-graph/:project-id", func(c *gin.Context) {
+		h.GetGraph(c)
+	})
+	g.GET("/get-vertex/:vertex-id/:project-id", func(c *gin.Context) {
+		h.GetVertex(c, c.Param("vertex-id"))
+	})
 	return h, nil
 }
 
@@ -315,7 +309,7 @@ func (gh *Handler) AddSchema(c *gin.Context) {
 
 	graphs, err = gripql.ParseJSONGraphs(buf.Bytes())
 	if err != nil {
-        RegError(c, writer, graph, GetInternalServerErr(fmt.Errorf("json parse error: %s", err)))
+		RegError(c, writer, graph, GetInternalServerErr(fmt.Errorf("json parse error: %s", err)))
 		return
 	}
 	for _, g := range graphs {
@@ -444,37 +438,36 @@ func (gh *Handler) BulkDelete(c *gin.Context) {
 }
 
 func (gh *Handler) ProjectDelete(c *gin.Context) {
-    ctx := context.Background()
-    var delVs []string
+	ctx := context.Background()
+	var delVs []string
 
-    writer, _, graph := getFields(c)
-    project_id := c.Param("project-id")
-    str_split := strings.Split(project_id, "-")
-    project := "/programs/" + str_split[0] + "/projects/" + str_split[1]
+	writer, _, graph := getFields(c)
+	project_id := c.Param("project-id")
+	str_split := strings.Split(project_id, "-")
+	project := "/programs/" + str_split[0] + "/projects/" + str_split[1]
 
+	Vquery := gripql.V().Has(gripql.Eq("auth_resource_path", project)).Render("_gid")
+	query := &gripql.GraphQuery{Graph: c.Param("graph"), Query: Vquery.Statements}
+	result, err := gh.client.Traversal(ctx, query)
+	if err != nil {
+		RegError(c, writer, graph, GetInternalServerErr(err))
+		return
+	}
 
-    Vquery := gripql.V().Has(gripql.Eq("auth_resource_path", project)).Render("_gid")
-    query := &gripql.GraphQuery{Graph: c.Param("graph"), Query: Vquery.Statements}
-    result, err := gh.client.Traversal(ctx, query);
-    if err != nil{
-        RegError(c, writer, graph, GetInternalServerErr(err))
-        return
-    }
+	/* Running bulkDelete with only the vertex ids specified will remove all of the disconnected edges caused by removing
+	   All vertices in the graph. */
+	for i := range result {
+		v := i.ToInterface().(map[string]any)["render"].(string)
+		delVs = append(delVs, v)
+	}
 
-    /* Running bulkDelete with only the vertex ids specified will remove all of the disconnected edges caused by removing 
-      All vertices in the graph. */
-    for i := range result {
-       v := i.ToInterface().(map[string]any)["render"].(string)
-       delVs  = append(delVs, v)
-    }
+	delData := &gripql.DeleteData{Graph: graph, Vertices: delVs, Edges: []string{}}
 
-    delData := &gripql.DeleteData{Graph: graph, Vertices: delVs, Edges: []string{}}
-    
-    if err := gh.client.BulkDelete(delData); err != nil {
-        RegError(c, writer, graph, GetInternalServerErr(err))
-        return
-    }
-    Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] project-delete on project %s", project_id))
+	if err := gh.client.BulkDelete(delData); err != nil {
+		RegError(c, writer, graph, GetInternalServerErr(err))
+		return
+	}
+	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] project-delete on project %s", project_id))
 }
 
 func (gh *Handler) WriteVertex(c *gin.Context) {
