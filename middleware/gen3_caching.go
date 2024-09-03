@@ -40,7 +40,56 @@ func GetExpiration(tokenString string) (time.Time, error) {
 	return time.Time{}, fmt.Errorf("Expiration field 'exp' type float64 not found in token %s", token)
 }
 
-func HandleJWTToken(token string, perm_method string) ([]any, error) {
+type ProdJWTHandler struct{}
+type JWTHandler interface {
+	HandleJWTToken(token, method string) ([]interface{}, error)
+}
+type MockJWTHandler struct{}
+
+func (m *MockJWTHandler) decodeToken(tokenString string) (jwt.MapClaims, error) {
+	/* A Mock token decoder designed to decode mock tokens for testing purposes only */
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte("foo-bar-signature"), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	}
+	return nil, fmt.Errorf("invalid token")
+}
+
+func (m *MockJWTHandler) HandleJWTToken(token string, perm_method string) ([]any, error) {
+	expiration, err := GetExpiration(token)
+	if err != nil {
+		return nil, &ServerError{StatusCode: 400, Message: fmt.Sprintf("%s Failed to get expiration from token %s", err, token)}
+	}
+
+	if expiration.After(time.Now()) {
+		claims, err := m.decodeToken(token)
+		if err != nil {
+			return nil, &ServerError{StatusCode: 400, Message: fmt.Sprintf("failed to parse token data %#v", token)}
+		}
+		subject, err := claims.GetSubject()
+		if err != nil {
+			return nil, &ServerError{StatusCode: 400, Message: fmt.Sprintf("failed to parse token claims data %#v", claims)}
+		}
+		fmt.Println("SUBJECT:", subject, "")
+		if ((subject == "create-reader" || subject == "create") && perm_method == "create") ||
+			((subject == "reader" || subject == "create-reader") && perm_method == "read") {
+			return []any{"/programs/ohsu/projects/test"}, nil
+		}
+
+		return []any{}, nil
+	}
+	return nil, &ServerError{StatusCode: 401, Message: fmt.Sprintf("token %s has expired %s", token, expiration)}
+}
+
+func (j *ProdJWTHandler) HandleJWTToken(token string, perm_method string) ([]any, error) {
 	cachedData, found := jwtCache.Get(token)
 
 	// If cache hit check expiration and return resourceList
@@ -49,8 +98,6 @@ func HandleJWTToken(token string, perm_method string) ([]any, error) {
 		if !ok {
 			return nil, &ServerError{StatusCode: 400, Message: fmt.Sprintf("failed to parse token data %#v", cachedData)}
 		}
-
-		fmt.Println("expiration:", tokenData.Expiration)
 
 		if tokenData.Expiration.After(time.Now()) {
 			log.Infoln("Retrieved Cached token")
@@ -63,7 +110,7 @@ func HandleJWTToken(token string, perm_method string) ([]any, error) {
 	// Otherise check expiration, add token to cache and return resourceList
 	expiration, err := GetExpiration(token)
 	if err != nil {
-		return nil, &ServerError{StatusCode: 400, Message: fmt.Sprintf("Failed to get expiration from token %s", token)}
+		return nil, &ServerError{StatusCode: 400, Message: fmt.Sprintf("%s Failed to get expiration from token %s", err, token)}
 	}
 
 	if expiration.After(time.Now()) {

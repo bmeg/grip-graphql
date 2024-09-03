@@ -43,6 +43,7 @@ type GraphQLJS struct {
 	client    gripql.Client
 	gjHandler *handler.Handler
 	Pool      sync.Pool
+	cw        *JSClientWrapper
 	//Once      sync.Once
 }
 
@@ -297,7 +298,7 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 			hnd = handler.New(&handler.Config{
 				Schema: schema,
 			})
-			gh := &GraphQLJS{client: client, gjHandler: hnd}
+			gh := &GraphQLJS{client: client, gjHandler: hnd, cw: jsClient}
 			return gh
 		},
 	}
@@ -322,10 +323,14 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 		requestHeaders := request.Header
 		ctx := context.WithValue(context.Background(), "Header", requestHeaders)
 
+		var jwtHandler middleware.JWTHandler = &middleware.ProdJWTHandler{}
+		if gh.cw.graph == "TEST" {
+			jwtHandler = &middleware.MockJWTHandler{}
+		}
 		//fmt.Println("REQUEST HEADERS:::: +++++++++++++++++++", requestHeaders)
 		if val, ok := requestHeaders["Authorization"]; ok {
 			Token := val[0]
-			resourceList, err := middleware.HandleJWTToken(Token, "read")
+			resourceList, err := jwtHandler.HandleJWTToken(Token, "read")
 			//resourceList := []any{"/programs/cbds/projects/demo", "/programs/cbds/projects/welcome", "/programs/synthea/projects/test"}
 			if err != nil {
 				middleware.HandleError(err, writer)
@@ -333,11 +338,9 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 			}
 
 			if len(resourceList) == 0 || err != nil {
-				//fmt.Println("_+_+_+__+_+_+__+_+_+_+_+_+_+_+_+_+_+_+_+_+_", err)
 				if len(resourceList) == 0 {
-					err = &middleware.ServerError{StatusCode: http.StatusUnauthorized, Message: "resource list is len 0 or error has occured"}
+					err = &middleware.ServerError{StatusCode: http.StatusForbidden, Message: "User does not have access to any projects"}
 				}
-
 				middleware.HandleError(err, writer)
 				return err
 			}
