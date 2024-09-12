@@ -217,6 +217,9 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	g.GET("/get-vertex/:vertex-id/:project-id", func(c *gin.Context) {
 		h.GetVertex(c, c.Param("vertex-id"))
 	})
+	g.GET("/get-vertices/:project-id", func(c *gin.Context) {
+		h.GetProjectVertices(c)
+	})
 	return h, nil
 }
 
@@ -449,6 +452,39 @@ func (gh *Handler) BulkDelete(c *gin.Context) {
 		return
 	}
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] bulk-delete on graph %s", graph))
+}
+
+func (gh *Handler) GetProjectVertices(c *gin.Context) {
+	ctx := context.Background()
+
+	writer, _, graph := getFields(c)
+	project_id := c.Param("project-id")
+	str_split := strings.Split(project_id, "-")
+	project := "/programs/" + str_split[0] + "/projects/" + str_split[1]
+
+	Vquery := gripql.V().Has(gripql.Eq("auth_resource_path", project))
+	query := &gripql.GraphQuery{Graph: c.Param("graph"), Query: Vquery.Statements}
+	result, err := gh.client.Traversal(ctx, query)
+	if err != nil {
+		RegError(c, writer, graph, GetInternalServerErr(err))
+		return
+	}
+
+	flusher, ok := writer.(http.Flusher)
+	if !ok {
+		RegError(c, writer, graph, GetInternalServerErr(err))
+		return
+	}
+
+	for i := range result {
+		rowString, _ := protojson.Marshal(i.GetVertex())
+		_, err := writer.Write(append(rowString, '\n'))
+		if err != nil {
+			RegError(c, writer, graph, GetInternalServerErr(err))
+			return
+		}
+		flusher.Flush()
+	}
 }
 
 func (gh *Handler) ProjectDelete(c *gin.Context) {

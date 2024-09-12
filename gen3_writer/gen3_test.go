@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -13,7 +14,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bmeg/grip/gripql"
 	"github.com/golang-jwt/jwt/v5"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type Request struct {
@@ -251,6 +254,61 @@ func Test_Get_Vertex_Ok(t *testing.T) {
 		t.Error(response)
 	}
 	t.Log(status, response)
+}
+
+func Test_Get_Project_Vertices_Ok(t *testing.T) {
+	req := &Request{
+		url:     "http://localhost:8201/graphql/TEST/get-vertices/ohsu-test",
+		method:  "GET",
+		headers: map[string]any{"Authorization": createToken(false, false, true)},
+	}
+
+	request, err := http.NewRequest(req.method, req.url, bytes.NewBuffer(req.body))
+	if err != nil {
+		t.Error("Error creating request:", err)
+		return
+	}
+	for key, val := range req.headers {
+		request.Header.Set(key, val.(string))
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		t.Error("Error sending request:", err)
+	}
+	t.Log("RESP: ")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Logf("server responded with status: %s", resp.Status)
+	}
+
+	reader := bufio.NewReader(resp.Body)
+	jum := protojson.UnmarshalOptions{DiscardUnknown: true}
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			t.Errorf("error reading response: %s", err)
+		}
+		v := &gripql.Vertex{}
+		err = jum.Unmarshal([]byte(line), v)
+		if err != nil {
+			t.Error(err)
+		}
+		if v.Gid == "" {
+			t.Error("Gid should be populated if unmarshal was successful")
+		}
+		mappedData := v.Data.AsMap()
+		t.Logf("Received Vertex: %s\n", mappedData["resourceType"])
+
+		if mappedData["auth_resource_path"] != "/programs/ohsu/projects/test" {
+			t.Error("returned data should have resource path: /programs/ohsu/projects/test")
+		}
+	}
 }
 
 func Test_Delete_Edge_Ok(t *testing.T) {
