@@ -1,84 +1,11 @@
+### Grip Graphql Plugins
 
-# GRIP GraphQL Endpoint
-Configurable GraphQL endpoint for the GRaph Integration Platform
+grip-graphql is a collection of go plugins designed and implemented for connecting a [Grip](https://github.com/bmeg/grip) server to other microservices in a modified [Gen3](https://gen3.org/) software stack.
 
+gen3_writer directory contains a [Gin](https://github.com/gin-gonic/gin) go server plugin that is used for Writing / Deleting data from Graphs on a grip server
 
-## Build
+gripgraphql directory contains a graphql based read query plugin that uses a [goja](https://github.com/dop251/goja) engine to read from a static schema defined as a config file to create custom graphql queries that can be used to abstract Grip's complex query language into a more digestible query format for the frontend to use.
 
-Run `make` to build both the plugin (grip-graphql-endpoint.so) and proxy server (grip-graphql-proxy).
+graphql_gen3 is a legacy implementation of a reader reader plugin using a more traditional graphql schema builder.
 
-
-## Plugin
-Run as a shared object within the GRIP server
-```
-grip server -w graphql=grip-graphql-endpoint.so -l graphql:config=./config/config.js -l graphql:graph=test-db
-```
-
-## Proxy
-Run the server as a proxy endpoint connected to an external GRIP service
-```
-./grip-graphql-proxy <grip server> <server port> <config> <database>
-```
-
-## Example configuration file
-
-```javascript
-
-endpoint.add({
-    name: "projects",
-    schema: [
-        "String"
-    ],
-    handler: (G, args) => {
-        return G.V().hasLabel("Project").render("_gid").toList()
-    }
-})
-
-endpoint.add({
-    name: "cases",
-    schema: [
-        "String"
-    ],
-    args: {
-        offset: "Int",
-        limit: "Int",
-        project_id : "String"
-    }, 
-    defaults: {
-        offset: 0,
-        limit: 100
-    },
-    handler: (G, args) => {
-        if (args.project_id === undefined) {
-            return G.V().hasLabel("Case").skip(args.offset).limit(args.limit).render("_gid").toList()
-        } else {
-            return G.V().hasLabel("Case").has(gripql.eq("project_id", args.project_id)).skip(args.offset).limit(args.limit).render("_gid").toList()
-        }
-    }
-})
-
-endpoint.add({
-    name: "caseCounts",
-    schema: {
-        cases: "Int",
-        samples: "Int",
-        aliquots: "Int"
-    },
-    args: {
-        project_id: "String"
-    },
-    handler: (G, args) => {
-        return {
-            "cases": G.V().hasLabel("Case").has(gripql.eq("project_id", args.project_id)).count().toList()[0],
-            "samples": G.V().hasLabel("Case").has(gripql.eq("project_id", args.project_id)).out("samples").count().toList()[0],
-            "aliquots": G.V().hasLabel("Case").has(gripql.eq("project_id", args.project_id)).out("samples").out("aliquots").count().toList()[0],
-        }
-    }
-})
-```
-
-
-## GRIP setup with frontend framework
-
-1. setup frontendframework see docs
-2. grip server -c mongo.yml -w graphql=grip-graphql-endpoint.so -l graphql:config=config/gen3.js -l graphql:graph=gdc
+See ./gen3_writer for tests and additional documentation

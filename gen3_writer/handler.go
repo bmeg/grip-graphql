@@ -58,17 +58,17 @@ func ParseAccess(c *gin.Context, resourceList []string, resource string, method 
 	    resource matches the allowable list of resource types for the provided method */
 
 	if len(resourceList) == 0 {
-		return &middleware.ServerError{StatusCode: 401, Message: fmt.Sprintf("User is not allowed to %s on any resource path", method)}
+		return &middleware.ServerError{StatusCode: 403, Message: fmt.Sprintf("User is not allowed to %s on any resource path", method)}
 	}
 	for _, v := range resourceList {
 		if resource == v {
 			return nil
 		}
 	}
-	return &middleware.ServerError{StatusCode: 401, Message: fmt.Sprintf("User is not allowed to %s on resource path: %s", method, resource)}
+	return &middleware.ServerError{StatusCode: 403, Message: fmt.Sprintf("User is not allowed to %s on resource path: %s", method, resource)}
 }
 
-func TokenAuthMiddleware() gin.HandlerFunc {
+func TokenAuthMiddleware(jwtHandler middleware.JWTHandler) gin.HandlerFunc {
 	/*  Authentication middleware function. Maps HTTP method to expected permssions.
 	    If user permissions don't match, abort command and return 401 */
 
@@ -95,7 +95,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 				return
 			}
 
-			anyList, err := middleware.HandleJWTToken(Token, method)
+			anyList, err := jwtHandler.HandleJWTToken(Token, method)
 			if err != nil {
 				RegError(c, c.Writer, c.Param("graph"), err)
 				return
@@ -122,8 +122,14 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 }
 
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
-	// Including below line to run in prod mode
 
+	// Need a way to toggle on mock auth
+	var mware middleware.JWTHandler = &middleware.ProdJWTHandler{}
+	if config["test"] == "true" {
+		mware = &middleware.MockJWTHandler{}
+	}
+
+	// Including below line to run in prod mode
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 
@@ -163,17 +169,17 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	r.GET("_status", func(c *gin.Context) {
 		Response(c, c.Writer, "", 200, 200, fmt.Sprintf("[200] healthy _status"))
 	})
+	r.POST("/add-graph/:graph/:project-id", TokenAuthMiddleware(mware), func(c *gin.Context) {
+		h.AddGraph(c)
+	})
 
 	g := r.Group(":graph")
-	g.Use(TokenAuthMiddleware())
+	g.Use(TokenAuthMiddleware(mware))
 	g.POST("/add-vertex/:project-id", func(c *gin.Context) {
 		h.WriteVertex(c)
 	})
 	g.POST("/add-edge/:project-id", func(c *gin.Context) {
 		h.WriteEdge(c)
-	})
-	g.POST("/add-graph/:project-id", func(c *gin.Context) {
-		h.AddGraph(c)
 	})
 	g.POST("/mongo-load/:project-id", func(c *gin.Context) {
 		h.MongoBulk(c)
@@ -210,6 +216,9 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	})
 	g.GET("/get-vertex/:vertex-id/:project-id", func(c *gin.Context) {
 		h.GetVertex(c, c.Param("vertex-id"))
+	})
+	g.GET("/get-vertices/:project-id", func(c *gin.Context) {
+		h.GetProjectVertices(c)
 	})
 	return h, nil
 }
@@ -365,6 +374,10 @@ func (gh *Handler) GetVertex(c *gin.Context, vertex string) {
 	writer, _, graph := getFields(c)
 	gql_vertex, err := gh.client.GetVertex(graph, vertex)
 	if err != nil {
+		if strings.Contains(err.Error(), "rpc error: code = NotFound") {
+			RegError(c, writer, graph, &middleware.ServerError{StatusCode: 404, Message: fmt.Sprintf("%s", err)})
+			return
+		}
 		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
@@ -375,6 +388,10 @@ func (gh *Handler) GetEdge(c *gin.Context, edge string) {
 	writer, _, graph := getFields(c)
 	gql_edge, err := gh.client.GetEdge(graph, edge)
 	if err != nil {
+		if strings.Contains(err.Error(), "rpc error: code = NotFound") {
+			RegError(c, writer, graph, &middleware.ServerError{StatusCode: 404, Message: fmt.Sprintf("%s", err)})
+			return
+		}
 		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
@@ -435,6 +452,39 @@ func (gh *Handler) BulkDelete(c *gin.Context) {
 		return
 	}
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] bulk-delete on graph %s", graph))
+}
+
+func (gh *Handler) GetProjectVertices(c *gin.Context) {
+	ctx := context.Background()
+
+	writer, _, graph := getFields(c)
+	project_id := c.Param("project-id")
+	str_split := strings.Split(project_id, "-")
+	project := "/programs/" + str_split[0] + "/projects/" + str_split[1]
+
+	Vquery := gripql.V().Has(gripql.Eq("auth_resource_path", project))
+	query := &gripql.GraphQuery{Graph: c.Param("graph"), Query: Vquery.Statements}
+	result, err := gh.client.Traversal(ctx, query)
+	if err != nil {
+		RegError(c, writer, graph, GetInternalServerErr(err))
+		return
+	}
+
+	flusher, ok := writer.(http.Flusher)
+	if !ok {
+		RegError(c, writer, graph, GetInternalServerErr(err))
+		return
+	}
+
+	for i := range result {
+		rowString, _ := protojson.Marshal(i.GetVertex())
+		_, err := writer.Write(append(rowString, '\n'))
+		if err != nil {
+			RegError(c, writer, graph, GetInternalServerErr(err))
+			return
+		}
+		flusher.Flush()
+	}
 }
 
 func (gh *Handler) ProjectDelete(c *gin.Context) {

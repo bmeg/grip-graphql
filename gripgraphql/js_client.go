@@ -145,7 +145,6 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 		out = append(out, cw.vm.ToValue(toInterface(row)))
 	}
 
-	//fmt.Printf("EXIT TOLIST FUNCTION", out)
 	return cw.vm.ToValue(out)
 }
 
