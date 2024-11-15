@@ -1,29 +1,74 @@
 package main
 
-//grip query synthea 'V().hasLabel("DocumentReference").out("subject")'
-/*documentReference (filter:$filter) {
-  subject{
-    id
-  }
-}*/
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
-	"os/exec"
-	"reflect"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/bmeg/grip/gripql"
+	"github.com/golang-jwt/jwt/v5"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
-func HTTP_REQUEST(graph_name string, url string, payload []byte, t *testing.T) (response_json map[string]any, status bool) {
-	req, err := http.NewRequest("POST", url+graph_name, bytes.NewBuffer(payload))
+type Request struct {
+	url     string
+	method  string
+	headers map[string]any
+	body    []byte
+}
+
+func createToken(expired bool, writer bool, reader bool) string {
+	var create string
+	timeNow := time.Now()
+	time_exp := timeNow
+	if !expired {
+		time_exp = timeNow.Add(time.Minute * 20)
+	}
+	if writer {
+		create = "create"
+	}
+	if reader {
+		create = "reader"
+	}
+	if writer && reader {
+		create = "create-reader"
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
+		jwt.MapClaims{
+			"iss":      "https://foobar-domain/user",
+			"username": "foobar-user",
+			"iat":      timeNow.Unix(),
+			"exp":      time_exp.Unix(),
+			"jti":      "foobbar-jti",
+			"sub":      create,
+		})
+	tokenString, err := token.SignedString([]byte("foo-bar-signature"))
+	if err != nil {
+		fmt.Println("Error creating signed string: ", err)
+	}
+	return tokenString
+}
+
+func TemplateRequest(request *Request, t *testing.T) (response_json map[string]any, status bool) {
+	/* A templating function that inserts all of the arguments that would are needed to do an http request */
+
+	req, err := http.NewRequest(request.method, request.url, bytes.NewBuffer(request.body))
 	if err != nil {
 		t.Error("Error creating request:", err)
 		return
 	}
-
-	req.Header.Set("Content-Type", "application/json")
+	for key, val := range request.headers {
+		req.Header.Set(key, val.(string))
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -44,251 +89,323 @@ func HTTP_REQUEST(graph_name string, url string, payload []byte, t *testing.T) (
 
 	var data map[string]interface{}
 	errors := json.Unmarshal([]byte(buf.String()), &data)
-	t.Log("DATA: ", data)
 	if errors != nil {
-		t.Error("Error:", errors)
+		t.Error("Error: ", errors)
 		return nil, false
 	}
 	return data, true
 }
-func Test_Filters(t *testing.T) {
-	tests := []struct {
-		name string
-	}{
-		{name: "Slider and CheckBox"},
-		{name: "Aggregation and Filter"},
-		{name: "Combo_test"},
-		{name: "NullOps"},
-		{name: "GraphQL_NullOps"},
-		{name: "NullOP_Results"},
-	}
-	for _, tt := range tests {
-		if tt.name == "Slider and CheckBox" {
-			t.Run(tt.name, func(t *testing.T) {
-				payload := []byte(`{
-					"query": "query ($filter: JSON) {\n  patient(filter: $filter) {\n    quality_adjusted_life_years_valueDecimal\n    maritalStatus\n  }\n}\n",
-					"variables": {
-					  "filter": {
-						"AND": [
-						  {
-							"AND": [
-							  {
-								">=": {
-								  "quality_adjusted_life_years_valueDecimal": 66
-								}
-							  },
-							  {
-								"<=": {
-								  "quality_adjusted_life_years_valueDecimal": 70
-								}
-							  }
-							]
-						  },
-						  {
-							"IN": {
-							  "maritalStatus": [
-								"M"
-							  ]
-							}
-						  }
-						]
-					  }
-					}
-				  }`)
-				data, status := HTTP_REQUEST("synthea", "http://localhost:8201/api/graphql/", payload, t)
-				if status == false {
-					t.Error("HTTP Request failed")
-				}
-				if data, ok := data["data"].(map[string]any); ok {
-					if data, ok := data["patient"]; ok {
-						if data, ok := data.([]any); ok {
-							for _, value := range data {
-								if data, ok := value.(map[string]any); ok {
-									if upper_bound, ok := data["quality_adjusted_life_years_valueDecimal"].(float64); ok {
-										if data["maritalStatus"] == "M" && upper_bound >= 66 && upper_bound <= 70 {
-											continue
-										} else {
-											t.Error("Row Has failed filter")
-										}
-									} else {
-										t.Error("Row has failed type check")
-									}
-								}
-							}
-						}
-					}
-				}
 
-			})
-		}
-		if tt.name == "Aggregation and Filter" {
-			payload := []byte(`{
-				"query": "query ($filter: JSON) {\n  _aggregation {\n  observation (filter: $filter) {\n    code {\n      histogram {\n        count\n        key\n      }\n    }\n\n  }}\n}\n",
-				"variables": {
-				  "filter": {
-					"AND": [
-					  {
-						"IN": {
-						  "code": [
-							"Creatinine"
-						  ]
-						}
-					  }
-					]
-				  }
-				}
-			  }`)
-			data, status := HTTP_REQUEST("synthea", "http://localhost:8201/api/graphql/", payload, t)
-			if status == false {
-				t.Error("test failed")
-			}
-			if data, ok := data["data"].(map[string]any)["_aggregation"].(map[string]any)["observation"].(map[string]any)["code"].(map[string]any)["histogram"].([]any); ok {
-				for _, values := range data {
-					key := values.(map[string]any)["key"].(string)
-					count := values.(map[string]any)["count"].(float64)
-					if key != `string_value:"Creatinine"` || count != 5377 {
-						t.Error("Aggregation test failed. Did data change?")
-					}
-				}
-			} else {
-				t.Error("indexing failed. Did query change?")
-			}
-		}
-		if tt.name == "Combo_test" {
-			payload := []byte(`{
-				"query": "query ($filter: JSON) {\n  _aggregation {\n  documentReference {\n    category {\n      histogram {\n        count\n        key\n      }\n    }\n  }\n  }\n  observation(filter: $filter) {\n    subject\n  }\n}\n",
-				"variables": {
-				  "filter": {
-					"AND": [
-					  {
-						"IN": {
-						  "subject": [
-							"Patient/5b13b8fc-f387-4a95-bb80-5c22eeed7697"
-						  ]
-						}
-					  }
-					]
-				  }
-				}
-			  }`)
-			data, status := HTTP_REQUEST("synthea", "http://localhost:8201/api/graphql/", payload, t)
-			if status == false {
-				t.Error("test failed on HTTP Request")
-			}
-			if data, ok := data["data"].(map[string]any); ok {
-				if aggregation, ok := data["_aggregation"].(map[string]any)["documentReference"].(map[string]any)["category"].(map[string]any)["histogram"].([]any); ok {
-					for i, values := range aggregation {
-						if map_values, ok := values.(map[string]any); ok {
-							t.Log("MAP VALUES: ", map_values)
-							switch i {
-							case 0:
-								if map_values["key"].(string) == `string_value:"Clinical Note"` && map_values["count"].(float64) == 37378 {
-									continue
-								} else {
-									t.Error("test failed, values don't match")
-								}
-							case 1:
-								if map_values["key"].(string) == `string_value:"Image"` && map_values["count"].(float64) == 125 {
-									continue
-								} else {
-									t.Error("test failed, values don't match")
-								}
-							case 2:
-								if map_values["key"].(string) == `string_value:"Cancer related multigene analysis Molgen Doc (cfDNA)"` && map_values["count"].(float64) == 9 {
-									continue
-								} else {
-									t.Error("test failed, values don't match")
-								}
-							}
-						}
-					}
-					if res, ok := data["observation"].([]any); ok {
-						for _, val := range res {
-							t.Log("INFO: ", val)
-							if val.(map[string]any)["subject"] != "Patient/5b13b8fc-f387-4a95-bb80-5c22eeed7697" {
-								t.Error("filter test failed, values don't match")
-							}
-						}
-					}
-				}
-
+func bulkLoad(url, directoryPath, accessToken string) (error, []map[string]any) {
+	files, _ := os.ReadDir(directoryPath)
+	var allData []map[string]any
+	for _, file := range files {
+		if !file.IsDir() && (filepath.Ext(file.Name()) == ".json" || filepath.Ext(file.Name()) == ".gz" || filepath.Ext(file.Name()) == ".ndjson") {
+			filePath := filepath.Join(directoryPath, file.Name())
+			graphComponent := "vertex"
+			if strings.Contains(filePath, "edge") {
+				graphComponent = "edge"
 			}
 
-		}
-		if tt.name == "NullOps" {
-			cmd := exec.Command("grip", "query", "outNull", `V(["875e3325-c2ad-4d63-82ad-be8432bd415b","1842609e-7a40-4ba3-8a82-2fa061fcf30f"]).outNull("subject_Patient")`)
-			output, err := cmd.Output()
+			file, _ := os.Open(filePath)
+			defer file.Close()
 
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, _ := writer.CreateFormFile("file", filepath.Base(filePath))
+			io.Copy(part, file)
+			writer.WriteField("types", graphComponent)
+			writer.Close()
+
+			req, _ := http.NewRequest("POST", url, body)
+			req.Header.Set("Authorization", accessToken)
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+
+			client := &http.Client{}
+			resp, _ := client.Do(req)
+			defer resp.Body.Close()
+
+			var err error
+			buf := new(bytes.Buffer)
+			_, err = buf.ReadFrom(resp.Body)
 			if err != nil {
-				t.Error("Error:", err)
+				return err, nil
 			}
 
-			json_string := strings.Split(string(output), "\n")
-			var jsonMap map[string]interface{}
-			var NullOp map[string]interface{}
-
-			json.Unmarshal([]byte(json_string[0]), &jsonMap)
-			json.Unmarshal([]byte(json_string[1]), &NullOp)
-
-			if val, ok := NullOp["vertex"]; ok {
-				if val == nil || reflect.DeepEqual(val, reflect.Zero(reflect.TypeOf(val)).Interface()) {
-					t.Error("Null Op Test Failed", val)
-				}
+			var data map[string]interface{}
+			errors := json.Unmarshal([]byte(buf.String()), &data)
+			if errors != nil {
+				return errors, nil
 			}
-
-			//t.Log("NULL OP", NullOp)
-		}
-		if tt.name == "GraphQL_NullOps" {
-			payload := []byte(`{
-				"query": "query ($filter: JSON) {\n  documentReference (filter:$filter, first: 1) {\n    file_name\n    subject {\n      id\n      birthDate\n      subject_observation {\n        code\n      }\n    }   \n  }\n}\n",
-				"variables": {}
-			  }`)
-			data, status := HTTP_REQUEST("synthea", "http://localhost:8201/api/graphql/", payload, t)
-			if status == false {
-				t.Error("test failed on HTTP Request")
-			}
-			if data, ok := data["data"].(map[string]any)["documentReference"].([]any); ok {
-				if data, ok := data[0].(map[string]any); ok {
-					t.Log("CHECK: ", data["file_name"] == "output/clinical_reports/53fefa32-fcbb-4ff8-8a92-55ee120877b7")
-					if data["file_name"] != "output/clinical_reports/53fefa32-fcbb-4ff8-8a92-55ee120877b7" {
-						t.Error()
-					}
-					if data, ok := data["subject"].([]any); ok {
-						if data, ok := data[0].(map[string]any); ok {
-							t.Log("CHECK: ", data["birthDate"] == "1913-10-29" || data["id"] != "fb60e763-e799-4d59-82a3-66977cc6696c")
-							if data["birthDate"] != "1913-10-29" || data["id"] != "fb60e763-e799-4d59-82a3-66977cc6696c" {
-								t.Error()
-							}
-							if data, ok := data["subject_observation"].([]any); ok {
-								if data, ok := data[0].(map[string]any); ok {
-									t.Log("CHECK: ", data["code"] == "Bilirubin.total [Mass/volume] in Serum or Plasma")
-									if data["code"] != "Bilirubin.total [Mass/volume] in Serum or Plasma" {
-										t.Error()
-									}
-
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		if tt.name == "NullOP_Results" {
-			payload := []byte(`{
-				"query": "query ($filter: JSON) {\n  documentReference (filter:$filter, first: 7) {\n    file_name\n    subject {\n      id\n      birthDate\n      subject_observation {\n        code\n      }\n    }   \n  }\n}\n",
-				"variables": {}
-			  }`)
-			data, status := HTTP_REQUEST("synthea", "http://localhost:8201/api/graphql/", payload, t)
-			if status == false {
-				t.Error("test failed on HTTP Request")
-			}
-			if data, ok := data["data"].(map[string]any)["documentReference"].([]any); ok {
-				if len(data) != 7 {
-					t.Error("Unexpected output length")
-				}
-			} else {
-				t.Error("Unexpected output structure")
-			}
+			allData = append(allData, data)
 		}
 	}
+	return nil, allData
+}
+
+func Test_Load_Ok(t *testing.T) {
+	req := &Request{
+		url:     "http://localhost:8201/graphql/add-graph/TEST/ohsu-test",
+		method:  "POST",
+		headers: map[string]any{"Authorization": createToken(false, true, true)},
+	}
+	t.Run("create_load_graph", func(t *testing.T) {
+		response_json, pass := TemplateRequest(req, t)
+		if !pass {
+			t.Error("status is not 200")
+		}
+		t.Log("RESPONSE JSON: ", response_json, "STATUS: ", pass)
+	})
+
+	err, responses := bulkLoad("http://localhost:8201/graphql/TEST/bulk-load/ohsu-test",
+		"fixtures/combio-examples-grip",
+		createToken(false, true, true),
+	)
+	if err != nil {
+		t.Error(err)
+	}
+	for _, resp := range responses {
+		if resp["status"].(float64) != 200 {
+			t.Error(resp)
+		} else {
+			t.Log(resp)
+		}
+	}
+}
+
+func Test_Load_Malformed_Token(t *testing.T) {
+	/* Server returns a 400 given an unparsable token */
+	err, responses := bulkLoad("http://localhost:8201/graphql/TEST/bulk-load/ohsu-test",
+		"fixtures/combio-examples-grip",
+		createToken(false, true, true)[2:50],
+	)
+	if err != nil {
+		t.Error(err)
+	}
+	for _, resp := range responses {
+		if resp["status"].(float64) != 400 {
+			t.Error(resp)
+		} else {
+			t.Log(resp)
+		}
+	}
+}
+
+func Test_Load_Expired_Token(t *testing.T) {
+	/* Server returns a 401 given an expired token */
+	err, responses := bulkLoad("http://localhost:8201/graphql/TEST/bulk-load/ohsu-test",
+		"fixtures/combio-examples-grip",
+		createToken(true, true, true),
+	)
+	if err != nil {
+		t.Error(err)
+	}
+	for _, resp := range responses {
+		if resp["status"].(float64) != 401 {
+			t.Error(resp)
+		} else {
+			t.Log(resp)
+		}
+	}
+}
+
+func Test_Load_No_Writer_Perms(t *testing.T) {
+	/* Server returns a 403 given a token that respresents a user with no writer perms on the specified project */
+	err, responses := bulkLoad("http://localhost:8201/graphql/TEST/bulk-load/ohsu-test",
+		"fixtures/combio-examples-grip",
+		createToken(false, false, true),
+	)
+	if err != nil {
+		t.Error(err)
+	}
+	for _, resp := range responses {
+		if resp["status"].(float64) != 403 {
+			t.Error(resp)
+		} else {
+			t.Log(resp)
+		}
+	}
+}
+
+func Test_Get_Vertex_No_Reader_Perms(t *testing.T) {
+	/* Server returns a 403 given a token that respresents a user with no writer perms on the specified project */
+	req := &Request{
+		url:     "http://localhost:8201/graphql/TEST/get-vertex/cec32723-9ede-5f24-ba63-63cb8c6a02cf/ohsu-test",
+		method:  "GET",
+		headers: map[string]any{"Authorization": createToken(false, true, false)},
+	}
+
+	response, status := TemplateRequest(req, t)
+	if !(response["status"].(float64) == 403) || !status {
+		t.Error(response)
+	}
+	t.Log(status, response)
+}
+
+func Test_Get_Vertex_Ok(t *testing.T) {
+	/* given appropriate perms, edge should be retrieved */
+	req := &Request{
+		url:     "http://localhost:8201/graphql/TEST/get-vertex/cec32723-9ede-5f24-ba63-63cb8c6a02cf/ohsu-test",
+		method:  "GET",
+		headers: map[string]any{"Authorization": createToken(false, false, true)},
+	}
+	response, status := TemplateRequest(req, t)
+	if !(response["status"].(float64) == 200) || !status {
+		t.Error(response)
+	}
+	t.Log(status, response)
+}
+
+func Test_Get_Project_Vertices_Ok(t *testing.T) {
+	req := &Request{
+		url:     "http://localhost:8201/graphql/TEST/get-vertices/ohsu-test",
+		method:  "GET",
+		headers: map[string]any{"Authorization": createToken(false, false, true)},
+	}
+
+	request, err := http.NewRequest(req.method, req.url, bytes.NewBuffer(req.body))
+	if err != nil {
+		t.Error("Error creating request:", err)
+		return
+	}
+	for key, val := range req.headers {
+		request.Header.Set(key, val.(string))
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		t.Error("Error sending request:", err)
+	}
+	t.Log("RESP: ")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Logf("server responded with status: %s", resp.Status)
+	}
+
+	reader := bufio.NewReader(resp.Body)
+	jum := protojson.UnmarshalOptions{DiscardUnknown: true}
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			t.Errorf("error reading response: %s", err)
+		}
+		v := &gripql.Vertex{}
+		err = jum.Unmarshal([]byte(line), v)
+		if err != nil {
+			t.Error(err)
+		}
+		if v.Gid == "" {
+			t.Error("Gid should be populated if unmarshal was successful")
+		}
+		mappedData := v.Data.AsMap()
+		t.Logf("Received Vertex: %s\n", mappedData["resourceType"])
+
+		if mappedData["auth_resource_path"] != "/programs/ohsu/projects/test" {
+			t.Error("returned data should have resource path: /programs/ohsu/projects/test")
+		}
+	}
+}
+
+func Test_Delete_Edge_Ok(t *testing.T) {
+	/* Regular delete should return 200 */
+	req := &Request{
+		url:     "http://localhost:8201/graphql/TEST/del-edge/e2867c6d-db7e-5d6e-87d8-b1c293f5b47e/ohsu-test",
+		method:  "DELETE",
+		headers: map[string]any{"Authorization": createToken(false, true, true)},
+	}
+	response, status := TemplateRequest(req, t)
+	if !(response["status"].(float64) == 200) || !status {
+		t.Error(response)
+	}
+	t.Log(status, response)
+
+}
+
+func Test_Graphql_Query_Forbidden_Perms(t *testing.T) {
+	/* Testing do a query, but with a token that doesn't have read perms */
+	payload := []byte(`{
+	    "query": "query PatientIdsWithSpecimenEdge { PatientIdsWithSpecimenEdge {    id  }}",
+	    "variables": {
+	        "limit": 1000
+	    }
+	}`)
+
+	req := &Request{
+		url:    "http://localhost:8201/reader/api",
+		method: "POST",
+		headers: map[string]any{
+			"Authorization": createToken(false, false, false),
+			"Content-Type":  "application/json"},
+		body: payload,
+	}
+	response, status := TemplateRequest(req, t)
+	if !(response["StatusCode"].(float64) == 403) {
+		t.Error(response)
+	}
+	t.Log(status, response)
+}
+func Test_Graphql_Query_Proj(t *testing.T) {
+	/* A basic test for Graphql style query with mock auth */
+	payload := []byte(`{
+	    "query": "query PatientIdsWithSpecimenEdge { PatientIdsWithSpecimenEdge {    id  }}",
+	    "variables": {
+	        "limit": 1000
+	    }
+	}`)
+
+	req := &Request{
+		url:    "http://localhost:8201/reader/api",
+		method: "POST",
+		headers: map[string]any{
+			"Authorization": createToken(false, false, true),
+			"Content-Type":  "application/json"},
+		body: payload,
+	}
+
+	response, status := TemplateRequest(req, t)
+	if !status {
+		t.Error("Status returned false: ", response)
+	}
+	correct_response, ok := response["data"].(map[string]any)["PatientIdsWithSpecimenEdge"].([]any)
+	if !ok {
+		t.Error("Response not indexable for 'data' and/or 'PatientIdsWithSpecimenEdge' keys")
+	}
+	for _, resp := range correct_response {
+		val, ok := resp.(map[string]any)["id"].(string)
+		if !ok {
+			t.Error("Response not indexable on 'id': ", resp)
+		}
+		t.Log("Return VAL: ", val)
+	}
+}
+
+func Test_Delete_Proj(t *testing.T) {
+	/* Delete Everything from test graph project ohsu-test. Should return 200 */
+	req := &Request{
+		url:     "http://localhost:8201/graphql/TEST/proj-delete/ohsu-test",
+		method:  "DELETE",
+		headers: map[string]any{"Authorization": createToken(false, true, true)},
+	}
+	response, status := TemplateRequest(req, t)
+	if !(response["status"].(float64) == 200) {
+		t.Error(response)
+	}
+	t.Log(status, response)
+
+	// Look for the vertex that was retrieved earlier. It should be gone
+	req = &Request{
+		url:     "http://localhost:8201/graphql/TEST/get-vertex/cec32723-9ede-5f24-ba63-63cb8c6a02cf/ohsu-test",
+		method:  "GET",
+		headers: map[string]any{"Authorization": createToken(false, false, true)},
+	}
+	response, status = TemplateRequest(req, t)
+	if !(response["status"].(float64) == 404) {
+		t.Error(response)
+	}
+	t.Log("RESPONSE: ", response)
 }
