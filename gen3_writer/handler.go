@@ -5,7 +5,6 @@ RESTFUL Gin Web endpoint
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"compress/gzip"
 	"context"
@@ -13,18 +12,14 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"sync"
 
 	"github.com/bmeg/grip-graphql/middleware"
-	"github.com/bmeg/grip/gdbi"
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/log"
-	"github.com/bmeg/grip/mongo"
-	"github.com/bmeg/grip/util"
+	"github.com/bmeg/grip/schema"
 	"github.com/bmeg/grip/util/rpc"
 	"github.com/gin-gonic/gin"
 	"github.com/mongodb/mongo-tools/common/db"
-	"go.mongodb.org/mongo-driver/bson"
 	mgo "go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -187,8 +182,14 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	g.POST("/bulk-load/:project-id", func(c *gin.Context) {
 		h.BulkStream(c)
 	})
-	g.POST("/add-schema/:project-id", func(c *gin.Context) {
-		h.AddSchema(c)
+	g.POST("/bulk-load-raw/:project-id", func(c *gin.Context) {
+		h.BulkStreamRaw(c)
+	})
+	g.POST("/add-grip-schema/:project-id", func(c *gin.Context) {
+		h.AddGripSchema(c)
+	})
+	g.POST("/add-json-schema/:project-id", func(c *gin.Context) {
+		h.AddJsonSchema(c)
 	})
 	g.DELETE("/del-graph/:project-id", func(c *gin.Context) {
 		h.DeleteGraph(c)
@@ -288,35 +289,65 @@ func (gh *Handler) GetSchema(c *gin.Context) {
 	Response(c, writer, graph, schema, 200, fmt.Sprintf("[200] get-schema on graph %s", graph))
 }
 
-func (gh *Handler) AddSchema(c *gin.Context) {
-	writer, request, graph := getFields(c)
+func StartMultipartForm(c *gin.Context, writer gin.ResponseWriter, request *http.Request, graph string) (error, gripql.Client, *bytes.Buffer) {
 	err := request.ParseMultipartForm(1024 * 1024 * 1024) // 10 GB limit
 	if err != nil {
 		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("Error parsing form: %s", err)})
-		return
+		return err, gripql.Client{}, nil
 	}
 	file, _, err := request.FormFile("file")
 	if err != nil {
 		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("failed to parse attached file: %s", err)})
-		return
+		return err, gripql.Client{}, nil
 	}
 	file.Close()
 
 	conn, err := gripql.Connect(rpc.ConfigWithDefaults("localhost:8202"), true)
 	if err != nil {
 		RegError(c, writer, graph, GetInternalServerErr(err))
-		return
+		return err, gripql.Client{}, nil
 	}
-
-	var graphs []*gripql.Graph
 
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, file); err != nil {
 		RegError(c, writer, graph, GetInternalServerErr(err))
+		return err, gripql.Client{}, nil
+	}
+	return nil, conn, buf
+}
+func (gh *Handler) AddJsonSchema(c *gin.Context) {
+	/* This function assumes that Json schema of json format will be submitted and must be converted into grip scheam format */
+	writer, request, graph := getFields(c)
+	err, conn, buf := StartMultipartForm(c, writer, request, graph)
+	if err != nil {
+		return
+	}
+	graphs, err := schema.ParseJSchema(buf.Bytes(), graph)
+	if err != nil {
+		RegError(c, writer, graph, GetInternalServerErr(fmt.Errorf("json parse error: %s", err)))
+		return
+	}
+	for _, g := range graphs {
+		err := conn.AddSchema(g)
+		if err != nil {
+			RegError(c, writer, graph, GetInternalServerErr(err))
+			return
+		}
+	}
+	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] add-schema on graph %s", graph))
+}
+
+func (gh *Handler) AddGripSchema(c *gin.Context) {
+	/*  This function assumes that json blob will be submitted already in the form of a grip.Schema structure so that all
+	that is needed is an unmarhsal into the structure */
+	writer, request, graph := getFields(c)
+	var graphs []*gripql.Graph
+	err, conn, buf := StartMultipartForm(c, writer, request, graph)
+	if err != nil {
 		return
 	}
 
-	graphs, err = gripql.ParseJSONGraphs(buf.Bytes())
+	graphs, err = schema.ParseJSONGraphs(buf.Bytes())
 	if err != nil {
 		RegError(c, writer, graph, GetInternalServerErr(fmt.Errorf("json parse error: %s", err)))
 		return
@@ -682,53 +713,64 @@ func (gh *Handler) MongoBulk(c *gin.Context) {
 	Response(c, writer, graph, nil, 200, "[200] mongo-bulk: %s")
 }
 
-func vertexSerialize(vertChan chan *gripql.Vertex, workers int) chan []byte {
-	dataChan := make(chan []byte, workers)
-	var wg sync.WaitGroup
-	for i := 0; i < workers; i++ {
-		wg.Add(1)
-		go func() {
-			for v := range vertChan {
-				doc := mongo.PackVertex(gdbi.NewElementFromVertex(v))
-				rawBytes, err := bson.Marshal(doc)
-				if err == nil {
-					dataChan <- rawBytes
-				}
-			}
-			wg.Done()
-		}()
-	}
-	go func() {
-		wg.Wait()
-		close(dataChan)
-	}()
-	return dataChan
-}
+func (gh *Handler) BulkStreamRaw(c *gin.Context) {
+	writer, request, graph := getFields(c)
+	project_id := c.Param("project-id")
+	host := "localhost:8202"
+	var err error
+	var res *gripql.BulkJsonEditResult
 
-func edgeSerialize(edgeChan chan *gripql.Edge, fill_gid string, workers int) chan []byte {
-	dataChan := make(chan []byte, workers)
-	var wg sync.WaitGroup
-	for i := 0; i < workers; i++ {
-		wg.Add(1)
-		go func() {
-			for e := range edgeChan {
-				if fill_gid != "" && e.Gid == "" {
-					e.Gid = util.UUID()
-				}
-				doc := mongo.PackEdge(gdbi.NewElementFromEdge(e))
-				rawBytes, err := bson.Marshal(doc)
-				if err == nil {
-					dataChan <- rawBytes
-				}
-			}
-			wg.Done()
-		}()
+	err = request.ParseMultipartForm(1024 * 1024 * 1024) // 10 GB limit
+	if err != nil {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("Error parsing form: %s", err)})
+		return
 	}
+	file, _, err := request.FormFile("file")
+	if err != nil {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("failed to parse attached file: %s", err)})
+		return
+	}
+	defer file.Close()
+	var reader io.Reader = file
+
+	conn, err := gripql.Connect(rpc.ConfigWithDefaults(host), true)
+	wait := make(chan bool)
+
+	VertChan, err := streamJsonFromReader(reader, graph, project_id, 5)
+	if err != nil {
+		RegError(c, writer, graph, GetInternalServerErr(err))
+		return
+	}
+
 	go func() {
-		wg.Wait()
-		close(dataChan)
+		err, res = conn.BulkAddRaw(VertChan)
+		if err != nil {
+			log.Errorf("Internal Server Error: %v", err)
+		}
+		wait <- false
 	}()
-	return dataChan
+	<-wait
+
+	if len(res.Errors) == 1 {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("[500] bulk-load-raw %s", res.Errors[0])})
+		return
+	} else if res.InsertCount == 0 && res.Errors == nil {
+		// This implies that no file was uploaded so EOF triggered immediately and exited
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: "[400] bulk-load-raw file of length 0 provided"})
+		return
+	} else if len(res.Errors) > 1 {
+		log.WithFields(log.Fields{
+			"graph":  graph,
+			"status": 206,
+		}).Info(res.Errors)
+		c.AbortWithStatusJSON(206, gin.H{
+			"status":  206,
+			"message": res.Errors,
+			"data":    nil,
+		})
+		return
+	}
+	Response(c, writer, graph, nil, 200, "[200] bulk-load-raw")
 }
 
 func (gh *Handler) BulkStream(c *gin.Context) {
@@ -817,110 +859,4 @@ func (gh *Handler) BulkStream(c *gin.Context) {
 	<-wait
 
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] bulk-stream on file: %s", handler.Filename))
-}
-
-func StreamEdgesFromReader(reader io.Reader, workers int) (chan *gripql.Edge, error) {
-	if workers < 1 {
-		workers = 1
-	}
-	if workers > 99 {
-		workers = 99
-	}
-	lineChan, err := processReader(reader, workers)
-	if err != nil {
-		return nil, err
-	}
-
-	edgeChan := make(chan *gripql.Edge, workers)
-	var wg sync.WaitGroup
-
-	jum := protojson.UnmarshalOptions{DiscardUnknown: true}
-
-	for i := 0; i < workers; i++ {
-		wg.Add(1)
-		go func() {
-			for line := range lineChan {
-				e := &gripql.Edge{}
-				err := jum.Unmarshal([]byte(line), e)
-				if err != nil {
-					log.WithFields(log.Fields{"error": err}).Errorf("Unmarshaling edge: %s", line)
-
-				} else {
-					edgeChan <- e
-				}
-			}
-			wg.Done()
-		}()
-	}
-
-	go func() {
-		wg.Wait()
-		close(edgeChan)
-	}()
-
-	return edgeChan, nil
-}
-func StreamVerticesFromReader(reader io.Reader, workers int) (chan *gripql.Vertex, error) {
-	if workers < 1 {
-		workers = 1
-	}
-	if workers > 99 {
-		workers = 99
-	}
-	lineChan, err := processReader(reader, workers)
-	if err != nil {
-		return nil, err
-	}
-
-	vertChan := make(chan *gripql.Vertex, workers)
-	var wg sync.WaitGroup
-
-	jum := protojson.UnmarshalOptions{DiscardUnknown: true}
-
-	for i := 0; i < workers; i++ {
-		wg.Add(1)
-		go func() {
-			for line := range lineChan {
-				v := &gripql.Vertex{}
-				err := jum.Unmarshal([]byte(line), v)
-				if err != nil {
-					log.WithFields(log.Fields{"error": err}).Errorf("Unmarshaling vertex: %s", line)
-				} else {
-					vertChan <- v
-				}
-			}
-			wg.Done()
-		}()
-	}
-
-	go func() {
-		wg.Wait()
-		close(vertChan)
-	}()
-
-	return vertChan, nil
-}
-
-func processReader(reader io.Reader, chansize int) (<-chan string, error) {
-	scanner := bufio.NewScanner(reader)
-
-	buf := make([]byte, 0, 64*1024)
-	maxCapacity := 16 * 1024 * 1024
-	scanner.Buffer(buf, maxCapacity)
-
-	lineChan := make(chan string, chansize)
-
-	go func() {
-		for scanner.Scan() {
-			line := scanner.Text()
-			lineChan <- line
-		}
-
-		if err := scanner.Err(); err != nil {
-			log.WithFields(log.Fields{"error reading from reader: ": err})
-		}
-		close(lineChan)
-	}()
-
-	return lineChan, nil
 }

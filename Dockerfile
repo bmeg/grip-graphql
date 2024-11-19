@@ -6,7 +6,7 @@ ENV PATH="/go/bin:${PATH}"
 ADD ./ /go/src/github.com/bmeg/grip-graphql
 WORKDIR /go/src/github.com/bmeg/grip-graphql
 
-RUN go install github.com/bmeg/grip@v0.0.0-20240812223417-99c314b06713
+RUN go install github.com/bmeg/grip@v0.0.0-20241118220032-bb2b9dd10ce4
 RUN go build  --buildmode=plugin ./graphql_gen3
 RUN go build  --buildmode=plugin ./gen3_writer
 RUN go build  --buildmode=plugin ./grip-graphql-endpoint
