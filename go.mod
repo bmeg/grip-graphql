@@ -2,10 +2,8 @@ module github.com/bmeg/grip-graphql
 
 go 1.22.5
 
-replace github.com/bmeg/grip v0.0.0-20241118220032-bb2b9dd10ce4 => ../grip
-
 require (
-	github.com/bmeg/grip v0.0.0-20241119224722-821431f4728c
+	github.com/bmeg/grip v0.0.0-20241119230816-a7f6fdd48051
 	github.com/dop251/goja v0.0.0-20240707163329-b1681fb2a2f5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1

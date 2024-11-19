@@ -223,6 +223,7 @@ func Test_Json_Schema_Load_Ok(t *testing.T) {
 	})
 
 	err, response := multipartFormTest("http://localhost:8201/graphql/JSONTEST/add-json-schema/ohsu-test",
+		// this is this schema https://raw.githubusercontent.com/bmeg/iceberg/f1724941fe47df24846135fb515d1b89e791cee3/schemas/graph/graph-fhir.json
 		"fixtures/graph-fhir.json",
 		createToken(false, true, true),
 	)

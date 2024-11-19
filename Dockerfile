@@ -1,4 +1,4 @@
-FROM golang:1.22.6-alpine AS build-env
+FROM golang:1.22.5-alpine AS build-env
 RUN apk add make git bash build-base libc-dev binutils-gold curl
 ENV GOPATH=/go
 ENV PATH="/go/bin:${PATH}"
@@ -6,7 +6,7 @@ ENV PATH="/go/bin:${PATH}"
 ADD ./ /go/src/github.com/bmeg/grip-graphql
 WORKDIR /go/src/github.com/bmeg/grip-graphql
 
-RUN go install github.com/bmeg/grip@v0.0.0-20241118220032-bb2b9dd10ce4
+RUN go install github.com/bmeg/grip@v0.0.0-20241119230816-a7f6fdd48051
 RUN go build  --buildmode=plugin ./graphql_gen3
 RUN go build  --buildmode=plugin ./gen3_writer
 RUN go build  --buildmode=plugin ./grip-graphql-endpoint
