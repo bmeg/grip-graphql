@@ -3,7 +3,7 @@ module github.com/bmeg/grip-graphql
 go 1.22.5
 
 require (
-	github.com/bmeg/grip v0.0.0-20241119230816-a7f6fdd48051
+	github.com/bmeg/grip v0.0.0-20241122195322-515a682d56f7
 	github.com/dop251/goja v0.0.0-20240707163329-b1681fb2a2f5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1

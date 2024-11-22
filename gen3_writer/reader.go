@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
+	"fmt"
 	"io"
 	"sync"
 
@@ -71,10 +73,7 @@ func StreamEdgesFromReader(reader io.Reader, workers int) (chan *gripql.Edge, er
 	if workers > 99 {
 		workers = 99
 	}
-	lineChan, err := processReader(reader, workers)
-	if err != nil {
-		return nil, err
-	}
+	lineChan := processReader(reader, workers)
 
 	edgeChan := make(chan *gripql.Edge, workers)
 	var wg sync.WaitGroup
@@ -112,10 +111,7 @@ func StreamVerticesFromReader(reader io.Reader, workers int) (chan *gripql.Verte
 	if workers > 99 {
 		workers = 99
 	}
-	lineChan, err := processReader(reader, workers)
-	if err != nil {
-		return nil, err
-	}
+	lineChan := processReader(reader, workers)
 
 	vertChan := make(chan *gripql.Vertex, workers)
 	var wg sync.WaitGroup
@@ -145,12 +141,12 @@ func StreamVerticesFromReader(reader io.Reader, workers int) (chan *gripql.Verte
 
 	return vertChan, nil
 }
-func streamJsonFromReader(reader io.Reader, graph string, project_id string, workers int) (chan *gripql.RawJson, error) {
-	lineChan, err := processReader(reader, workers)
-	if err != nil {
-		return nil, err
-	}
+
+func streamJsonFromReader(reader io.Reader, graph string, project_id string, workers int) (chan *gripql.RawJson, chan string) {
+	lineChan := processReader(reader, workers)
+
 	vertChan := make(chan *gripql.RawJson, workers)
+	warnings := make(chan string, workers)
 	var wg sync.WaitGroup
 	jum := protojson.UnmarshalOptions{DiscardUnknown: true}
 
@@ -159,6 +155,11 @@ func streamJsonFromReader(reader io.Reader, graph string, project_id string, wor
 		go func() {
 			defer wg.Done()
 			for line := range lineChan {
+				if !json.Valid([]byte(line)) {
+					log.WithFields(log.Fields{"line": line}).Errorf("Skipping invalid JSON line")
+					warnings <- fmt.Sprintf("Invalid Json: %s", line)
+					continue
+				}
 				rawData := &gripql.RawJson{
 					Data:      &structpb.Struct{},
 					Graph:     graph,
@@ -166,7 +167,8 @@ func streamJsonFromReader(reader io.Reader, graph string, project_id string, wor
 				}
 				err := jum.Unmarshal([]byte(line), rawData.Data)
 				if err != nil {
-					log.WithFields(log.Fields{"error": err}).Errorf("Unmarshaling vertex: %s", line)
+					log.WithFields(log.Fields{"error": err}).Errorf("Unmarshaling into rawData.Data: %s", line)
+					warnings <- fmt.Sprintf("Error: %v when unmarshaling: %s", err, line)
 					continue
 				}
 				vertChan <- rawData
@@ -177,12 +179,13 @@ func streamJsonFromReader(reader io.Reader, graph string, project_id string, wor
 	go func() {
 		wg.Wait()
 		close(vertChan)
+		close(warnings)
 	}()
 
-	return vertChan, nil
+	return vertChan, warnings
 }
 
-func processReader(reader io.Reader, chansize int) (<-chan string, error) {
+func processReader(reader io.Reader, chansize int) <-chan string {
 	scanner := bufio.NewScanner(reader)
 	buf := make([]byte, 0, 64*1024)
 	maxCapacity := 16 * 1024 * 1024
@@ -200,5 +203,5 @@ func processReader(reader io.Reader, chansize int) (<-chan string, error) {
 		close(lineChan)
 	}()
 
-	return lineChan, nil
+	return lineChan
 }

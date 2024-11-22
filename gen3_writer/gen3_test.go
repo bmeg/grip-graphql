@@ -316,10 +316,74 @@ func Test_Json_Load_Validation_Errors(t *testing.T) {
 		t.Error("Error: ", errors)
 		return
 	}
+	t.Log(data)
 
 	if data["message"] == nil || len(data["message"].([]any)) != 2 {
 		t.Error("Expected return message of length 2")
 	}
+	if data["status"].(float64) != 206 {
+		t.Error()
+	}
+
+}
+
+func Test_Json_Load_Invalid_Json(t *testing.T) {
+	file, err := os.Open("fixtures/compbio-examples-fhir/invalid_json.ndjson")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	part, _ := writer.CreateFormFile("file", filepath.Base("fixtures/compbio-examples-fhir/ValidationErrors.ndjson"))
+	io.Copy(part, file)
+	writer.Close()
+
+	req := &Request{
+		url:     "http://localhost:8201/graphql/JSONTEST/bulk-load-raw/ohsu-test",
+		method:  "POST",
+		headers: map[string]any{"Authorization": createToken(false, true, true)},
+	}
+
+	request, err := http.NewRequest(req.method, req.url, body)
+	if err != nil {
+		t.Error("Error creating request:", err)
+		return
+	}
+	for key, val := range req.headers {
+		request.Header.Set(key, val.(string))
+	}
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		t.Error("Error sending request:", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Logf("server responded with status: %d", resp.StatusCode)
+	}
+
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(resp.Body)
+	if err != nil {
+		t.Error("Error reading response:", err)
+		return
+	}
+
+	var data map[string]interface{}
+	errors := json.Unmarshal([]byte(buf.String()), &data)
+	if errors != nil {
+		t.Error("Error: ", errors)
+		return
+	}
+	t.Log(data)
+
 	if data["status"].(float64) != 206 {
 		t.Error()
 	}

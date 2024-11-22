@@ -315,6 +315,7 @@ func StartMultipartForm(c *gin.Context, writer gin.ResponseWriter, request *http
 	}
 	return nil, conn, buf
 }
+
 func (gh *Handler) AddJsonSchema(c *gin.Context) {
 	/* This function assumes that Json schema of json format will be submitted and must be converted into grip scheam format */
 	writer, request, graph := getFields(c)
@@ -719,6 +720,7 @@ func (gh *Handler) BulkStreamRaw(c *gin.Context) {
 	host := "localhost:8202"
 	var err error
 	var res *gripql.BulkJsonEditResult
+	var warnings []string
 
 	err = request.ParseMultipartForm(1024 * 1024 * 1024) // 10 GB limit
 	if err != nil {
@@ -736,11 +738,13 @@ func (gh *Handler) BulkStreamRaw(c *gin.Context) {
 	conn, err := gripql.Connect(rpc.ConfigWithDefaults(host), true)
 	wait := make(chan bool)
 
-	VertChan, err := streamJsonFromReader(reader, graph, project_id, 5)
-	if err != nil {
-		RegError(c, writer, graph, GetInternalServerErr(err))
-		return
-	}
+	VertChan, warnChan := streamJsonFromReader(reader, graph, project_id, 5)
+
+	go func() {
+		for warning := range warnChan {
+			warnings = append(warnings, warning)
+		}
+	}()
 
 	go func() {
 		err, res = conn.BulkAddRaw(VertChan)
@@ -751,21 +755,15 @@ func (gh *Handler) BulkStreamRaw(c *gin.Context) {
 	}()
 	<-wait
 
-	if len(res.Errors) == 1 {
-		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("[500] bulk-load-raw %s", res.Errors[0])})
-		return
-	} else if res.InsertCount == 0 && res.Errors == nil {
-		// This implies that no file was uploaded so EOF triggered immediately and exited
-		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: "[400] bulk-load-raw file of length 0 provided"})
-		return
-	} else if len(res.Errors) > 1 {
-		log.WithFields(log.Fields{
-			"graph":  graph,
-			"status": 206,
-		}).Info(res.Errors)
+	nonLoadedEdges := append(res.Errors, warnings...)
+	if len(nonLoadedEdges) > 0 {
+		if res.InsertCount == 0 {
+			RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintln("[500] bulk-load-raw", nonLoadedEdges)})
+			return
+		}
 		c.AbortWithStatusJSON(206, gin.H{
 			"status":  206,
-			"message": res.Errors,
+			"message": nonLoadedEdges,
 			"data":    nil,
 		})
 		return
