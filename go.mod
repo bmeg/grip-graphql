@@ -3,7 +3,7 @@ module github.com/bmeg/grip-graphql
 go 1.22.5
 
 require (
-	github.com/bmeg/grip v0.0.0-20241122195322-515a682d56f7
+	github.com/bmeg/grip v0.0.0-20241130225536-67d787e0b831
 	github.com/dop251/goja v0.0.0-20240707163329-b1681fb2a2f5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
@@ -26,7 +26,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad // indirect
 	github.com/bmeg/jsonschema/v5 v5.3.4-0.20241111204732-55db82022a92 // indirect
-	github.com/bmeg/jsonschemagraph v0.0.3-0.20241113190142-5e57a1561020 // indirect
+	github.com/bmeg/jsonschemagraph v0.0.3-0.20241130225037-5545ec0ffd4b // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/casbin/casbin/v2 v2.97.0 // indirect
 	github.com/casbin/govaluate v1.2.0 // indirect

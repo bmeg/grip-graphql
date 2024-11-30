@@ -142,7 +142,7 @@ func StreamVerticesFromReader(reader io.Reader, workers int) (chan *gripql.Verte
 	return vertChan, nil
 }
 
-func streamJsonFromReader(reader io.Reader, graph string, project_id string, workers int) (chan *gripql.RawJson, chan string) {
+func streamJsonFromReader(reader io.Reader, graph string, mapExtraArgs map[string]any, workers int) (chan *gripql.RawJson, chan string) {
 	lineChan := processReader(reader, workers)
 
 	vertChan := make(chan *gripql.RawJson, workers)
@@ -162,8 +162,8 @@ func streamJsonFromReader(reader io.Reader, graph string, project_id string, wor
 				}
 				rawData := &gripql.RawJson{
 					Data:      &structpb.Struct{},
+					ExtraArgs: &structpb.Struct{},
 					Graph:     graph,
-					ProjectId: project_id,
 				}
 				err := jum.Unmarshal([]byte(line), rawData.Data)
 				if err != nil {
@@ -171,6 +171,13 @@ func streamJsonFromReader(reader io.Reader, graph string, project_id string, wor
 					warnings <- fmt.Sprintf("Error: %v when unmarshaling: %s", err, line)
 					continue
 				}
+				stuctpbExtraArgs, err := structpb.NewStruct(mapExtraArgs)
+				if err != nil {
+					log.WithFields(log.Fields{"error": err}).Errorf("Creating new StructPB rawData.ExtraArgs: %s", mapExtraArgs)
+					warnings <- fmt.Sprintf("Error: %v when creating new struct for extra args: %s", err, mapExtraArgs)
+					continue
+				}
+				rawData.ExtraArgs = stuctpbExtraArgs
 				vertChan <- rawData
 			}
 		}()

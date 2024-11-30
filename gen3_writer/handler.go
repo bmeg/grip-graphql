@@ -717,6 +717,14 @@ func (gh *Handler) MongoBulk(c *gin.Context) {
 func (gh *Handler) BulkStreamRaw(c *gin.Context) {
 	writer, request, graph := getFields(c)
 	project_id := c.Param("project-id")
+	mapExtraArgs := map[string]any{}
+	proj_split := strings.Split(project_id, "-")
+	if len(proj_split) != 2 {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("Error parsing project_id: %s. Must be of form PROGRAM-PROJECT", project_id)})
+		return
+	}
+	mapExtraArgs["auth_resource_path"] = "/programs/" + proj_split[0] + "/projects/" + proj_split[1]
+
 	host := "localhost:8202"
 	var err error
 	var res *gripql.BulkJsonEditResult
@@ -738,7 +746,7 @@ func (gh *Handler) BulkStreamRaw(c *gin.Context) {
 	conn, err := gripql.Connect(rpc.ConfigWithDefaults(host), true)
 	wait := make(chan bool)
 
-	VertChan, warnChan := streamJsonFromReader(reader, graph, project_id, 5)
+	VertChan, warnChan := streamJsonFromReader(reader, graph, mapExtraArgs, 5)
 
 	go func() {
 		for warning := range warnChan {
