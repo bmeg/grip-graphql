@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -222,9 +223,23 @@ func Test_Json_Schema_Load_Ok(t *testing.T) {
 		t.Log("RESPONSE JSON: ", response_json, "STATUS: ", pass)
 	})
 
+	tempDir, err := os.MkdirTemp("", "jsonschema")
+	if err != nil {
+		t.Errorf("Error creating temp directory: %v\n", err)
+		return
+	}
+	defer os.RemoveAll(tempDir)
+	tempFilePath := fmt.Sprintf("%s/graph-fhir.json", tempDir)
+	curlCmd := exec.Command("curl", "-o", tempFilePath, "https://raw.githubusercontent.com/bmeg/iceberg/refs/heads/main/schemas/graph/graph-fhir.json")
+	if err := curlCmd.Run(); err != nil {
+		t.Errorf("Error running curl command: %v\n", err)
+		return
+	}
+
+	t.Logf("Downloaded schema to: %s\n", tempFilePath)
+
 	err, response := multipartFormTest("http://localhost:8201/graphql/JSONTEST/add-json-schema/ohsu-test",
-		// this is this schema https://raw.githubusercontent.com/bmeg/iceberg/f1724941fe47df24846135fb515d1b89e791cee3/schemas/graph/graph-fhir.json
-		"fixtures/graph-fhir.json",
+		tempFilePath,
 		createToken(false, true, true),
 	)
 	if err != nil {
