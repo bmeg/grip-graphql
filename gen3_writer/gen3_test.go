@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -143,6 +144,41 @@ func bulkLoad(url, directoryPath, accessToken string) (error, []map[string]any) 
 	return nil, allData
 }
 
+func multipartFormTest(url string, filePath string, accessToken string) (error, map[string]any) {
+	file, err := os.Open(filePath)
+	/*if err != nil {
+		return err, nil
+	}*/
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, _ := writer.CreateFormFile("file", filepath.Base(filePath))
+	io.Copy(part, file)
+	writer.Close()
+
+	req, _ := http.NewRequest("POST", url, body)
+	req.Header.Set("Authorization", accessToken)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	client := &http.Client{}
+	resp, _ := client.Do(req)
+	defer resp.Body.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(resp.Body)
+	if err != nil {
+		return err, nil
+	}
+
+	var data map[string]interface{}
+	errors := json.Unmarshal([]byte(buf.String()), &data)
+	if errors != nil {
+		return errors, nil
+	}
+	return nil, data
+}
+
 func Test_Load_Ok(t *testing.T) {
 	req := &Request{
 		url:     "http://localhost:8201/graphql/add-graph/TEST/ohsu-test",
@@ -171,6 +207,202 @@ func Test_Load_Ok(t *testing.T) {
 			t.Log(resp)
 		}
 	}
+}
+
+func Test_Json_Schema_Load_Ok(t *testing.T) {
+	req := &Request{
+		url:     "http://localhost:8201/graphql/add-graph/JSONTEST/ohsu-test",
+		method:  "POST",
+		headers: map[string]any{"Authorization": createToken(false, true, true)},
+	}
+	t.Run("create_load_graph", func(t *testing.T) {
+		response_json, pass := TemplateRequest(req, t)
+		if !pass {
+			t.Error("status is not 200")
+		}
+		t.Log("RESPONSE JSON: ", response_json, "STATUS: ", pass)
+	})
+
+	tempDir, err := os.MkdirTemp("", "jsonschema")
+	if err != nil {
+		t.Errorf("Error creating temp directory: %v\n", err)
+		return
+	}
+	defer os.RemoveAll(tempDir)
+	tempFilePath := fmt.Sprintf("%s/graph-fhir.json", tempDir)
+	curlCmd := exec.Command("curl", "-o", tempFilePath, "https://raw.githubusercontent.com/bmeg/iceberg/refs/heads/main/schemas/graph/graph-fhir.json")
+	if err := curlCmd.Run(); err != nil {
+		t.Errorf("Error running curl command: %v\n", err)
+		return
+	}
+
+	t.Logf("Downloaded schema to: %s\n", tempFilePath)
+
+	err, response := multipartFormTest("http://localhost:8201/graphql/JSONTEST/add-json-schema/ohsu-test",
+		tempFilePath,
+		createToken(false, true, true),
+	)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log("RESP: ", response)
+}
+
+func Test_Json_Schema_Not_Found(t *testing.T) {
+	err, response := multipartFormTest("http://localhost:8201/graphql/JSONTEST/add-json-schema/ohsu-test",
+		"fixtures/not_found_schema.json",
+		createToken(false, true, true),
+	)
+	if err != nil {
+		t.Error(err)
+	}
+	if response["status"].(float64) == 500 {
+		t.Log("Expected outcome:", response["message"].(string))
+	} else {
+		t.Error("Status shouldnt' equal 200", response["status"].(string))
+	}
+}
+
+func Test_Json_Load_Ok(t *testing.T) {
+	err, response := multipartFormTest("http://localhost:8201/graphql/JSONTEST/bulk-load-raw/ohsu-test",
+		"fixtures/compbio-examples-fhir/DocumentReference.ndjson",
+		createToken(false, true, true),
+	)
+	if err != nil {
+		t.Error(err)
+	}
+	if response["status"].(float64) != 200 {
+		t.Errorf("Response %f != 200\n", response["status"].(float64))
+	}
+}
+
+func Test_Json_Load_Validation_Errors(t *testing.T) {
+	file, err := os.Open("fixtures/compbio-examples-fhir/ValidationErrors.ndjson")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	part, _ := writer.CreateFormFile("file", filepath.Base("fixtures/compbio-examples-fhir/ValidationErrors.ndjson"))
+	io.Copy(part, file)
+	writer.Close()
+
+	req := &Request{
+		url:     "http://localhost:8201/graphql/JSONTEST/bulk-load-raw/ohsu-test",
+		method:  "POST",
+		headers: map[string]any{"Authorization": createToken(false, true, true)},
+	}
+
+	request, err := http.NewRequest(req.method, req.url, body)
+	if err != nil {
+		t.Error("Error creating request:", err)
+		return
+	}
+	for key, val := range req.headers {
+		request.Header.Set(key, val.(string))
+	}
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		t.Error("Error sending request:", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Logf("server responded with status: %d", resp.StatusCode)
+	}
+
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(resp.Body)
+	if err != nil {
+		t.Error("Error reading response:", err)
+		return
+	}
+
+	var data map[string]interface{}
+	errors := json.Unmarshal([]byte(buf.String()), &data)
+	if errors != nil {
+		t.Error("Error: ", errors)
+		return
+	}
+	t.Log(data)
+
+	if data["message"] == nil || len(data["message"].([]any)) != 2 {
+		t.Error("Expected return message of length 2")
+	}
+	if data["status"].(float64) != 206 {
+		t.Error()
+	}
+
+}
+
+func Test_Json_Load_Invalid_Json(t *testing.T) {
+	file, err := os.Open("fixtures/compbio-examples-fhir/invalid_json.ndjson")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	part, _ := writer.CreateFormFile("file", filepath.Base("fixtures/compbio-examples-fhir/ValidationErrors.ndjson"))
+	io.Copy(part, file)
+	writer.Close()
+
+	req := &Request{
+		url:     "http://localhost:8201/graphql/JSONTEST/bulk-load-raw/ohsu-test",
+		method:  "POST",
+		headers: map[string]any{"Authorization": createToken(false, true, true)},
+	}
+
+	request, err := http.NewRequest(req.method, req.url, body)
+	if err != nil {
+		t.Error("Error creating request:", err)
+		return
+	}
+	for key, val := range req.headers {
+		request.Header.Set(key, val.(string))
+	}
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		t.Error("Error sending request:", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Logf("server responded with status: %d", resp.StatusCode)
+	}
+
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(resp.Body)
+	if err != nil {
+		t.Error("Error reading response:", err)
+		return
+	}
+
+	var data map[string]interface{}
+	errors := json.Unmarshal([]byte(buf.String()), &data)
+	if errors != nil {
+		t.Error("Error: ", errors)
+		return
+	}
+	t.Log(data)
+
+	if data["status"].(float64) != 206 {
+		t.Error()
+	}
+
 }
 
 func Test_Load_Malformed_Token(t *testing.T) {
@@ -277,7 +509,6 @@ func Test_Get_Project_Vertices_Ok(t *testing.T) {
 	if err != nil {
 		t.Error("Error sending request:", err)
 	}
-	t.Log("RESP: ")
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -303,6 +534,7 @@ func Test_Get_Project_Vertices_Ok(t *testing.T) {
 			t.Error("Gid should be populated if unmarshal was successful")
 		}
 		mappedData := v.Data.AsMap()
+
 		t.Logf("Received Vertex: %s\n", mappedData["resourceType"])
 
 		if mappedData["auth_resource_path"] != "/programs/ohsu/projects/test" {
