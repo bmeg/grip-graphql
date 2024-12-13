@@ -1,0 +1,3881 @@
+scalar JSON
+enum Accessibility {
+  all
+  accessible
+  unaccessible
+}
+enum Format {
+  json
+  tsv
+  csv
+}
+union GroupManagingEntityUnion =
+    OrganizationType
+  | PractitionerType
+  | PractitionerRoleType
+union GroupMemberUnion =
+    GroupType
+  | OrganizationType
+  | PatientType
+  | PractitionerType
+  | PractitionerRoleType
+  | SpecimenType
+type GroupType {
+  member(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [GroupMemberUnion]
+  extension: [Extension]
+  meta: Meta
+  contained: [ResourceUnion]
+  membership: String
+  resourceType: String
+  characteristic: [GroupCharacteristic]
+  quantity: String
+  type: String
+  active: String
+  description: String
+  code: CodeableConcept
+  id: String
+  language: String
+  modifierExtension: [Extension]
+  name: String
+  implicitRules: String
+  text: Narrative
+  managingEntity(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [GroupManagingEntityUnion]
+  identifier: [Identifier]
+}
+type Immunization {
+  statusReason: CodeableConcept
+  administeredProduct: CodeableReference
+  doseQuantity: Quantity
+  lotNumber: String
+  status: String
+  manufacturer: CodeableReference
+  extension: [Extension]
+  expirationDate: String
+  identifier: [Identifier]
+  note: [Annotation]
+  reaction: [ImmunizationReaction]
+  protocolApplied: [ImmunizationProtocolApplied]
+  site: CodeableConcept
+  occurrenceDateTime: String
+  reason: [CodeableReference]
+  fundingSource: CodeableConcept
+  meta: Meta
+  subpotentReason: [CodeableConcept]
+  resourceType: String
+  vaccineCode: CodeableConcept
+  text: Narrative
+  implicitRules: String
+  informationSource: CodeableReference
+  occurrenceString: String
+  performer: [ImmunizationPerformer]
+  programEligibility: [ImmunizationProgramEligibility]
+  route: CodeableConcept
+  contained: [ResourceUnion]
+  id: String
+  primarySource: String
+  isSubpotent: String
+  language: String
+  modifierExtension: [Extension]
+}
+type MedicationIngredient {
+  strengthCodeableConcept: CodeableConcept
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+  extension: [Extension]
+  isActive: String
+  item: CodeableReference
+  strengthQuantity: Quantity
+  strengthRatio: Ratio
+}
+type ObservationReferenceRange {
+  extension: [Extension]
+  high: Quantity
+  id: String
+  type: CodeableConcept
+  appliesTo: [CodeableConcept]
+  age: Range
+  text: String
+  low: Quantity
+  normalValue: CodeableConcept
+  resourceType: String
+  modifierExtension: [Extension]
+}
+type Encounter {
+  length: Duration
+  actualPeriod: Period
+  priority: CodeableConcept
+  class: [CodeableConcept]
+  plannedEndDate: String
+  serviceType: [CodeableReference]
+  admission: EncounterAdmission
+  meta: Meta
+  id: String
+  identifier: [Identifier]
+  plannedStartDate: String
+  type: [CodeableConcept]
+  diagnosis: [EncounterDiagnosis]
+  text: Narrative
+  participant: [EncounterParticipant]
+  status: String
+  virtualService: [VirtualServiceDetail]
+  modifierExtension: [Extension]
+  specialCourtesy: [CodeableConcept]
+  resourceType: String
+  specialArrangement: [CodeableConcept]
+  extension: [Extension]
+  contained: [ResourceUnion]
+  location: [EncounterLocation]
+  implicitRules: String
+  dietPreference: [CodeableConcept]
+  reason: [EncounterReason]
+  subjectStatus: CodeableConcept
+  language: String
+}
+type MedicationBatch {
+  modifierExtension: [Extension]
+  resourceType: String
+  expirationDate: String
+  extension: [Extension]
+  id: String
+  lotNumber: String
+}
+type MedicationAdministrationPerformer {
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+  actor: CodeableReference
+  extension: [Extension]
+  function: CodeableConcept
+}
+type LocationPosition {
+  altitude: String
+  extension: [Extension]
+  id: String
+  latitude: String
+  longitude: String
+  modifierExtension: [Extension]
+  resourceType: String
+}
+type PatientContact {
+  relationship: [CodeableConcept]
+  telecom: [ContactPoint]
+  extension: [Extension]
+  name: HumanName
+  address: Address
+  gender: String
+  id: String
+  modifierExtension: [Extension]
+  organization(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  resourceType: String
+  period: Period
+}
+type PractitionerCommunication {
+  preferred: String
+  resourceType: String
+  extension: [Extension]
+  id: String
+  language: CodeableConcept
+  modifierExtension: [Extension]
+}
+union ProcedurePerformerActorUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+type ProcedurePerformer {
+  function: CodeableConcept
+  id: String
+  modifierExtension: [Extension]
+  onBehalfOf(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  period: Period
+  resourceType: String
+  actor(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedurePerformerActorUnion]
+  extension: [Extension]
+}
+type ResearchSubjectProgress {
+  endDate: String
+  modifierExtension: [Extension]
+  type: CodeableConcept
+  extension: [Extension]
+  milestone: CodeableConcept
+  resourceType: String
+  reason: CodeableConcept
+  startDate: String
+  subjectState: CodeableConcept
+  id: String
+}
+type SpecimenContainer {
+  modifierExtension: [Extension]
+  resourceType: String
+  specimenQuantity: Quantity
+  extension: [Extension]
+  id: String
+}
+type SubstanceDefinitionMolecularWeight {
+  id: String
+  method: CodeableConcept
+  modifierExtension: [Extension]
+  resourceType: String
+  type: CodeableConcept
+  amount: Quantity
+  extension: [Extension]
+}
+type Location {
+  meta: Meta
+  name: String
+  contained: [ResourceUnion]
+  form: CodeableConcept
+  language: String
+  extension: [Extension]
+  resourceType: String
+  id: String
+  characteristic: [CodeableConcept]
+  modifierExtension: [Extension]
+  address: Address
+  implicitRules: String
+  mode: String
+  operationalStatus: Coding
+  position: LocationPosition
+  virtualService: [VirtualServiceDetail]
+  text: Narrative
+  contact: [ExtendedContactDetail]
+  status: String
+  hoursOfOperation: [Availability]
+  identifier: [Identifier]
+  alias: String
+  type: [CodeableConcept]
+  description: String
+}
+union SubstanceDefinitionNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type SubstanceDefinitionType {
+  text: Narrative
+  moiety: [SubstanceDefinitionMoiety]
+  implicitRules: String
+  modifierExtension: [Extension]
+  characterization: [SubstanceDefinitionCharacterization]
+  supplier(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SubstanceDefinitionNoteUnion]
+  description: String
+  structure: SubstanceDefinitionStructure
+  id: String
+  language: String
+  contained: [ResourceUnion]
+  domain: CodeableConcept
+  extension: [Extension]
+  identifier: [Identifier]
+  version: String
+  relationship: [SubstanceDefinitionRelationship]
+  manufacturer(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  grade: [CodeableConcept]
+  resourceType: String
+  name: [SubstanceDefinitionName]
+  status: CodeableConcept
+  meta: Meta
+  molecularWeight: [SubstanceDefinitionMolecularWeight]
+  sourceMaterial: SubstanceDefinitionSourceMaterial
+  classification: [CodeableConcept]
+  code: [SubstanceDefinitionCode]
+  property: [SubstanceDefinitionProperty]
+}
+type BodyStructureIncludedStructureBodyLandmarkOrientationDistanceFromLandmark {
+  device: [CodeableReference]
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+  value: [Quantity]
+}
+type MedicationRequestSubstitution {
+  reason: CodeableConcept
+  resourceType: String
+  allowedBoolean: String
+  allowedCodeableConcept: CodeableConcept
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+}
+type SubstanceDefinitionName {
+  status: CodeableConcept
+  synonym: [SubstanceDefinitionName]
+  modifierExtension: [Extension]
+  translation: [SubstanceDefinitionName]
+  type: CodeableConcept
+  official: [SubstanceDefinitionNameOfficial]
+  name: String
+  id: String
+  language: [CodeableConcept]
+  domain: [CodeableConcept]
+  extension: [Extension]
+  jurisdiction: [CodeableConcept]
+  preferred: String
+  source(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceType]
+  resourceType: String
+}
+type SubstanceDefinitionSourceMaterial {
+  genus: CodeableConcept
+  type: CodeableConcept
+  extension: [Extension]
+  modifierExtension: [Extension]
+  resourceType: String
+  countryOfOrigin: [CodeableConcept]
+  id: String
+  species: CodeableConcept
+  part: CodeableConcept
+}
+union ConditionParticipantActorUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type ConditionParticipant {
+  modifierExtension: [Extension]
+  resourceType: String
+  actor(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ConditionParticipantActorUnion]
+  extension: [Extension]
+  function: CodeableConcept
+  id: String
+}
+union FamilyMemberHistoryParticipantActorUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type FamilyMemberHistoryParticipant {
+  actor(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [FamilyMemberHistoryParticipantActorUnion]
+  extension: [Extension]
+  function: CodeableConcept
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+}
+union MedicationAdministrationNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union MedicationAdministrationPartOfUnion =
+    MedicationAdministrationType
+  | ProcedureType
+union MedicationAdministrationSubjectUnion = PatientType | GroupType
+type MedicationAdministrationType {
+  subPotentReason: [CodeableConcept]
+  device: [CodeableReference]
+  category: [CodeableConcept]
+  occurenceDateTime: String
+  medication: CodeableReference
+  occurencePeriod: Period
+  isSubPotent: String
+  identifier: [Identifier]
+  meta: Meta
+  modifierExtension: [Extension]
+  dosage: MedicationAdministrationDosage
+  performer: [MedicationAdministrationPerformer]
+  status: String
+  recorded: String
+  id: String
+  occurenceTiming: Timing
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationAdministrationSubjectUnion]
+  language: String
+  request(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestType]
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationAdministrationNoteUnion]
+  text: Narrative
+  resourceType: String
+  statusReason: [CodeableConcept]
+  implicitRules: String
+  partOf(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationAdministrationPartOfUnion]
+  reason: [CodeableReference]
+  supportingInformation(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResourceUnion]
+  extension: [Extension]
+  contained: [ResourceUnion]
+}
+union PatientLinkOtherUnion = PatientType
+type PatientLink {
+  modifierExtension: [Extension]
+  other(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [PatientLinkOtherUnion]
+  resourceType: String
+  type: String
+  extension: [Extension]
+  id: String
+}
+type RatioRange {
+  resourceType: String
+  denominator: Quantity
+  extension: [Extension]
+  highNumerator: Quantity
+  id: String
+  lowNumerator: Quantity
+}
+type ResearchStudyLabel {
+  value: String
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+  type: CodeableConcept
+}
+type DataRequirementSort {
+  direction: String
+  extension: [Extension]
+  id: String
+  path: String
+  resourceType: String
+}
+type FHIRPrimitiveExtension {
+  extension: [Extension]
+  id: String
+  resourceType: String
+}
+union ResearchStudyAssociatedPartyPartyUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+type ResearchStudyAssociatedParty {
+  party(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchStudyAssociatedPartyPartyUnion]
+  extension: [Extension]
+  modifierExtension: [Extension]
+  name: String
+  role: CodeableConcept
+  id: String
+  period: [Period]
+  resourceType: String
+  classifier: [CodeableConcept]
+}
+type CodeableConcept {
+  text: String
+  coding: [Coding]
+  extension: [Extension]
+  id: String
+  resourceType: String
+}
+union DocumentReferenceAuthorUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+union DocumentReferenceBasedOnUnion = MedicationRequestType
+union DocumentReferenceAttesterUnion =
+    PatientType
+  | PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+type DocumentReferenceType {
+  version: String
+  language: String
+  implicitRules: String
+  bodySite: [CodeableReference]
+  practiceSetting: CodeableConcept
+  author(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceAuthorUnion]
+  basedOn(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceBasedOnUnion]
+  resourceType: String
+  status: String
+  type: CodeableConcept
+  modality: [CodeableConcept]
+  period: Period
+  attester(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceAttesterUnion]
+  docStatus: String
+  meta: Meta
+  custodian(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  event: [CodeableReference]
+  relatesTo: [DocumentReferenceRelatesTo]
+  facilityType: CodeableConcept
+  id: String
+  securityLabel: [CodeableConcept]
+  identifier: [Identifier]
+  modifierExtension: [Extension]
+  description: String
+  extension: [Extension]
+  category: [CodeableConcept]
+  text: Narrative
+  contained: [ResourceUnion]
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResourceUnion]
+  content: [DocumentReferenceContent]
+  date: String
+}
+type DosageDoseAndRate {
+  id: String
+  doseRange: Range
+  resourceType: String
+  rateRange: Range
+  type: CodeableConcept
+  doseQuantity: Quantity
+  rateRatio: Ratio
+  extension: [Extension]
+  rateQuantity: Quantity
+}
+type EncounterReason {
+  resourceType: String
+  use: [CodeableConcept]
+  value: [CodeableReference]
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+}
+type Expression {
+  expression: String
+  extension: [Extension]
+  id: String
+  language: String
+  name: String
+  reference: String
+  resourceType: String
+  description: String
+}
+type MedicationType {
+  doseForm: CodeableConcept
+  code: CodeableConcept
+  identifier: [Identifier]
+  text: Narrative
+  meta: Meta
+  resourceType: String
+  status: String
+  language: String
+  modifierExtension: [Extension]
+  contained: [ResourceUnion]
+  batch: MedicationBatch
+  implicitRules: String
+  totalVolume: Quantity
+  extension: [Extension]
+  ingredient: [MedicationIngredient]
+  id: String
+  marketingAuthorizationHolder(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+}
+type ObservationComponent {
+  id: String
+  valuePeriod: Period
+  valueQuantity: Quantity
+  valueRange: Range
+  valueAttachment: Attachment
+  extension: [Extension]
+  valueSampledData: SampledData
+  valueString: String
+  modifierExtension: [Extension]
+  code: CodeableConcept
+  dataAbsentReason: CodeableConcept
+  valueBoolean: String
+  valueDateTime: String
+  valueInteger: String
+  valueTime: String
+  interpretation: [CodeableConcept]
+  referenceRange: [ObservationReferenceRange]
+  resourceType: String
+  valueCodeableConcept: CodeableConcept
+  valueRatio: Ratio
+}
+type SubstanceType {
+  id: String
+  language: String
+  ingredient: [SubstanceIngredient]
+  category: [CodeableConcept]
+  identifier: [Identifier]
+  contained: [ResourceUnion]
+  resourceType: String
+  instance: String
+  implicitRules: String
+  modifierExtension: [Extension]
+  expiry: String
+  description: String
+  status: String
+  meta: Meta
+  code: CodeableReference
+  extension: [Extension]
+  quantity: Quantity
+  text: Narrative
+}
+type Coding {
+  extension: [Extension]
+  id: String
+  resourceType: String
+  system: String
+  userSelected: String
+  version: String
+  code: String
+  display: String
+}
+type SubstanceDefinitionRelationship {
+  substanceDefinitionReference(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SubstanceDefinitionType]
+  amountQuantity: Quantity
+  amountRatio: Ratio
+  id: String
+  ratioHighLimitAmount: Ratio
+  source(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceType]
+  resourceType: String
+  amountString: String
+  isDefining: String
+  modifierExtension: [Extension]
+  comparator: CodeableConcept
+  type: CodeableConcept
+  extension: [Extension]
+  substanceDefinitionCodeableConcept: CodeableConcept
+}
+union SubstanceDefinitionCodeNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type SubstanceDefinitionCode {
+  source(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceType]
+  status: CodeableConcept
+  resourceType: String
+  modifierExtension: [Extension]
+  statusDate: String
+  extension: [Extension]
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SubstanceDefinitionCodeNoteUnion]
+  code: CodeableConcept
+  id: String
+}
+type AvailabilityNotAvailableTime {
+  resourceType: String
+  description: String
+  during: Period
+  extension: [Extension]
+  id: String
+}
+type GroupCharacteristic {
+  period: Period
+  code: CodeableConcept
+  valueBoolean: String
+  valueQuantity: Quantity
+  valueRange: Range
+  extension: [Extension]
+  modifierExtension: [Extension]
+  resourceType: String
+  exclude: String
+  valueCodeableConcept: CodeableConcept
+  id: String
+}
+type MedicationAdministrationDosage {
+  id: String
+  modifierExtension: [Extension]
+  rateQuantity: Quantity
+  text: String
+  extension: [Extension]
+  dose: Quantity
+  site: CodeableConcept
+  method: CodeableConcept
+  rateRatio: Ratio
+  route: CodeableConcept
+  resourceType: String
+}
+union MedicationRequestDispenseRequestDispenserInstructionUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type MedicationRequestDispenseRequest {
+  expectedSupplyDuration: Duration
+  initialFill: MedicationRequestDispenseRequestInitialFill
+  modifierExtension: [Extension]
+  resourceType: String
+  validityPeriod: Period
+  doseAdministrationAid: CodeableConcept
+  id: String
+  dispenseInterval: Duration
+  dispenser(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  dispenserInstruction(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestDispenseRequestDispenserInstructionUnion]
+  quantity: Quantity
+  extension: [Extension]
+  numberOfRepeatsAllowed: String
+}
+type ResearchStudyProgressStatus {
+  resourceType: String
+  state: CodeableConcept
+  actual: String
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  period: Period
+}
+type SubstanceDefinitionStructureRepresentation {
+  document(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceType]
+  extension: [Extension]
+  format: CodeableConcept
+  id: String
+  modifierExtension: [Extension]
+  representation: String
+  resourceType: String
+  type: CodeableConcept
+}
+type TimingRepeat {
+  boundsRange: Range
+  countMax: String
+  durationUnit: String
+  duration: String
+  periodUnit: String
+  resourceType: String
+  count: String
+  extension: [Extension]
+  when: String
+  id: String
+  durationMax: String
+  period: String
+  boundsDuration: Duration
+  frequencyMax: String
+  frequency: String
+  periodMax: String
+  boundsPeriod: Period
+  dayOfWeek: String
+  timeOfDay: String
+  offset: String
+}
+type Age {
+  code: String
+  comparator: String
+  extension: [Extension]
+  id: String
+  resourceType: String
+  system: String
+  unit: String
+  value: String
+}
+type VirtualServiceDetail {
+  resourceType: String
+  additionalInfo: String
+  addressContactPoint: ContactPoint
+  addressExtendedContactDetail: ExtendedContactDetail
+  sessionKey: String
+  extension: [Extension]
+  id: String
+  addressString: String
+  addressUrl: String
+  channelType: Coding
+  maxParticipants: String
+}
+type DocumentReferenceContentProfile {
+  valueUri: String
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+  valueCanonical: String
+  valueCoding: Coding
+}
+type Count {
+  extension: [Extension]
+  id: String
+  resourceType: String
+  system: String
+  unit: String
+  value: String
+  code: String
+  comparator: String
+}
+union SignatureOnBehalfOfUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union SignatureWhoUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type Signature {
+  who(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SignatureWhoUnion]
+  data: String
+  resourceType: String
+  sigFormat: String
+  id: String
+  when: String
+  onBehalfOf(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SignatureOnBehalfOfUnion]
+  type: [Coding]
+  extension: [Extension]
+  targetFormat: String
+}
+union UsageContextValueReferenceUnion =
+    ResearchStudyType
+  | GroupType
+  | OrganizationType
+type UsageContext {
+  extension: [Extension]
+  id: String
+  resourceType: String
+  valueCodeableConcept: CodeableConcept
+  valueQuantity: Quantity
+  valueRange: Range
+  valueReference(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [UsageContextValueReferenceUnion]
+  code: Coding
+}
+type ContactPoint {
+  extension: [Extension]
+  id: String
+  period: Period
+  rank: String
+  resourceType: String
+  system: String
+  use: String
+  value: String
+}
+type Duration {
+  code: String
+  comparator: String
+  extension: [Extension]
+  id: String
+  resourceType: String
+  system: String
+  unit: String
+  value: String
+}
+union FamilyMemberHistoryProcedureNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type FamilyMemberHistoryProcedure {
+  modifierExtension: [Extension]
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [FamilyMemberHistoryProcedureNoteUnion]
+  performedDateTime: String
+  performedRange: Range
+  contributedToDeath: String
+  performedAge: Age
+  performedPeriod: Period
+  performedString: String
+  resourceType: String
+  id: String
+  extension: [Extension]
+  code: CodeableConcept
+  outcome: CodeableConcept
+}
+union ResearchStudyRecruitmentEligibilityUnion = GroupType
+type ResearchStudyRecruitment {
+  targetNumber: String
+  actualGroup(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [GroupType]
+  actualNumber: String
+  eligibility(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchStudyRecruitmentEligibilityUnion]
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+}
+union TaskRestrictionRecipientUnion =
+    PatientType
+  | PractitionerType
+  | PractitionerRoleType
+  | GroupType
+  | OrganizationType
+type TaskRestriction {
+  resourceType: String
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  period: Period
+  recipient(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskRestrictionRecipientUnion]
+  repetitions: String
+}
+type DataRequirementValueFilter {
+  extension: [Extension]
+  id: String
+  path: String
+  comparator: String
+  resourceType: String
+  searchParam: String
+  valueDateTime: String
+  valueDuration: Duration
+  valuePeriod: Period
+}
+type SubstanceIngredient {
+  substanceReference(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SubstanceType]
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  quantity: Ratio
+  resourceType: String
+  substanceCodeableConcept: CodeableConcept
+}
+union SpecimenSubjectUnion = PatientType | GroupType | SubstanceType
+union SpecimenCollectionUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+union SpecimenNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type SpecimenType {
+  identifier: [Identifier]
+  text: Narrative
+  contained: [ResourceUnion]
+  combined: String
+  role: [CodeableConcept]
+  extension: [Extension]
+  type: CodeableConcept
+  resourceType: String
+  id: String
+  parent(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SpecimenType]
+  modifierExtension: [Extension]
+  status: String
+  condition: [CodeableConcept]
+  meta: Meta
+  receivedTime: String
+  feature: [SpecimenFeature]
+  collection(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SpecimenCollectionUnion]
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SpecimenSubjectUnion]
+  accessionIdentifier: Identifier
+  container: [SpecimenContainer]
+  language: String
+  processing: [SpecimenProcessing]
+  implicitRules: String
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SpecimenNoteUnion]
+}
+type DiagnosticReportMedia {
+  modifierExtension: [Extension]
+  resourceType: String
+  comment: String
+  extension: [Extension]
+  id: String
+  link(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceType]
+}
+type Identifier {
+  type: CodeableConcept
+  extension: [Extension]
+  period: Period
+  system: String
+  value: String
+  assigner(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  id: String
+  resourceType: String
+  use: String
+}
+type PatientCommunication {
+  resourceType: String
+  extension: [Extension]
+  id: String
+  language: CodeableConcept
+  modifierExtension: [Extension]
+  preferred: String
+}
+type Reference {
+  resourceType: String
+  type: String
+  display: String
+  extension: [Extension]
+  id: String
+  identifier: Identifier
+  reference: String
+}
+union SpecimenCollectionCollectorUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+type SpecimenCollection {
+  extension: [Extension]
+  method: CodeableConcept
+  modifierExtension: [Extension]
+  quantity: Quantity
+  bodySite: CodeableReference
+  collector(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SpecimenCollectionCollectorUnion]
+  fastingStatusCodeableConcept: CodeableConcept
+  collectedPeriod: Period
+  fastingStatusDuration: Duration
+  procedure(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedureType]
+  device: CodeableReference
+  collectedDateTime: String
+  duration: Duration
+  id: String
+  resourceType: String
+}
+type BodyStructureIncludedStructure {
+  extension: [Extension]
+  id: String
+  laterality: CodeableConcept
+  modifierExtension: [Extension]
+  qualifier: [CodeableConcept]
+  resourceType: String
+  structure: CodeableConcept
+  bodyLandmarkOrientation: [BodyStructureIncludedStructureBodyLandmarkOrientation]
+}
+union MedicationRequestPerformerUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+union MedicationRequestRecorderUnion = PractitionerType | PractitionerRoleType
+union MedicationRequestRequesterUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+union MedicationRequestSubjectUnion = PatientType | GroupType
+union MedicationRequestNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union MedicationRequestBasedOnUnion = MedicationRequestType
+union MedicationRequestInformationSourceUnion =
+    PatientType
+  | PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+type MedicationRequestType {
+  medication: CodeableReference
+  resourceType: String
+  reason: [CodeableReference]
+  statusChanged: String
+  courseOfTherapyType: CodeableConcept
+  effectiveDosePeriod: Period
+  device: [CodeableReference]
+  supportingInformation(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResourceUnion]
+  performer(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestPerformerUnion]
+  authoredOn: String
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestNoteUnion]
+  text: Narrative
+  id: String
+  language: String
+  status: String
+  implicitRules: String
+  requester(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestRequesterUnion]
+  groupIdentifier: Identifier
+  statusReason: CodeableConcept
+  intent: String
+  dosageInstruction: [Dosage]
+  informationSource(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestInformationSourceUnion]
+  performerType: CodeableConcept
+  identifier: [Identifier]
+  modifierExtension: [Extension]
+  category: [CodeableConcept]
+  recorder(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestRecorderUnion]
+  priorPrescription(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestType]
+  meta: Meta
+  basedOn(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestBasedOnUnion]
+  extension: [Extension]
+  renderedDosageInstruction: String
+  reported: String
+  substitution: MedicationRequestSubstitution
+  doNotPerform: String
+  contained: [ResourceUnion]
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestSubjectUnion]
+  dispenseRequest: MedicationRequestDispenseRequest
+  priority: String
+}
+type ImmunizationReaction {
+  manifestation: CodeableReference
+  modifierExtension: [Extension]
+  reported: String
+  resourceType: String
+  date: String
+  extension: [Extension]
+  id: String
+}
+type Ratio {
+  extension: [Extension]
+  id: String
+  numerator: Quantity
+  resourceType: String
+  denominator: Quantity
+}
+type Dosage {
+  asNeededFor: [CodeableConcept]
+  doseAndRate: [DosageDoseAndRate]
+  route: CodeableConcept
+  method: CodeableConcept
+  modifierExtension: [Extension]
+  patientInstruction: String
+  text: String
+  extension: [Extension]
+  site: CodeableConcept
+  maxDosePerAdministration: Quantity
+  maxDosePerLifetime: Quantity
+  resourceType: String
+  additionalInstruction: [CodeableConcept]
+  asNeeded: String
+  timing: Timing
+  id: String
+  sequence: String
+  maxDosePerPeriod: [Ratio]
+}
+union PatientGeneralPractitionerUnion =
+    OrganizationType
+  | PractitionerType
+  | PractitionerRoleType
+union PatientLinkUnion = PatientType
+type PatientType {
+  modifierExtension: [Extension]
+  gender: String
+  extension: [Extension]
+  deceasedBoolean: String
+  address: [Address]
+  link(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [PatientLinkUnion]
+  identifier: [Identifier]
+  generalPractitioner(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [PatientGeneralPractitionerUnion]
+  implicitRules: String
+  meta: Meta
+  multipleBirthInteger: String
+  multipleBirthBoolean: String
+  text: Narrative
+  managingOrganization(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  active: String
+  birthDate: String
+  deceasedDateTime: String
+  id: String
+  name: [HumanName]
+  photo: [Attachment]
+  contained: [ResourceUnion]
+  contact: [PatientContact]
+  maritalStatus: CodeableConcept
+  communication: [PatientCommunication]
+  telecom: [ContactPoint]
+  language: String
+  resourceType: String
+}
+type SubstanceDefinitionStructure {
+  sourceDocument(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceType]
+  modifierExtension: [Extension]
+  molecularFormula: String
+  resourceType: String
+  id: String
+  stereochemistry: CodeableConcept
+  technique: [CodeableConcept]
+  opticalActivity: CodeableConcept
+  molecularFormulaByMoiety: String
+  molecularWeight: SubstanceDefinitionMolecularWeight
+  representation: [SubstanceDefinitionStructureRepresentation]
+  extension: [Extension]
+}
+type AvailabilityAvailableTime {
+  availableStartTime: String
+  daysOfWeek: String
+  extension: [Extension]
+  id: String
+  resourceType: String
+  allDay: String
+  availableEndTime: String
+}
+type ContactDetail {
+  telecom: [ContactPoint]
+  extension: [Extension]
+  id: String
+  name: String
+  resourceType: String
+}
+union MedicationStatementInformationSourceUnion =
+    PatientType
+  | PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+union MedicationStatementPartOfUnion = ProcedureType | MedicationStatementType
+union MedicationStatementRelatedClinicalInformationUnion =
+    ObservationType
+  | ConditionType
+union MedicationStatementSubjectUnion = PatientType | GroupType
+union MedicationStatementNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type MedicationStatementType {
+  relatedClinicalInformation(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationStatementRelatedClinicalInformationUnion]
+  meta: Meta
+  effectivePeriod: Period
+  dosage: [Dosage]
+  category: [CodeableConcept]
+  contained: [ResourceUnion]
+  effectiveDateTime: String
+  identifier: [Identifier]
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationStatementNoteUnion]
+  implicitRules: String
+  medication: CodeableReference
+  renderedDosageInstruction: String
+  derivedFrom(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResourceUnion]
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationStatementSubjectUnion]
+  adherence: MedicationStatementAdherence
+  reason: [CodeableReference]
+  text: Narrative
+  language: String
+  partOf(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationStatementPartOfUnion]
+  modifierExtension: [Extension]
+  dateAsserted: String
+  extension: [Extension]
+  id: String
+  effectiveTiming: Timing
+  informationSource(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationStatementInformationSourceUnion]
+  status: String
+  resourceType: String
+}
+type MedicationStatementAdherence {
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  reason: CodeableConcept
+  resourceType: String
+  code: CodeableConcept
+}
+type ProcedureFocalDevice {
+  action: CodeableConcept
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+}
+type Attachment {
+  width: String
+  pages: String
+  extension: [Extension]
+  data: String
+  size: String
+  duration: String
+  title: String
+  creation: String
+  height: String
+  frames: String
+  hash: String
+  url: String
+  resourceType: String
+  id: String
+  contentType: String
+  language: String
+}
+type PractitionerQualification {
+  issuer(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  modifierExtension: [Extension]
+  period: Period
+  resourceType: String
+  code: CodeableConcept
+  extension: [Extension]
+  id: String
+  identifier: [Identifier]
+}
+type ResearchStudyObjective {
+  description: String
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  name: String
+  resourceType: String
+  type: CodeableConcept
+}
+union GroupMemberEntityUnion =
+    GroupType
+  | OrganizationType
+  | PatientType
+  | PractitionerType
+  | PractitionerRoleType
+  | SpecimenType
+type GroupMember {
+  entity(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [GroupMemberEntityUnion]
+  extension: [Extension]
+  id: String
+  inactive: String
+  modifierExtension: [Extension]
+  period: Period
+  resourceType: String
+}
+union ConditionSubjectUnion = PatientType | GroupType
+union ConditionNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union ConditionParticipantUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union ConditionStageUnion = DiagnosticReportType | ObservationType
+type ConditionType {
+  contained: [ResourceUnion]
+  abatementAge: Age
+  onsetDateTime: String
+  verificationStatus: CodeableConcept
+  code: CodeableConcept
+  language: String
+  text: Narrative
+  abatementString: String
+  clinicalStatus: CodeableConcept
+  modifierExtension: [Extension]
+  abatementRange: Range
+  resourceType: String
+  recordedDate: String
+  severity: CodeableConcept
+  implicitRules: String
+  onsetAge: Age
+  evidence: [CodeableReference]
+  meta: Meta
+  stage(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ConditionStageUnion]
+  category: [CodeableConcept]
+  onsetRange: Range
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ConditionSubjectUnion]
+  abatementPeriod: Period
+  id: String
+  bodySite: [CodeableConcept]
+  onsetString: String
+  abatementDateTime: String
+  extension: [Extension]
+  participant(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ConditionParticipantUnion]
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ConditionNoteUnion]
+  identifier: [Identifier]
+  onsetPeriod: Period
+}
+type EncounterDiagnosis {
+  resourceType: String
+  use: [CodeableConcept]
+  condition: [CodeableReference]
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+}
+union FamilyMemberHistoryConditionNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type FamilyMemberHistoryCondition {
+  onsetPeriod: Period
+  extension: [Extension]
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [FamilyMemberHistoryConditionNoteUnion]
+  onsetAge: Age
+  onsetRange: Range
+  resourceType: String
+  contributedToDeath: String
+  id: String
+  code: CodeableConcept
+  onsetString: String
+  outcome: CodeableConcept
+  modifierExtension: [Extension]
+}
+type RelatedArtifact {
+  display: String
+  publicationDate: String
+  publicationStatus: String
+  classifier: [CodeableConcept]
+  document: Attachment
+  resourceReference(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResourceUnion]
+  extension: [Extension]
+  id: String
+  label: String
+  citation: String
+  resource: String
+  type: String
+  resourceType: String
+}
+type CodeableReference {
+  extension: [Extension]
+  id: String
+  resourceType: String
+  concept: CodeableConcept
+}
+type ImmunizationProtocolApplied {
+  seriesDoses: String
+  targetDisease: [CodeableConcept]
+  doseNumber: String
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+  series: String
+}
+union ObservationSpecimenUnion = SpecimenType | GroupType
+union ObservationSubjectUnion =
+    PatientType
+  | GroupType
+  | OrganizationType
+  | ProcedureType
+  | PractitionerType
+  | MedicationType
+  | SubstanceType
+union ObservationNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union ObservationBasedOnUnion = MedicationRequestType
+union ObservationDerivedFromUnion =
+    DocumentReferenceType
+  | ImagingStudyType
+  | ObservationType
+union ObservationHasMemberUnion = ObservationType
+union ObservationPartOfUnion =
+    MedicationAdministrationType
+  | MedicationStatementType
+  | ProcedureType
+  | ImagingStudyType
+union ObservationPerformerUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+type ObservationType {
+  effectivePeriod: Period
+  derivedFrom(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationDerivedFromUnion]
+  effectiveInstant: String
+  valuePeriod: Period
+  instantiatesCanonical: String
+  referenceRange: [ObservationReferenceRange]
+  code: CodeableConcept
+  category: [CodeableConcept]
+  valueBoolean: String
+  performer(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationPerformerUnion]
+  bodySite: CodeableConcept
+  text: Narrative
+  valueQuantity: Quantity
+  valueString: String
+  id: String
+  modifierExtension: [Extension]
+  contained: [ResourceUnion]
+  valueAttachment: Attachment
+  issued: String
+  implicitRules: String
+  meta: Meta
+  method: CodeableConcept
+  bodyStructure(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [BodyStructureType]
+  effectiveDateTime: String
+  valueRatio: Ratio
+  interpretation: [CodeableConcept]
+  valueDateTime: String
+  valueTime: String
+  dataAbsentReason: CodeableConcept
+  resourceType: String
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationNoteUnion]
+  basedOn(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationBasedOnUnion]
+  focus(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResourceUnion]
+  valueCodeableConcept: CodeableConcept
+  hasMember(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationHasMemberUnion]
+  valueInteger: String
+  language: String
+  identifier: [Identifier]
+  valueSampledData: SampledData
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationSubjectUnion]
+  extension: [Extension]
+  triggeredBy: [ObservationTriggeredBy]
+  specimen(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationSpecimenUnion]
+  partOf(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationPartOfUnion]
+  component: [ObservationComponent]
+  effectiveTiming: Timing
+  valueRange: Range
+  status: String
+}
+union ProcedureFocusUnion =
+    PatientType
+  | GroupType
+  | PractitionerType
+  | OrganizationType
+  | PractitionerRoleType
+  | SpecimenType
+union ProcedurePartOfUnion =
+    ProcedureType
+  | ObservationType
+  | MedicationAdministrationType
+union ProcedureRecorderUnion =
+    PatientType
+  | PractitionerType
+  | PractitionerRoleType
+union ProcedureReportUnion = DiagnosticReportType | DocumentReferenceType
+union ProcedureReportedReferenceUnion =
+    PatientType
+  | PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+union ProcedureSubjectUnion =
+    PatientType
+  | GroupType
+  | PractitionerType
+  | OrganizationType
+union ProcedureNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union ProcedurePerformerUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+type ProcedureType {
+  resourceType: String
+  recorder(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedureRecorderUnion]
+  occurrenceTiming: Timing
+  occurrenceString: String
+  outcome: CodeableConcept
+  reason: [CodeableReference]
+  reportedReference(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedureReportedReferenceUnion]
+  occurrencePeriod: Period
+  reportedBoolean: String
+  extension: [Extension]
+  report(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedureReportUnion]
+  code: CodeableConcept
+  category: [CodeableConcept]
+  used: [CodeableReference]
+  recorded: String
+  partOf(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedurePartOfUnion]
+  statusReason: CodeableConcept
+  modifierExtension: [Extension]
+  occurrenceRange: Range
+  followUp: [CodeableConcept]
+  occurrenceAge: Age
+  bodySite: [CodeableConcept]
+  id: String
+  focalDevice: [ProcedureFocalDevice]
+  text: Narrative
+  meta: Meta
+  supportingInfo(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResourceUnion]
+  language: String
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedureNoteUnion]
+  status: String
+  implicitRules: String
+  contained: [ResourceUnion]
+  performer(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedurePerformerUnion]
+  instantiatesCanonical: String
+  complication: [CodeableReference]
+  occurrenceDateTime: String
+  identifier: [Identifier]
+  instantiatesUri: String
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedureSubjectUnion]
+  focus(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedureFocusUnion]
+}
+union ResearchSubjectSubjectUnion =
+    PatientType
+  | GroupType
+  | SpecimenType
+  | MedicationType
+  | SubstanceType
+type ResearchSubjectType {
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchSubjectSubjectUnion]
+  text: Narrative
+  resourceType: String
+  implicitRules: String
+  meta: Meta
+  status: String
+  id: String
+  contained: [ResourceUnion]
+  identifier: [Identifier]
+  progress: [ResearchSubjectProgress]
+  actualComparisonGroup: String
+  language: String
+  modifierExtension: [Extension]
+  study(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchStudyType]
+  extension: [Extension]
+  period: Period
+  assignedComparisonGroup: String
+}
+type SpecimenFeature {
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+  type: CodeableConcept
+  description: String
+}
+type Address {
+  text: String
+  use: String
+  id: String
+  line: String
+  country: String
+  postalCode: String
+  state: String
+  city: String
+  district: String
+  period: Period
+  resourceType: String
+  type: String
+  extension: [Extension]
+}
+type DocumentReferenceRelatesTo {
+  modifierExtension: [Extension]
+  resourceType: String
+  target(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceType]
+  code: CodeableConcept
+  extension: [Extension]
+  id: String
+}
+type EncounterLocation {
+  period: Period
+  resourceType: String
+  status: String
+  extension: [Extension]
+  form: CodeableConcept
+  id: String
+  modifierExtension: [Extension]
+}
+type SampledData {
+  resourceType: String
+  origin: Quantity
+  codeMap: String
+  intervalUnit: String
+  lowerLimit: String
+  upperLimit: String
+  extension: [Extension]
+  id: String
+  dimensions: String
+  factor: String
+  interval: String
+  offsets: String
+  data: String
+}
+type TriggerDefinition {
+  condition: Expression
+  name: String
+  data: [DataRequirement]
+  extension: [Extension]
+  id: String
+  timingTiming: Timing
+  code: CodeableConcept
+  timingDateTime: String
+  type: String
+  resourceType: String
+  timingDate: String
+  subscriptionTopic: String
+}
+type Availability {
+  availableTime: [AvailabilityAvailableTime]
+  extension: [Extension]
+  id: String
+  notAvailableTime: [AvailabilityNotAvailableTime]
+  resourceType: String
+}
+type HumanName {
+  suffix: String
+  use: String
+  family: String
+  given: String
+  id: String
+  prefix: String
+  extension: [Extension]
+  resourceType: String
+  period: Period
+  text: String
+}
+union ImagingStudySeriesPerformerUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+type ImagingStudySeries {
+  bodySite: CodeableReference
+  resourceType: String
+  id: String
+  started: String
+  extension: [Extension]
+  numberOfInstances: String
+  uid: String
+  laterality: CodeableConcept
+  modality: CodeableConcept
+  performer(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ImagingStudySeriesPerformerUnion]
+  modifierExtension: [Extension]
+  description: String
+  number: String
+  instance: [ImagingStudySeriesInstance]
+  specimen(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SpecimenType]
+}
+type Narrative {
+  div: String
+  extension: [Extension]
+  id: String
+  resourceType: String
+  status: String
+}
+type PractitionerType {
+  meta: Meta
+  deceasedBoolean: String
+  birthDate: String
+  id: String
+  extension: [Extension]
+  gender: String
+  qualification: [PractitionerQualification]
+  contained: [ResourceUnion]
+  telecom: [ContactPoint]
+  identifier: [Identifier]
+  address: [Address]
+  modifierExtension: [Extension]
+  resourceType: String
+  implicitRules: String
+  language: String
+  name: [HumanName]
+  photo: [Attachment]
+  text: Narrative
+  active: String
+  communication: [PractitionerCommunication]
+  deceasedDateTime: String
+}
+type Range {
+  resourceType: String
+  extension: [Extension]
+  high: Quantity
+  id: String
+  low: Quantity
+}
+type DocumentReferenceContent {
+  attachment: Attachment
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  profile: [DocumentReferenceContentProfile]
+  resourceType: String
+}
+type Period {
+  extension: [Extension]
+  id: String
+  resourceType: String
+  start: String
+  end: String
+}
+type SubstanceDefinitionProperty {
+  extension: [Extension]
+  modifierExtension: [Extension]
+  valueAttachment: Attachment
+  valueQuantity: Quantity
+  id: String
+  resourceType: String
+  type: CodeableConcept
+  valueBoolean: String
+  valueCodeableConcept: CodeableConcept
+  valueDate: String
+}
+union TaskPerformerActorUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+type TaskPerformer {
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+  actor(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskPerformerActorUnion]
+  extension: [Extension]
+  function: CodeableConcept
+}
+union FamilyMemberHistoryNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union FamilyMemberHistoryParticipantUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type FamilyMemberHistoryType {
+  condition: [FamilyMemberHistoryCondition]
+  ageAge: Age
+  deceasedRange: Range
+  deceasedAge: Age
+  status: String
+  language: String
+  identifier: [Identifier]
+  sex: CodeableConcept
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [FamilyMemberHistoryNoteUnion]
+  contained: [ResourceUnion]
+  id: String
+  resourceType: String
+  deceasedString: String
+  relationship: CodeableConcept
+  bornDate: String
+  dataAbsentReason: CodeableConcept
+  estimatedAge: String
+  modifierExtension: [Extension]
+  date: String
+  patient(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [PatientType]
+  extension: [Extension]
+  procedure: [FamilyMemberHistoryProcedure]
+  meta: Meta
+  ageRange: Range
+  name: String
+  deceasedDate: String
+  deceasedBoolean: String
+  instantiatesCanonical: String
+  ageString: String
+  text: Narrative
+  implicitRules: String
+  reason: [CodeableReference]
+  instantiatesUri: String
+  bornString: String
+  participant(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [FamilyMemberHistoryParticipantUnion]
+  bornPeriod: Period
+}
+type DataRequirementCodeFilter {
+  extension: [Extension]
+  id: String
+  path: String
+  resourceType: String
+  searchParam: String
+  valueSet: String
+  code: [Coding]
+}
+type ImmunizationPerformer {
+  function: CodeableConcept
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+  extension: [Extension]
+}
+type MedicationRequestDispenseRequestInitialFill {
+  duration: Duration
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  quantity: Quantity
+  resourceType: String
+}
+union ConditionStageAssessmentUnion = DiagnosticReportType | ObservationType
+type ConditionStage {
+  resourceType: String
+  summary: CodeableConcept
+  type: CodeableConcept
+  assessment(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ConditionStageAssessmentUnion]
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+}
+type ImmunizationProgramEligibility {
+  programStatus: CodeableConcept
+  resourceType: String
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  program: CodeableConcept
+}
+type ParameterDefinition {
+  profile: String
+  min: String
+  name: String
+  type: String
+  documentation: String
+  extension: [Extension]
+  id: String
+  max: String
+  resourceType: String
+  use: String
+}
+type ResearchStudyOutcomeMeasure {
+  id: String
+  modifierExtension: [Extension]
+  name: String
+  resourceType: String
+  type: [CodeableConcept]
+  description: String
+  extension: [Extension]
+}
+union TaskInputValueAnnotationUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union TaskInputValueSignatureUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union TaskInputValueUsageContextUnion =
+    ResearchStudyType
+  | GroupType
+  | OrganizationType
+type TaskInput {
+  valueAddress: Address
+  valueUrl: String
+  valueDosage: Dosage
+  valueRelatedArtifact: RelatedArtifact
+  valueDateTime: String
+  valueExpression: Expression
+  valueCanonical: String
+  valueContactPoint: ContactPoint
+  valueUnsignedInt: String
+  valueInstant: String
+  valueMoney: Money
+  valueParameterDefinition: ParameterDefinition
+  valueUuid: String
+  valueAttachment: Attachment
+  valueUsageContext(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskInputValueUsageContextUnion]
+  valueTime: String
+  valueUri: String
+  valueSignature(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskInputValueSignatureUnion]
+  valueQuantity: Quantity
+  valueContactDetail: ContactDetail
+  valueMeta: Meta
+  valueCode: String
+  valueTriggerDefinition: TriggerDefinition
+  valueOid: String
+  valueInteger64: String
+  valueDataRequirement: DataRequirement
+  valueBoolean: String
+  valueCoding: Coding
+  valueDecimal: String
+  valueAnnotation(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskInputValueAnnotationUnion]
+  valueCount: Count
+  valueBase64Binary: String
+  valueCodeableReference: CodeableReference
+  valueDistance: Distance
+  valueHumanName: HumanName
+  valueId: String
+  resourceType: String
+  valueRatio: Ratio
+  valueExtendedContactDetail: ExtendedContactDetail
+  valueRatioRange: RatioRange
+  valueMarkdown: String
+  type: CodeableConcept
+  id: String
+  valueSampledData: SampledData
+  extension: [Extension]
+  modifierExtension: [Extension]
+  valueTiming: Timing
+  valueIdentifier: Identifier
+  valuePositiveInt: String
+  valueAvailability: Availability
+  valueDuration: Duration
+  valueString: String
+  valueCodeableConcept: CodeableConcept
+  valueAge: Age
+  valueDate: String
+  valuePeriod: Period
+  valueInteger: String
+  valueRange: Range
+}
+type DataRequirement {
+  type: String
+  valueFilter: [DataRequirementValueFilter]
+  dateFilter: [DataRequirementDateFilter]
+  limit: String
+  subjectCodeableConcept: CodeableConcept
+  extension: [Extension]
+  mustSupport: String
+  sort: [DataRequirementSort]
+  id: String
+  profile: String
+  subjectReference(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [GroupType]
+  resourceType: String
+  codeFilter: [DataRequirementCodeFilter]
+}
+union ImagingStudyBasedOnUnion = TaskType
+union ImagingStudyReferrerUnion = PractitionerType | PractitionerRoleType
+union ImagingStudySubjectUnion = PatientType | GroupType
+union ImagingStudyNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type ImagingStudyType {
+  partOf(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedureType]
+  text: Narrative
+  meta: Meta
+  extension: [Extension]
+  language: String
+  basedOn(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ImagingStudyBasedOnUnion]
+  numberOfInstances: String
+  procedure: [CodeableReference]
+  identifier: [Identifier]
+  implicitRules: String
+  referrer(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ImagingStudyReferrerUnion]
+  modality: [CodeableConcept]
+  resourceType: String
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ImagingStudyNoteUnion]
+  contained: [ResourceUnion]
+  modifierExtension: [Extension]
+  series: [ImagingStudySeries]
+  reason: [CodeableReference]
+  started: String
+  status: String
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ImagingStudySubjectUnion]
+  description: String
+  id: String
+  numberOfSeries: String
+}
+type ObservationTriggeredBy {
+  id: String
+  modifierExtension: [Extension]
+  observation(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationType]
+  reason: String
+  resourceType: String
+  type: String
+  extension: [Extension]
+}
+type PractitionerRoleType {
+  availability: [Availability]
+  identifier: [Identifier]
+  practitioner(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [PractitionerType]
+  contained: [ResourceUnion]
+  language: String
+  code: [CodeableConcept]
+  implicitRules: String
+  specialty: [CodeableConcept]
+  id: String
+  resourceType: String
+  extension: [Extension]
+  organization(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  modifierExtension: [Extension]
+  communication: [CodeableConcept]
+  active: String
+  characteristic: [CodeableConcept]
+  contact: [ExtendedContactDetail]
+  meta: Meta
+  period: Period
+  text: Narrative
+}
+union ResearchStudyAssociatedPartyUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+union ResearchStudyNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union ResearchStudyRecruitmentUnion = GroupType
+union ResearchStudyResultUnion = DiagnosticReportType
+union ResearchStudySiteUnion = ResearchStudyType | OrganizationType
+type ResearchStudyType {
+  region: [CodeableConcept]
+  title: String
+  condition: [CodeableConcept]
+  contained: [ResourceUnion]
+  period: Period
+  descriptionSummary: String
+  primaryPurposeType: CodeableConcept
+  comparisonGroup: [ResearchStudyComparisonGroup]
+  whyStopped: CodeableConcept
+  date: String
+  recruitment(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchStudyRecruitmentUnion]
+  classifier: [CodeableConcept]
+  phase: CodeableConcept
+  language: String
+  meta: Meta
+  name: String
+  text: Narrative
+  result(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchStudyResultUnion]
+  progressStatus: [ResearchStudyProgressStatus]
+  modifierExtension: [Extension]
+  associatedParty(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchStudyAssociatedPartyUnion]
+  description: String
+  site(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchStudySiteUnion]
+  url: String
+  implicitRules: String
+  version: String
+  outcomeMeasure: [ResearchStudyOutcomeMeasure]
+  id: String
+  identifier: [Identifier]
+  objective: [ResearchStudyObjective]
+  resourceType: String
+  keyword: [CodeableConcept]
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchStudyNoteUnion]
+  status: String
+  label: [ResearchStudyLabel]
+  relatedArtifact: [RelatedArtifact]
+  studyDesign: [CodeableConcept]
+  extension: [Extension]
+  focus: [CodeableReference]
+  partOf(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchStudyType]
+}
+type ResearchStudyComparisonGroup {
+  modifierExtension: [Extension]
+  observedGroup(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [GroupType]
+  name: String
+  resourceType: String
+  id: String
+  description: String
+  linkId: String
+  type: CodeableConcept
+  extension: [Extension]
+}
+type SubstanceDefinitionNameOfficial {
+  resourceType: String
+  status: CodeableConcept
+  authority: CodeableConcept
+  date: String
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+}
+type Distance {
+  resourceType: String
+  system: String
+  unit: String
+  value: String
+  code: String
+  comparator: String
+  extension: [Extension]
+  id: String
+}
+union DocumentReferenceAttesterPartyUnion =
+    PatientType
+  | PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+type DocumentReferenceAttester {
+  id: String
+  mode: CodeableConcept
+  modifierExtension: [Extension]
+  party(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceAttesterPartyUnion]
+  resourceType: String
+  time: String
+  extension: [Extension]
+}
+union ExtensionValueAnnotationUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union ExtensionValueSignatureUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union ExtensionValueUsageContextUnion =
+    ResearchStudyType
+  | GroupType
+  | OrganizationType
+type Extension {
+  valueUri: String
+  valueInteger: String
+  valueAttachment: Attachment
+  valueParameterDefinition: ParameterDefinition
+  valueInteger64: String
+  valueHumanName: HumanName
+  valueAge: Age
+  valueCodeableConcept: CodeableConcept
+  valueSampledData: SampledData
+  valueDateTime: String
+  valueExtendedContactDetail: ExtendedContactDetail
+  valueMarkdown: String
+  valueTriggerDefinition: TriggerDefinition
+  valueString: String
+  valueContactPoint: ContactPoint
+  valueAnnotation(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ExtensionValueAnnotationUnion]
+  valueContactDetail: ContactDetail
+  valueQuantity: Quantity
+  valueUuid: String
+  valueRange: Range
+  valueCanonical: String
+  valueCodeableReference: CodeableReference
+  id: String
+  valueRatio: Ratio
+  valueOid: String
+  valueRatioRange: RatioRange
+  valueInstant: String
+  valueDuration: Duration
+  valueRelatedArtifact: RelatedArtifact
+  valueSignature(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ExtensionValueSignatureUnion]
+  valueDate: String
+  valueDosage: Dosage
+  valueBase64Binary: String
+  valuePeriod: Period
+  valueMoney: Money
+  valueIdentifier: Identifier
+  url: String
+  valueCode: String
+  valuePositiveInt: String
+  valueId: String
+  valueUnsignedInt: String
+  valueDataRequirement: DataRequirement
+  valueTime: String
+  valueCoding: Coding
+  valueTiming: Timing
+  valueExpression: Expression
+  valueDistance: Distance
+  valueCount: Count
+  resourceType: String
+  valueAvailability: Availability
+  valueUrl: String
+  valueBoolean: String
+  valueDecimal: String
+  valueMeta: Meta
+  valueAddress: Address
+  valueUsageContext(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ExtensionValueUsageContextUnion]
+  extension: [Extension]
+}
+type OrganizationType {
+  name: String
+  contact: [ExtendedContactDetail]
+  implicitRules: String
+  type: [CodeableConcept]
+  extension: [Extension]
+  text: Narrative
+  language: String
+  resourceType: String
+  partOf(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  alias: String
+  contained: [ResourceUnion]
+  meta: Meta
+  id: String
+  qualification: [OrganizationQualification]
+  description: String
+  modifierExtension: [Extension]
+  identifier: [Identifier]
+  active: String
+}
+type OrganizationQualification {
+  extension: [Extension]
+  id: String
+  identifier: [Identifier]
+  issuer(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  modifierExtension: [Extension]
+  period: Period
+  resourceType: String
+  code: CodeableConcept
+}
+type Quantity {
+  code: String
+  comparator: String
+  extension: [Extension]
+  id: String
+  resourceType: String
+  system: String
+  unit: String
+  value: String
+}
+type BodyStructureType {
+  patient(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [PatientType]
+  contained: [ResourceUnion]
+  modifierExtension: [Extension]
+  active: String
+  identifier: [Identifier]
+  image: [Attachment]
+  extension: [Extension]
+  excludedStructure: [BodyStructureIncludedStructure]
+  resourceType: String
+  id: String
+  meta: Meta
+  includedStructure: [BodyStructureIncludedStructure]
+  implicitRules: String
+  morphology: CodeableConcept
+  text: Narrative
+  description: String
+  language: String
+}
+union ImagingStudySeriesPerformerActorUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+type ImagingStudySeriesPerformer {
+  modifierExtension: [Extension]
+  resourceType: String
+  actor(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ImagingStudySeriesPerformerActorUnion]
+  extension: [Extension]
+  function: CodeableConcept
+  id: String
+}
+type Meta {
+  profile: String
+  security: [Coding]
+  source: String
+  tag: [Coding]
+  versionId: String
+  lastUpdated: String
+  resourceType: String
+  extension: [Extension]
+  id: String
+}
+type SubstanceDefinitionCharacterization {
+  modifierExtension: [Extension]
+  resourceType: String
+  technique: CodeableConcept
+  description: String
+  extension: [Extension]
+  file: [Attachment]
+  form: CodeableConcept
+  id: String
+}
+union DiagnosticReportNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union DiagnosticReportSupportingInfoUnion =
+    ProcedureType
+  | ObservationType
+  | DiagnosticReportType
+union DiagnosticReportBasedOnUnion = MedicationRequestType
+union DiagnosticReportPerformerUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+union DiagnosticReportResultsInterpreterUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+union DiagnosticReportStudyUnion = ImagingStudyType
+union DiagnosticReportSubjectUnion =
+    PatientType
+  | GroupType
+  | OrganizationType
+  | PractitionerType
+  | MedicationType
+  | SubstanceType
+type DiagnosticReportType {
+  result(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationType]
+  implicitRules: String
+  language: String
+  performer(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DiagnosticReportPerformerUnion]
+  presentedForm: [Attachment]
+  text: Narrative
+  subject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DiagnosticReportSubjectUnion]
+  specimen(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SpecimenType]
+  identifier: [Identifier]
+  code: CodeableConcept
+  effectiveDateTime: String
+  media: [DiagnosticReportMedia]
+  effectivePeriod: Period
+  study(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DiagnosticReportStudyUnion]
+  resourceType: String
+  meta: Meta
+  contained: [ResourceUnion]
+  id: String
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DiagnosticReportNoteUnion]
+  modifierExtension: [Extension]
+  basedOn(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DiagnosticReportBasedOnUnion]
+  conclusionCode: [CodeableConcept]
+  supportingInfo(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DiagnosticReportSupportingInfoUnion]
+  conclusion: String
+  status: String
+  extension: [Extension]
+  category: [CodeableConcept]
+  issued: String
+  resultsInterpreter(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DiagnosticReportResultsInterpreterUnion]
+}
+type DataRequirementDateFilter {
+  id: String
+  path: String
+  resourceType: String
+  searchParam: String
+  valueDateTime: String
+  valueDuration: Duration
+  valuePeriod: Period
+  extension: [Extension]
+}
+type ImagingStudySeriesInstance {
+  sopClass: Coding
+  title: String
+  uid: String
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  number: String
+  resourceType: String
+}
+type Timing {
+  repeat: TimingRepeat
+  resourceType: String
+  code: CodeableConcept
+  event: String
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+}
+union AnnotationAuthorReferenceUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+type Annotation {
+  authorString: String
+  extension: [Extension]
+  id: String
+  resourceType: String
+  text: String
+  time: String
+  authorReference(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [AnnotationAuthorReferenceUnion]
+}
+union DiagnosticReportSupportingInfoReferenceUnion =
+    ProcedureType
+  | ObservationType
+  | DiagnosticReportType
+type DiagnosticReportSupportingInfo {
+  id: String
+  modifierExtension: [Extension]
+  reference(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DiagnosticReportSupportingInfoReferenceUnion]
+  resourceType: String
+  type: CodeableConcept
+  extension: [Extension]
+}
+type ExtendedContactDetail {
+  name: [HumanName]
+  organization(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  purpose: CodeableConcept
+  resourceType: String
+  telecom: [ContactPoint]
+  address: Address
+  id: String
+  extension: [Extension]
+  period: Period
+}
+type Money {
+  currency: String
+  extension: [Extension]
+  id: String
+  resourceType: String
+  value: String
+}
+type SubstanceDefinitionMoiety {
+  measurementType: CodeableConcept
+  name: String
+  amountString: String
+  extension: [Extension]
+  identifier: Identifier
+  molecularFormula: String
+  opticalActivity: CodeableConcept
+  stereochemistry: CodeableConcept
+  role: CodeableConcept
+  id: String
+  modifierExtension: [Extension]
+  resourceType: String
+  amountQuantity: Quantity
+}
+union TaskOutputValueAnnotationUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union TaskOutputValueSignatureUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union TaskOutputValueUsageContextUnion =
+    ResearchStudyType
+  | GroupType
+  | OrganizationType
+type TaskOutput {
+  valuePeriod: Period
+  id: String
+  valueString: String
+  valueOid: String
+  valueRatio: Ratio
+  valueAge: Age
+  valueSampledData: SampledData
+  valueBase64Binary: String
+  valueMeta: Meta
+  valueSignature(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskOutputValueSignatureUnion]
+  valueTime: String
+  valueDistance: Distance
+  valueDate: String
+  valueTiming: Timing
+  valueAnnotation(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskOutputValueAnnotationUnion]
+  valueCanonical: String
+  valueMarkdown: String
+  valueUrl: String
+  valueContactDetail: ContactDetail
+  valueCodeableConcept: CodeableConcept
+  valueUuid: String
+  valueInstant: String
+  valueExpression: Expression
+  valueUnsignedInt: String
+  type: CodeableConcept
+  valueParameterDefinition: ParameterDefinition
+  valueMoney: Money
+  extension: [Extension]
+  valueExtendedContactDetail: ExtendedContactDetail
+  valueCode: String
+  valueIdentifier: Identifier
+  valueHumanName: HumanName
+  valueDuration: Duration
+  valueInteger64: String
+  valueUri: String
+  valueContactPoint: ContactPoint
+  valueCount: Count
+  valueCodeableReference: CodeableReference
+  valueRelatedArtifact: RelatedArtifact
+  valueId: String
+  valueDosage: Dosage
+  valueBoolean: String
+  valueAttachment: Attachment
+  valueTriggerDefinition: TriggerDefinition
+  resourceType: String
+  valuePositiveInt: String
+  valueRange: Range
+  valueAddress: Address
+  valueInteger: String
+  valueAvailability: Availability
+  valueUsageContext(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskOutputValueUsageContextUnion]
+  valueDateTime: String
+  valueDataRequirement: DataRequirement
+  modifierExtension: [Extension]
+  valueCoding: Coding
+  valueRatioRange: RatioRange
+  valueDecimal: String
+  valueQuantity: Quantity
+}
+type BodyStructureIncludedStructureBodyLandmarkOrientation {
+  id: String
+  landmarkDescription: [CodeableConcept]
+  modifierExtension: [Extension]
+  resourceType: String
+  surfaceOrientation: [CodeableConcept]
+  clockFacePosition: [CodeableConcept]
+  distanceFromLandmark: [BodyStructureIncludedStructureBodyLandmarkOrientationDistanceFromLandmark]
+  extension: [Extension]
+}
+type EncounterParticipant {
+  id: String
+  modifierExtension: [Extension]
+  period: Period
+  resourceType: String
+  type: [CodeableConcept]
+  extension: [Extension]
+}
+type SpecimenProcessing {
+  timePeriod: Period
+  additive(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SubstanceType]
+  modifierExtension: [Extension]
+  description: String
+  id: String
+  resourceType: String
+  method: CodeableConcept
+  timeDateTime: String
+  extension: [Extension]
+}
+union TaskOwnerUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+union TaskRequesterUnion =
+    OrganizationType
+  | PatientType
+  | PractitionerType
+  | PractitionerRoleType
+union TaskNoteUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | PatientType
+  | OrganizationType
+union TaskPerformerUnion =
+    PractitionerType
+  | PractitionerRoleType
+  | OrganizationType
+  | PatientType
+union TaskRestrictionUnion =
+    PatientType
+  | PractitionerType
+  | PractitionerRoleType
+  | GroupType
+  | OrganizationType
+type TaskType {
+  input: [TaskInput]
+  basedOn(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResourceUnion]
+  output: [TaskOutput]
+  lastModified: String
+  authoredOn: String
+  modifierExtension: [Extension]
+  requester(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskRequesterUnion]
+  intent: String
+  partOf(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskType]
+  businessStatus: CodeableConcept
+  resourceType: String
+  code: CodeableConcept
+  instantiatesUri: String
+  instantiatesCanonical: String
+  reason: [CodeableReference]
+  contained: [ResourceUnion]
+  requestedPeriod: Period
+  groupIdentifier: Identifier
+  priority: String
+  text: Narrative
+  identifier: [Identifier]
+  description: String
+  performer(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskPerformerUnion]
+  id: String
+  implicitRules: String
+  meta: Meta
+  restriction(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskRestrictionUnion]
+  note(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskNoteUnion]
+  executionPeriod: Period
+  language: String
+  requestedPerformer: [CodeableReference]
+  status: String
+  extension: [Extension]
+  focus(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResourceUnion]
+  owner(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskOwnerUnion]
+  statusReason: CodeableReference
+  doNotPerform: String
+}
+type EncounterAdmission {
+  extension: [Extension]
+  id: String
+  modifierExtension: [Extension]
+  preAdmissionIdentifier: Identifier
+  reAdmission: CodeableConcept
+  resourceType: String
+  admitSource: CodeableConcept
+  dischargeDisposition: CodeableConcept
+}
+union ResourceUnion =
+    OrganizationType
+  | GroupType
+  | PractitionerType
+  | PractitionerRoleType
+  | ResearchStudyType
+  | PatientType
+  | ResearchSubjectType
+  | SubstanceType
+  | SubstanceDefinitionType
+  | SpecimenType
+  | ObservationType
+  | DiagnosticReportType
+  | ConditionType
+  | MedicationType
+  | MedicationAdministrationType
+  | MedicationStatementType
+  | MedicationRequestType
+  | ProcedureType
+  | DocumentReferenceType
+  | TaskType
+  | ImagingStudyType
+  | FamilyMemberHistoryType
+  | BodyStructureType
+type Query {
+  organization(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [OrganizationType]
+  group(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [GroupType]
+  practitioner(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [PractitionerType]
+  practitionerRole(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [PractitionerRoleType]
+  researchStudy(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchStudyType]
+  patient(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [PatientType]
+  researchSubject(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ResearchSubjectType]
+  substance(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SubstanceType]
+  substanceDefinition(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SubstanceDefinitionType]
+  specimen(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [SpecimenType]
+  observation(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ObservationType]
+  diagnosticReport(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DiagnosticReportType]
+  condition(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ConditionType]
+  medication(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationType]
+  medicationAdministration(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationAdministrationType]
+  medicationStatement(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationStatementType]
+  medicationRequest(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [MedicationRequestType]
+  procedure(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ProcedureType]
+  documentReference(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [DocumentReferenceType]
+  task(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [TaskType]
+  imagingStudy(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [ImagingStudyType]
+  familyMemberHistory(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [FamilyMemberHistoryType]
+  bodyStructure(
+    offset: Int
+    first: Int
+    filter: JSON
+    sort: JSON
+    accessibility: Accessibility = all
+    format: Format = json
+  ): [BodyStructureType]
+}

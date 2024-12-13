@@ -1,0 +1,14 @@
+# Where are all the schema files located? globs are supported eg  src/**/*.graphqls
+schema:
+  - graph/schema.graphql
+exec:
+  package: generated
+  layout: single-file
+  filename: generated/exec.go
+model:
+  filename: model/generated.go
+  package: model
+resolver:
+  package: graph
+  filename: graph/resolver.go
+  layout: single-file
