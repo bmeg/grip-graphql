@@ -17,7 +17,6 @@ import (
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/log"
 	"github.com/gin-gonic/gin"
-
 )
 
 type Handler struct {
@@ -29,7 +28,7 @@ func (gh *Handler) graphqlHandler(client gripql.Client) gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	srv := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{
-		GripClient: client,
+		//GripClient: client,
 	}}))
 
 	srv.AddTransport(transport.Options{})
@@ -73,14 +72,13 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	})
 	r.Use(gin.Recovery())
 
-
 	r.RemoveExtraSlash = true
 	h := &Handler{
 		router: r,
 		config: config,
 	}
 	r.POST("/query", h.graphqlHandler(client))
-	r.GET("/", gin.WrapH(playground.Handler("GraphQL", "/query")))	//r.GET("/", playgroundHandler())
+	r.GET("/", gin.WrapH(playground.Handler("GraphQL", "/query"))) //r.GET("/", playgroundHandler())
 	r.Run()
 	return h, nil
 }

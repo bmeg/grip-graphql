@@ -15,6 +15,7 @@ require (
 	github.com/mongodb/mongo-tools v0.0.0-20240715143021-aa6a140d3f17
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/pflag v1.0.5
+	github.com/vektah/gqlparser v1.3.1
 	github.com/vektah/gqlparser/v2 v2.5.20
 	go.mongodb.org/mongo-driver v1.11.9
 	google.golang.org/protobuf v1.35.2

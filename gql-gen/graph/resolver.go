@@ -6,21 +6,14 @@ import (
 	"context"
 
 	"github.com/bmeg/grip-graphql/gql-gen/generated"
-	"github.com/bmeg/grip-graphql/gql-gen/model"
-)
 
-type Resolver struct{}
+	"github.com/bmeg/grip-graphql/gql-gen/model"
+	//"github.com/vektah/gqlparser/v2/ast"
+)
 
 // Organization is the resolver for the organization field.
 func (r *queryResolver) Organization(ctx context.Context, offset *int, first *int, filter *string, sort *string, accessibility *model.Accessibility, format *model.Format) ([]*model.OrganizationType, error) {
-	panic("not implemented")
-	/*if len(r.GripQuery.Statements) == 0 {
-		r.GripQuery = gripql.V().HasLabel("Organization")
-	} else {
-		ctx := context.Background()
-		r.GripQuery.Out("Organization")
-		result, err := r.GripClient.Traversal(ctx, &gripql.GraphQuery{Graph: graph, Query: q.Statements})
-	}*/
+	return nil, nil
 }
 
 // Group is the resolver for the group field.
@@ -70,7 +63,14 @@ func (r *queryResolver) Specimen(ctx context.Context, offset *int, first *int, f
 
 // Observation is the resolver for the observation field.
 func (r *queryResolver) Observation(ctx context.Context, offset *int, first *int, filter *string, sort *string, accessibility *model.Accessibility, format *model.Format) ([]*model.ObservationType, error) {
-	panic("not implemented")
+	sourceType := "ObservationType"
+	fields := GetQueryFields(ctx, sourceType)
+	_ = gripQuery(fields, sourceType)
+
+	/*for _, field := range fields {
+		fmt.Println("PATH: ", field)
+	}*/
+	return nil, nil
 }
 
 // DiagnosticReport is the resolver for the diagnosticReport field.
