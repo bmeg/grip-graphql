@@ -6,13 +6,15 @@ import (
 )
 
 type Node struct {
-	value    string
-	children map[string]*Node
-	fields   []string
-	visited  bool
+	value         string
+	children      map[string]*Node
+	fields        []string
+	referenceName string
+	visited       bool
 }
 
 func createNodeGraph(paths []string) *Node {
+	fmt.Println("ENTRY PATHS: ", paths)
 	/* Construct a Node graph from a list of '.' delimited traversal paths */
 	graph := &Node{
 		children: make(map[string]*Node),
@@ -21,33 +23,38 @@ func createNodeGraph(paths []string) *Node {
 	for _, path := range paths {
 		parts := strings.Split(path, ".")
 		current := graph
-
+		var referenceName string
+		var lstTypeIndex int
 		for i, part := range parts {
 			if strings.HasSuffix(part, "Type") && !strings.HasSuffix(part, "resourceType") {
+				lstTypeIndex = i
 				if _, ok := current.children[part]; !ok {
 					current.children[part] = &Node{
-						value:    part,
-						children: make(map[string]*Node),
+						value:         part,
+						children:      make(map[string]*Node),
+						referenceName: referenceName,
 					}
 				}
 				current = current.children[part]
 			} else {
-				current.fields = append(current.fields, strings.Join(parts[i:], "."))
-				break
+				if i+1 == len(parts) {
+					current.fields = append(current.fields, strings.Join(parts[lstTypeIndex+1:], "."))
+				}
+				referenceName = parts[i]
 			}
 		}
 	}
 	return graph
 }
 
-func constructTypeTraversal(paths []string) (string, map[string][]string) {
+func constructTypeTraversal(paths []string) ([]string, map[string][]string) {
 	//Build traversal using a modifed Depth First Search algorithm
 	typeFields := make(map[string][]string)
 	returnPath, traversalPath := []string{}, []string{}
 	stack := []*Node{}
 
 	graph := createNodeGraph(paths)
-
+	printNode(graph, 0)
 	for node := range graph.children {
 		if strings.HasSuffix(node, "Type") {
 			stack = append(stack, graph.children[node])
@@ -61,7 +68,6 @@ func constructTypeTraversal(paths []string) (string, map[string][]string) {
 			continue
 		}
 		current.visited = true
-
 		// Append fields on each node to typeFields
 		if len(current.fields) > 0 {
 			typeFields[current.value] = append(typeFields[current.value], current.fields...)
@@ -76,7 +82,7 @@ func constructTypeTraversal(paths []string) (string, map[string][]string) {
 
 		traversalPath = append(traversalPath, current.value)
 		if len(traversalPath) > 1 {
-			returnPath = append(returnPath, "OUTNULL_"+current.value)
+			returnPath = append(returnPath, "OUTNULL_"+current.referenceName+"_"+current.value)
 		}
 
 		for _, child := range current.children {
@@ -84,7 +90,8 @@ func constructTypeTraversal(paths []string) (string, map[string][]string) {
 		}
 	}
 
-	return strings.Join(returnPath, "."), typeFields
+	fmt.Println("RETURN PATH: ", returnPath, typeFields)
+	return returnPath, typeFields
 }
 
 func findParentNode(graph *Node, node *Node) string {

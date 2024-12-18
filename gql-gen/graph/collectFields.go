@@ -26,15 +26,17 @@ func refinePaths(fields []string) []string {
 		}
 		refinedField := strings.Join(segments, ".")
 		refined = append(refined, refinedField)
+
 	}
+
 	return refined
 }
 
 func SortFieldPaths(fields []string, rootType string) []string {
-	refined := refinePaths(fields)
-	sort.Slice(refined, func(i, j int) bool {
-		countTypeI, nestingLevelI := countTypeOccurrencesAndLevels(refined[i])
-		countTypeJ, nestingLevelJ := countTypeOccurrencesAndLevels(refined[j])
+	//refined := refinePaths(fields)
+	sort.Slice(fields, func(i, j int) bool {
+		countTypeI, nestingLevelI := countTypeOccurrencesAndLevels(fields[i])
+		countTypeJ, nestingLevelJ := countTypeOccurrencesAndLevels(fields[j])
 
 		// Prioritize fewer "Type" segments
 		if countTypeI != countTypeJ {
@@ -45,9 +47,9 @@ func SortFieldPaths(fields []string, rootType string) []string {
 		if nestingLevelI != nestingLevelJ {
 			return nestingLevelI < nestingLevelJ
 		}
-		return refined[i] < refined[j]
+		return fields[i] < fields[j]
 	})
-	return refined
+	return fields
 }
 
 // Helper function to count "Type" segments and nesting levels

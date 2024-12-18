@@ -4,11 +4,11 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bmeg/grip-graphql/gql-gen/generated"
 
 	"github.com/bmeg/grip-graphql/gql-gen/model"
-	//"github.com/vektah/gqlparser/v2/ast"
 )
 
 // Organization is the resolver for the organization field.
@@ -65,7 +65,8 @@ func (r *queryResolver) Specimen(ctx context.Context, offset *int, first *int, f
 func (r *queryResolver) Observation(ctx context.Context, offset *int, first *int, filter *string, sort *string, accessibility *model.Accessibility, format *model.Format) ([]*model.ObservationType, error) {
 	sourceType := "ObservationType"
 	fields := GetQueryFields(ctx, sourceType)
-	_ = gripQuery(fields, sourceType)
+	res := r.gripQuery(fields, sourceType)
+	fmt.Println("RES: ", res)
 
 	/*for _, field := range fields {
 		fmt.Println("PATH: ", field)
