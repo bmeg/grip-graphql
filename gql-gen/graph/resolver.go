@@ -4,7 +4,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bmeg/grip-graphql/gql-gen/generated"
 
@@ -63,10 +62,11 @@ func (r *queryResolver) Specimen(ctx context.Context, offset *int, first *int, f
 
 // Observation is the resolver for the observation field.
 func (r *queryResolver) Observation(ctx context.Context, offset *int, first *int, filter *string, sort *string, accessibility *model.Accessibility, format *model.Format) ([]*model.ObservationType, error) {
-	sourceType := "ObservationType"
-	fields := GetQueryFields(ctx, sourceType)
-	res := r.gripQuery(fields, sourceType)
-	fmt.Println("RES: ", res)
+	//sourceType := "ObservationType"
+	//fields := GetQueryFields(ctx, sourceType)
+	//res := r.gripQuery(fields, sourceType)
+	//fmt.Println("RES: ", res)
+	r.GetSelectedFieldsAst(ctx, "ObservationType")
 
 	/*for _, field := range fields {
 		fmt.Println("PATH: ", field)

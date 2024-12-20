@@ -27,9 +27,13 @@ type Handler struct {
 }
 
 func (gh *Handler) graphqlHandler(client gripql.Client) gin.HandlerFunc {
-	srv := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{
+	executableSchema := generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}})
+	schema := executableSchema.Schema()
+	resolvers := &graph.Resolver{
+		Schema: schema,
 		GripDb: client,
-	}}))
+	}
+	srv := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: resolvers}))
 	gh.handler = srv
 
 	gh.handler.AddTransport(transport.Options{})
