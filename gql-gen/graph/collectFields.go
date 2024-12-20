@@ -15,133 +15,109 @@ type Resolver struct {
 	Schema *ast.Schema
 }
 
-type renderTree struct {
-	prevName  string
-	moved     bool
-	fields    []string
-	parent    map[string]string
-	fieldName map[string]string
-}
-
 type objectMap struct {
 	edgeLabel   map[string]map[string]struct{} // Maps vertex labels to edge names
 	edgeDstType map[string]map[string]string   // Maps vertex labels and edge names to destination labels
 }
 
-func (rt *renderTree) NewElement(cur string, fieldName string) string {
-	rName := fmt.Sprintf("f%d", len(rt.fields))
-	rt.fields = append(rt.fields, rName)
-	rt.parent[rName] = cur
-	rt.fieldName[rName] = fieldName
+func (rt *renderTree) NewElement() string {
+	rName := fmt.Sprintf("f%d", len(rt.rNameTree))
+	rt.rNameTree[rName] = []string{}
 	return rName
 }
 
-func traversalBuild(reqCtx *graphql.OperationContext, query **gripql.Query, selSet ast.SelectionSet, curElement string, rt *renderTree, visited map[string]bool) []graphql.CollectedField {
-	fmt.Printf("\n\n")
-	groupedFields := make([]graphql.CollectedField, 0, len(selSet))
+type renderTree struct {
+	prevName  string
+	moved     bool
+	rNameTree map[string][]string
+}
+
+func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string, rt *renderTree, parentPath string) {
+	// Recursively traverses AST and builds grip query and render field tree
 	for _, s := range selSet {
 		switch sel := s.(type) {
 		case *ast.Field:
-			if _, ok := visited[sel.Name]; ok {
-				continue
+			rt.prevName = sel.Name
+			newParentPath := parentPath + "." + sel.Name
+			if parentPath == "" {
+				newParentPath = sel.Name
 			}
-			visited[sel.Name] = true
-
-			fmt.Printf("FIELD NAME: %s\n", sel.Name)
-			fmt.Printf("FIELD DEF NAME %s\n", sel.ObjectDefinition.Name)
 			if rt.moved {
 				*query = (*query).Select(curElement)
 				rt.moved = false
 			}
-			rt.prevName = sel.Name
-			elem := rt.NewElement(sel.ObjectDefinition.Name, sel.Name)
-			for _, childField := range traversalBuild(reqCtx, query, sel.SelectionSet, elem, rt, visited) {
-				_ = rt.NewElement(sel.Name, childField.Name)
-				fmt.Println("CUR NAME: ", sel.Name, "CHILD NAME: ", childField.Name)
+			if sel.SelectionSet == nil {
+				rt.rNameTree[curElement] = append(rt.rNameTree[curElement], newParentPath)
+			} else {
+				queryBuild(query, sel.SelectionSet, curElement, rt, newParentPath)
 			}
 		case *ast.InlineFragment:
-			elem := rt.NewElement(rt.prevName, sel.TypeCondition)
-
-			fmt.Printf("INLINE FRAG Type CONDITION: %s\n", sel.TypeCondition)
-			fmt.Printf("InlineFragment DEF NAME %s\n", sel.ObjectDefinition.Name)
-			typeConditionLen := len(sel.TypeCondition)
-			*query = (*query).OutNull(rt.prevName + "_" + sel.TypeCondition[:typeConditionLen-4]).As(elem)
-			for _, childField := range traversalBuild(reqCtx, query, sel.SelectionSet, elem, rt, visited) {
-				_ = rt.NewElement(rt.prevName, childField.Name)
-				fmt.Println("InlineFragment CUR NAME: ", sel.ObjectDefinition.Name, "CHILD NAME: ", childField.Name)
-			}
+			elem := rt.NewElement()
+			*query = (*query).OutNull(rt.prevName + "_" + sel.TypeCondition[:len(sel.TypeCondition)-4]).As(elem)
+			queryBuild(query, sel.SelectionSet, elem, rt, "")
 			rt.moved = true
-
-		case *ast.FragmentSpread:
-			fmt.Println("FRAG SPREAD: ", sel.Definition.Name)
 		default:
-			panic(fmt.Errorf("unsupported %T", sel))
+			panic(fmt.Errorf("unsupported type: %T", sel))
 		}
-
 	}
-	return groupedFields
 }
 
 func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType string) {
 	resctx := graphql.GetFieldContext(ctx)
-	opCtx := graphql.GetOperationContext(ctx)
 	rt := &renderTree{
-		fields:    []string{"f0"},
-		parent:    map[string]string{},
-		fieldName: map[string]string{},
+		rNameTree: map[string][]string{"f0": []string{}},
 	}
 	q := gripql.V().HasLabel(sourceType[:len(sourceType)-4]).As("f0")
-	//for _, field := range resctx.Field.Selections {
-	_ = traversalBuild(opCtx, &q, resctx.Field.Selections, "f0", rt, map[string]bool{})
-	fmt.Println("QUERY AFTER: ", q)
-	fmt.Printf("RENDER TREE FIELDS: %#v\n", rt.fields)
-	fmt.Printf("RENDER TREE PARENT: %#v\n", rt.parent)
-	fmt.Printf("RENDER TREE FieldName: %#v\n", rt.fieldName)
 
-	render := map[string]any{}
+	queryBuild(&q, resctx.Field.Selections, "f0", rt, "")
+	fmt.Println("QUERY AFTER: ", q)
+	fmt.Printf("RNAME TREE: %#v\n", rt.rNameTree)
+
+	/*render := map[string]any{}
 	for _, i := range rt.fields {
+		fmt.Println("I: ", i, "FIELDNAME: ", rt.fieldName)
 		render[i+"_gid"] = "$" + i + "._gid"
-		render[i+"_data"] = "$" + i + "._data"
+		render[i+"_data"] = "$" + i //+ "._data"
 	}
 
 	fmt.Printf("RENDER: %#v\n", render)
-	q = q.Render(render)
+	q = q.Render(render)*/
 
-	result, err := r.GripDb.Traversal(context.Background(), &gripql.GraphQuery{Graph: "CALIPER", Query: q.Statements})
+	_, err := r.GripDb.Traversal(context.Background(), &gripql.GraphQuery{Graph: "CALIPER", Query: q.Statements})
 	if err != nil {
 		fmt.Printf("ERR: %s\n", err)
 	}
 
-	out := []any{}
-	for r := range result {
-		values := r.GetRender().GetStructValue().AsMap()
-		fmt.Println("VALUES: ", values)
+	//out := []any{}
+	//for r := range result {
+	//	values := r.GetRender().GetStructValue().AsMap()
+	//	fmt.Println("VALUES: ", values)
+	//}
 
-		data := map[string]map[string]any{}
-		for _, r := range rt.fields {
-			v := values[r+"_data"]
-			fmt.Println("V:", v)
-			if d, ok := v.(map[string]any); ok {
-				fmt.Println("HELLO IN HERE")
-				d["id"] = values[r+"_gid"]
-				fmt.Println("D: ", d)
-				if d["id"] != "" {
-					data[r] = d
-				}
+	/*data := map[string]map[string]any{}
+	for _, r := range rt.fields {
+		v := values[r+"_data"]
+		if d, ok := v.(map[string]any); ok {
+			d["id"] = values[r+"_gid"]
+			if d["id"] != "" {
+				data[r] = d
 			}
 		}
-		for _, r := range rt.fields {
-			fmt.Println("RT PARENT: ", rt.parent, "R: ", r)
-			if parent, ok := rt.parent[r]; ok {
-				fieldName := rt.fieldName[r]
-				fmt.Println("DATA: ", data)
-				if data[r] != nil {
-					data[parent][fieldName] = []any{data[r]}
-				}
-			}
-		}
-		fmt.Println("DATA: ", data)
-		out = append(out, data["f0"])
 	}
+	for _, r := range rt.fields {
+		fmt.Println("RT PARENT: ", rt.parent, "R: ", r)
+		if parent, ok := rt.parent[r]; ok {
+			fieldName := rt.fieldName[r]
+			if data[r] != nil {
+				fmt.Println("HELLO 2 DATA?", data)
+				fmt.Println("HELLO 2 PARENT?", parent)
+				fmt.Println("HELLO 2 FIELD NAME?", fieldName)
+				fmt.Println("HELLO 2 data[r]?", data[r])
+				data[parent][fieldName] = []any{data[r]}
+			}
+		}
+	}
+	fmt.Println("DATA: ", data)*/
+	//out = append(out, data["f0"])
 
 }
