@@ -1827,14 +1827,14 @@ type ObservationType struct {
 	ResourceType          *string                       `json:"resourceType,omitempty"`
 	Note                  []ObservationNoteUnion        `json:"note,omitempty"`
 	BasedOn               []ObservationBasedOnUnion     `json:"basedOn,omitempty"`
-	Focus                 []ResourceUnion               `json:"focus,omitempty"`
+	Focus                 ResourceUnion                 `json:"focus,omitempty"`
 	ValueCodeableConcept  *CodeableConcept              `json:"valueCodeableConcept,omitempty"`
 	HasMember             []ObservationHasMemberUnion   `json:"hasMember,omitempty"`
 	ValueInteger          *string                       `json:"valueInteger,omitempty"`
 	Language              *string                       `json:"language,omitempty"`
 	Identifier            []*Identifier                 `json:"identifier,omitempty"`
 	ValueSampledData      *SampledData                  `json:"valueSampledData,omitempty"`
-	Subject               []ObservationSubjectUnion     `json:"subject,omitempty"`
+	Subject               ObservationSubjectUnion       `json:"subject,omitempty"`
 	Extension             []*Extension                  `json:"extension,omitempty"`
 	TriggeredBy           []*ObservationTriggeredBy     `json:"triggeredBy,omitempty"`
 	Specimen              []ObservationSpecimenUnion    `json:"specimen,omitempty"`
@@ -3393,7 +3393,7 @@ type TaskType struct {
 	RequestedPerformer    []*CodeableReference   `json:"requestedPerformer,omitempty"`
 	Status                *string                `json:"status,omitempty"`
 	Extension             []*Extension           `json:"extension,omitempty"`
-	Focus                 []ResourceUnion        `json:"focus,omitempty"`
+	Focus                 ResourceUnion          `json:"focus,omitempty"`
 	Owner                 []TaskOwnerUnion       `json:"owner,omitempty"`
 	StatusReason          *CodeableReference     `json:"statusReason,omitempty"`
 	DoNotPerform          *string                `json:"doNotPerform,omitempty"`

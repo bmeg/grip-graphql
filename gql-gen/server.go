@@ -53,7 +53,7 @@ func (gh *Handler) graphqlHandler(client gripql.Client) gin.HandlerFunc {
 }
 
 func (gh *Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	log.Infoln("HELLO INSIDE SERVE HTTP ", request)
+	//log.Infoln("HELLO INSIDE SERVE HTTP ", request)
 	gh.router.ServeHTTP(writer, request)
 }
 

@@ -12,3 +12,13 @@ resolver:
   package: graph
   filename: graph/resolver.go
   layout: single-file
+
+omit_slice_element_pointers: true
+
+
+#models:
+#  ObservationType:
+#    fields:
+#      focus:
+#        resolver: true
+

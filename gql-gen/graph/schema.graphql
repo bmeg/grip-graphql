@@ -1992,7 +1992,7 @@ type ObservationType {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [ResourceUnion]
+  ): ResourceUnion
   valueCodeableConcept: CodeableConcept
   hasMember(
     offset: Int
@@ -2013,7 +2013,7 @@ type ObservationType {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [ObservationSubjectUnion]
+  ): ObservationSubjectUnion
   extension: [Extension]
   triggeredBy: [ObservationTriggeredBy]
   specimen(
@@ -3647,7 +3647,7 @@ type TaskType {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [ResourceUnion]
+  ): ResourceUnion
   owner(
     offset: Int
     first: Int
@@ -3701,7 +3701,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [OrganizationType]
+  ): [OrganizationType!]!
   group(
     offset: Int
     first: Int
@@ -3709,7 +3709,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [GroupType]
+  ): [GroupType!]!
   practitioner(
     offset: Int
     first: Int
@@ -3717,7 +3717,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [PractitionerType]
+  ): [PractitionerType!]!
   practitionerRole(
     offset: Int
     first: Int
@@ -3725,7 +3725,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [PractitionerRoleType]
+  ): [PractitionerRoleType!]!
   researchStudy(
     offset: Int
     first: Int
@@ -3733,7 +3733,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [ResearchStudyType]
+  ): [ResearchStudyType!]!
   patient(
     offset: Int
     first: Int
@@ -3741,7 +3741,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [PatientType]
+  ): [PatientType!]!
   researchSubject(
     offset: Int
     first: Int
@@ -3749,7 +3749,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [ResearchSubjectType]
+  ): [ResearchSubjectType!]!
   substance(
     offset: Int
     first: Int
@@ -3757,7 +3757,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [SubstanceType]
+  ): [SubstanceType!]!
   substanceDefinition(
     offset: Int
     first: Int
@@ -3765,7 +3765,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [SubstanceDefinitionType]
+  ): [SubstanceDefinitionType!]!
   specimen(
     offset: Int
     first: Int
@@ -3773,7 +3773,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [SpecimenType]
+  ): [SpecimenType!]!
   observation(
     offset: Int
     first: Int
@@ -3781,7 +3781,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [ObservationType]
+  ): [ObservationType!]!
   diagnosticReport(
     offset: Int
     first: Int
@@ -3789,7 +3789,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [DiagnosticReportType]
+  ): [DiagnosticReportType!]!
   condition(
     offset: Int
     first: Int
@@ -3797,7 +3797,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [ConditionType]
+  ): [ConditionType!]!
   medication(
     offset: Int
     first: Int
@@ -3805,7 +3805,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [MedicationType]
+  ): [MedicationType!]!
   medicationAdministration(
     offset: Int
     first: Int
@@ -3813,7 +3813,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [MedicationAdministrationType]
+  ): [MedicationAdministrationType!]!
   medicationStatement(
     offset: Int
     first: Int
@@ -3821,7 +3821,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [MedicationStatementType]
+  ): [MedicationStatementType!]!
   medicationRequest(
     offset: Int
     first: Int
@@ -3829,7 +3829,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [MedicationRequestType]
+  ): [MedicationRequestType!]!
   procedure(
     offset: Int
     first: Int
@@ -3837,7 +3837,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [ProcedureType]
+  ): [ProcedureType!]!
   documentReference(
     offset: Int
     first: Int
@@ -3845,7 +3845,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [DocumentReferenceType]
+  ): [DocumentReferenceType!]!
   task(
     offset: Int
     first: Int
@@ -3861,7 +3861,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [ImagingStudyType]
+  ): [ImagingStudyType!]!
   familyMemberHistory(
     offset: Int
     first: Int
@@ -3869,7 +3869,7 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [FamilyMemberHistoryType]
+  ): [FamilyMemberHistoryType!]!
   bodyStructure(
     offset: Int
     first: Int
@@ -3877,5 +3877,5 @@ type Query {
     sort: JSON
     accessibility: Accessibility = all
     format: Format = json
-  ): [BodyStructureType]
+  ): [BodyStructureType!]!
 }
