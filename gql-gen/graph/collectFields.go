@@ -89,7 +89,6 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 	q := gripql.V().HasLabel(sourceType[:len(sourceType)-4]).As("f0")
 	queryBuild(&q, resctx.Field.Selections, "f0", rt, "", rt.rTree)
 
-	fmt.Println("QUERY AFTER: ", q)
 	fmt.Printf("RNAME TREE: %#v\n", rt.rFieldPaths)
 	fmt.Printf("R TREE: %#v\n", rt.rTree)
 
@@ -103,6 +102,7 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 
 	//fmt.Printf("RENDER: %#v\n", render)
 	q = q.Limit(10).Render(render)
+	fmt.Println("QUERY AFTER: ", q)
 
 	result, err := r.GripDb.Traversal(context.Background(), &gripql.GraphQuery{Graph: "CALIPER", Query: q.Statements})
 	if err != nil {
@@ -115,9 +115,6 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 		//fmt.Printf("VALUES: %#v\n", values)
 		data := buildOutputTree(rt.rTree, values)
 		fmt.Printf("DATA: %#v\n", data)
-		/*if entry, ok := data["focus"]; ok {
-		entry.(map[string]any)["__typename"] = "SpecimenType"
-		}*/
 		out = append(out, data)
 	}
 	return out, nil

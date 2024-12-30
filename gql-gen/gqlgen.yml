@@ -1,4 +1,3 @@
-# Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
   - graph/schema.graphql
 exec:
@@ -14,11 +13,3 @@ resolver:
   layout: single-file
 
 omit_slice_element_pointers: true
-
-
-#models:
-#  ObservationType:
-#    fields:
-#      focus:
-#        resolver: true
-
