@@ -13,3 +13,7 @@ resolver:
   layout: single-file
 
 omit_slice_element_pointers: true
+
+models:
+  JSON:
+    model: github.com/99designs/gqlgen/graphql.Map

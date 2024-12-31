@@ -82,6 +82,9 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 
 func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType string) ([]any, error) {
 	resctx := graphql.GetFieldContext(ctx)
+	pesctx := graphql.GetOperationContext(ctx)
+	fmt.Println("VARIABLES: ", pesctx.Variables)
+
 	rt := &renderTree{
 		rFieldPaths: map[string][]string{"f0": []string{}},
 		rTree:       map[string]any{},
@@ -100,8 +103,13 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 		}
 	}
 
+	// Traverse back to f0 since only filters on the root node are applied currently
+	q = q.Select("f0")
+	fmt.Printf("ARGS: %#v\n", resctx.Args)
+	applyFilters(&q, resctx.Args)
+
 	//fmt.Printf("RENDER: %#v\n", render)
-	q = q.Limit(10).Render(render)
+	q = q.Render(render)
 	fmt.Println("QUERY AFTER: ", q)
 
 	result, err := r.GripDb.Traversal(context.Background(), &gripql.GraphQuery{Graph: "CALIPER", Query: q.Statements})
@@ -114,7 +122,7 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 		values := r.GetRender().GetStructValue().AsMap()
 		//fmt.Printf("VALUES: %#v\n", values)
 		data := buildOutputTree(rt.rTree, values)
-		fmt.Printf("DATA: %#v\n", data)
+		//fmt.Printf("DATA: %#v\n", data)
 		out = append(out, data)
 	}
 	return out, nil

@@ -14,6 +14,7 @@ require (
 	github.com/graphql-go/handler v0.2.4
 	github.com/mongodb/mongo-tools v0.0.0-20240715143021-aa6a140d3f17
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/vektah/gqlparser/v2 v2.5.20
 	go.mongodb.org/mongo-driver v1.11.9
@@ -72,7 +73,6 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
-	github.com/spf13/cobra v1.8.1 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/urfave/cli/v2 v2.27.5 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
