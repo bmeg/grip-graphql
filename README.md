@@ -6,7 +6,7 @@ gen3_writer directory contains a [Gin](https://github.com/gin-gonic/gin) go serv
 
 gripgraphql directory contains a graphql based read query plugin that uses a [goja](https://github.com/dop251/goja) engine to read from a static schema defined as a config file to create custom graphql queries that can be used to abstract Grip's complex query language into a more digestible query format for the frontend to use.
 
-graphql_gen3 is a legacy implementation of a reader reader plugin using a more traditional graphql schema builder.
+gql-gen directory contains a graphql schema based read plugin that leverages [gql-gen](https://github.com/99designs/gqlgen) to autogenerate go structs and for schema introspection
 
 See ./gen3_writer for tests and additional documentation
 

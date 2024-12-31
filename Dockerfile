@@ -6,18 +6,14 @@ ENV PATH="/go/bin:${PATH}"
 ADD ./ /go/src/github.com/bmeg/grip-graphql
 WORKDIR /go/src/github.com/bmeg/grip-graphql
 
-
-RUN go install github.com/bmeg/grip@v0.0.0-20241130225536-67d787e0b831
-RUN go build  --buildmode=plugin ./graphql_gen3
-RUN go build  --buildmode=plugin ./gen3_writer
-RUN go build  --buildmode=plugin ./grip-graphql-endpoint
-
+RUN go install github.com/bmeg/grip@v0.0.0-20241211235035-b772edec00b9
+RUN make all
 
 FROM alpine
 WORKDIR /data
 VOLUME /data
 ENV PATH="/app:${PATH}"
-COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/graphql_gen3.so /data/
+COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/gql-gen.so /data/
 COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/gen3_writer.so /data/
 COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/grip-graphql-endpoint.so /data/
 COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/config/gen3.js /data/config/
