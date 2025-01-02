@@ -7,42 +7,43 @@ import (
 )
 
 type SafeFamilyMemberHistoryType struct {
-	AgeRange *Range `json:"ageRange,omitempty"`
-	Patient *PatientType `json:"patient"`
-	Name *string `json:"name,omitempty"`
-	DeceasedBoolean *string `json:"deceasedBoolean,omitempty"`
-	InstantiatesURI *string `json:"instantiatesUri,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	InstantiatesCanonical *string `json:"instantiatesCanonical,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	ID *string `json:"id,omitempty"`
-	BornString *string `json:"bornString,omitempty"`
-	DeceasedAge *Age `json:"deceasedAge,omitempty"`
-	AgeAge *Age `json:"ageAge,omitempty"`
-	Date *string `json:"date,omitempty"`
 	Sex *CodeableConcept `json:"sex,omitempty"`
-	Language *string `json:"language,omitempty"`
+	Status *string `json:"status,omitempty"`
 	Contained TypedObject `json:"contained,omitempty"`
-	Note TypedObject `json:"note"`
+	ID *string `json:"id,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	AgeString *string `json:"ageString,omitempty"`
+	DeceasedRange *Range `json:"deceasedRange,omitempty"`
+	BornString *string `json:"bornString,omitempty"`
 	Reason []*CodeableReference `json:"reason,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	Language *string `json:"language,omitempty"`
+	AgeAge *Age `json:"ageAge,omitempty"`
+	Name *string `json:"name,omitempty"`
 	Relationship *CodeableConcept `json:"relationship,omitempty"`
 	Condition []*FamilyMemberHistoryCondition `json:"condition,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	DeceasedString *string `json:"deceasedString,omitempty"`
-	Status *string `json:"status,omitempty"`
-	AgeString *string `json:"ageString,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	Participant TypedObject `json:"participant"`
-	DeceasedDate *string `json:"deceasedDate,omitempty"`
-	EstimatedAge *string `json:"estimatedAge,omitempty"`
-	DataAbsentReason *CodeableConcept `json:"dataAbsentReason,omitempty"`
-	Procedure []*FamilyMemberHistoryProcedure `json:"procedure,omitempty"`
-	BornPeriod *Period `json:"bornPeriod,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	DeceasedRange *Range `json:"deceasedRange,omitempty"`
-	ResourceType *string `json:"resourceType,omitempty"`
 	BornDate *string `json:"bornDate,omitempty"`
+	DeceasedBoolean *string `json:"deceasedBoolean,omitempty"`
+	InstantiatesURI *string `json:"instantiatesUri,omitempty"`
+	Note TypedObject `json:"note"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	Procedure []*FamilyMemberHistoryProcedure `json:"procedure,omitempty"`
+	Participant TypedObject `json:"participant"`
+	BornPeriod *Period `json:"bornPeriod,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	AgeRange *Range `json:"ageRange,omitempty"`
+	InstantiatesCanonical *string `json:"instantiatesCanonical,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	EstimatedAge *string `json:"estimatedAge,omitempty"`
+	Date *string `json:"date,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Patient *PatientType `json:"patient"`
+	DataAbsentReason *CodeableConcept `json:"dataAbsentReason,omitempty"`
+	DeceasedString *string `json:"deceasedString,omitempty"`
+	DeceasedDate *string `json:"deceasedDate,omitempty"`
+	DeceasedAge *Age `json:"deceasedAge,omitempty"`
+	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
 func (o *FamilyMemberHistoryType) UnmarshalJSON(b []byte) error {
@@ -52,39 +53,40 @@ func (o *FamilyMemberHistoryType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = FamilyMemberHistoryType{
-		AgeRange: safe.AgeRange,
-		Patient: safe.Patient,
+		Sex: safe.Sex,
+		Status: safe.Status,
+		ID: safe.ID,
+		ResourceType: safe.ResourceType,
+		AgeString: safe.AgeString,
+		DeceasedRange: safe.DeceasedRange,
+		BornString: safe.BornString,
+		Reason: safe.Reason,
+		Identifier: safe.Identifier,
+		Language: safe.Language,
+		AgeAge: safe.AgeAge,
 		Name: safe.Name,
+		Relationship: safe.Relationship,
+		Condition: safe.Condition,
+		BornDate: safe.BornDate,
 		DeceasedBoolean: safe.DeceasedBoolean,
 		InstantiatesURI: safe.InstantiatesURI,
 		ModifierExtension: safe.ModifierExtension,
-		InstantiatesCanonical: safe.InstantiatesCanonical,
-		Text: safe.Text,
-		ID: safe.ID,
-		BornString: safe.BornString,
-		DeceasedAge: safe.DeceasedAge,
-		AgeAge: safe.AgeAge,
-		Date: safe.Date,
-		Sex: safe.Sex,
-		Language: safe.Language,
-		Reason: safe.Reason,
-		Relationship: safe.Relationship,
-		Condition: safe.Condition,
 		Extension: safe.Extension,
-		Meta: safe.Meta,
-		DeceasedString: safe.DeceasedString,
-		Status: safe.Status,
-		AgeString: safe.AgeString,
-		Identifier: safe.Identifier,
-		DeceasedDate: safe.DeceasedDate,
-		EstimatedAge: safe.EstimatedAge,
-		DataAbsentReason: safe.DataAbsentReason,
 		Procedure: safe.Procedure,
 		BornPeriod: safe.BornPeriod,
+		Text: safe.Text,
+		AgeRange: safe.AgeRange,
+		InstantiatesCanonical: safe.InstantiatesCanonical,
+		Meta: safe.Meta,
+		EstimatedAge: safe.EstimatedAge,
+		Date: safe.Date,
 		ImplicitRules: safe.ImplicitRules,
-		DeceasedRange: safe.DeceasedRange,
-		ResourceType: safe.ResourceType,
-		BornDate: safe.BornDate,
+		Patient: safe.Patient,
+		DataAbsentReason: safe.DataAbsentReason,
+		DeceasedString: safe.DeceasedString,
+		DeceasedDate: safe.DeceasedDate,
+		DeceasedAge: safe.DeceasedAge,
+		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
 		return fmt.Errorf("failed to unmarshal Contained: %w", err)

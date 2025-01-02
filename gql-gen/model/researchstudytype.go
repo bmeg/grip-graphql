@@ -7,46 +7,47 @@ import (
 )
 
 type SafeResearchStudyType struct {
-	Language *string `json:"language,omitempty"`
-	Region []*CodeableConcept `json:"region,omitempty"`
+	StudyDesign []*CodeableConcept `json:"studyDesign,omitempty"`
+	Recruitment TypedObject `json:"recruitment"`
 	Identifier []*Identifier `json:"identifier,omitempty"`
 	Note TypedObject `json:"note"`
-	Focus []*CodeableReference `json:"focus,omitempty"`
-	PrimaryPurposeType *CodeableConcept `json:"primaryPurposeType,omitempty"`
-	ProgressStatus []*ResearchStudyProgressStatus `json:"progressStatus,omitempty"`
-	WhyStopped *CodeableConcept `json:"whyStopped,omitempty"`
-	Result TypedObject `json:"result"`
-	Version *string `json:"version,omitempty"`
-	URL *string `json:"url,omitempty"`
-	RelatedArtifact []*RelatedArtifact `json:"relatedArtifact,omitempty"`
-	Name *string `json:"name,omitempty"`
-	StudyDesign []*CodeableConcept `json:"studyDesign,omitempty"`
+	Site TypedObject `json:"site"`
+	Classifier []*CodeableConcept `json:"classifier,omitempty"`
+	Region []*CodeableConcept `json:"region,omitempty"`
 	Objective []*ResearchStudyObjective `json:"objective,omitempty"`
-	Recruitment TypedObject `json:"recruitment"`
-	Title *string `json:"title,omitempty"`
-	AssociatedParty TypedObject `json:"associatedParty"`
-	ID *string `json:"id,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	Version *string `json:"version,omitempty"`
 	Description *string `json:"description,omitempty"`
 	ComparisonGroup []*ResearchStudyComparisonGroup `json:"comparisonGroup,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	PartOf *ResearchStudyType `json:"partOf"`
-	Classifier []*CodeableConcept `json:"classifier,omitempty"`
-	Label []*ResearchStudyLabel `json:"label,omitempty"`
-	Keyword []*CodeableConcept `json:"keyword,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	Period *Period `json:"period,omitempty"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	Date *string `json:"date,omitempty"`
-	DescriptionSummary *string `json:"descriptionSummary,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	Phase *CodeableConcept `json:"phase,omitempty"`
-	Condition []*CodeableConcept `json:"condition,omitempty"`
-	Status *string `json:"status,omitempty"`
 	OutcomeMeasure []*ResearchStudyOutcomeMeasure `json:"outcomeMeasure,omitempty"`
-	Site TypedObject `json:"site"`
+	Language *string `json:"language,omitempty"`
+	PrimaryPurposeType *CodeableConcept `json:"primaryPurposeType,omitempty"`
+	ProgressStatus []*ResearchStudyProgressStatus `json:"progressStatus,omitempty"`
+	Condition []*CodeableConcept `json:"condition,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	Title *string `json:"title,omitempty"`
+	Period *Period `json:"period,omitempty"`
+	Name *string `json:"name,omitempty"`
+	AssociatedParty TypedObject `json:"associatedParty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Phase *CodeableConcept `json:"phase,omitempty"`
+	Result TypedObject `json:"result"`
+	Text *Narrative `json:"text,omitempty"`
+	RelatedArtifact []*RelatedArtifact `json:"relatedArtifact,omitempty"`
+	URL *string `json:"url,omitempty"`
+	Status *string `json:"status,omitempty"`
+	PartOf *ResearchStudyType `json:"partOf"`
+	Date *string `json:"date,omitempty"`
+	Keyword []*CodeableConcept `json:"keyword,omitempty"`
+	ID *string `json:"id,omitempty"`
+	Focus []*CodeableReference `json:"focus,omitempty"`
+	Label []*ResearchStudyLabel `json:"label,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	WhyStopped *CodeableConcept `json:"whyStopped,omitempty"`
+	DescriptionSummary *string `json:"descriptionSummary,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
 func (o *ResearchStudyType) UnmarshalJSON(b []byte) error {
@@ -56,58 +57,59 @@ func (o *ResearchStudyType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = ResearchStudyType{
-		Language: safe.Language,
-		Region: safe.Region,
-		Identifier: safe.Identifier,
-		Focus: safe.Focus,
-		PrimaryPurposeType: safe.PrimaryPurposeType,
-		ProgressStatus: safe.ProgressStatus,
-		WhyStopped: safe.WhyStopped,
-		Version: safe.Version,
-		URL: safe.URL,
-		RelatedArtifact: safe.RelatedArtifact,
-		Name: safe.Name,
 		StudyDesign: safe.StudyDesign,
+		Identifier: safe.Identifier,
+		Classifier: safe.Classifier,
+		Region: safe.Region,
 		Objective: safe.Objective,
-		Title: safe.Title,
-		ID: safe.ID,
+		Meta: safe.Meta,
+		Version: safe.Version,
 		Description: safe.Description,
 		ComparisonGroup: safe.ComparisonGroup,
-		ImplicitRules: safe.ImplicitRules,
-		PartOf: safe.PartOf,
-		Classifier: safe.Classifier,
-		Label: safe.Label,
-		Keyword: safe.Keyword,
-		ModifierExtension: safe.ModifierExtension,
-		Period: safe.Period,
-		ResourceType: safe.ResourceType,
-		Date: safe.Date,
-		DescriptionSummary: safe.DescriptionSummary,
-		Extension: safe.Extension,
-		Text: safe.Text,
-		Meta: safe.Meta,
-		Phase: safe.Phase,
-		Condition: safe.Condition,
-		Status: safe.Status,
 		OutcomeMeasure: safe.OutcomeMeasure,
-	}
-	if err := unmarshalUnion(b, "note", safe.Note.Typename, &o.Note); err != nil {
-		return fmt.Errorf("failed to unmarshal Note: %w", err)
-	}
-	if err := unmarshalUnion(b, "result", safe.Result.Typename, &o.Result); err != nil {
-		return fmt.Errorf("failed to unmarshal Result: %w", err)
+		Language: safe.Language,
+		PrimaryPurposeType: safe.PrimaryPurposeType,
+		ProgressStatus: safe.ProgressStatus,
+		Condition: safe.Condition,
+		Extension: safe.Extension,
+		Title: safe.Title,
+		Period: safe.Period,
+		Name: safe.Name,
+		ImplicitRules: safe.ImplicitRules,
+		Phase: safe.Phase,
+		Text: safe.Text,
+		RelatedArtifact: safe.RelatedArtifact,
+		URL: safe.URL,
+		Status: safe.Status,
+		PartOf: safe.PartOf,
+		Date: safe.Date,
+		Keyword: safe.Keyword,
+		ID: safe.ID,
+		Focus: safe.Focus,
+		Label: safe.Label,
+		WhyStopped: safe.WhyStopped,
+		DescriptionSummary: safe.DescriptionSummary,
+		ModifierExtension: safe.ModifierExtension,
+		ResourceType: safe.ResourceType,
+		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "recruitment", safe.Recruitment.Typename, &o.Recruitment); err != nil {
 		return fmt.Errorf("failed to unmarshal Recruitment: %w", err)
 	}
-	if err := unmarshalUnion(b, "associatedParty", safe.AssociatedParty.Typename, &o.AssociatedParty); err != nil {
-		return fmt.Errorf("failed to unmarshal AssociatedParty: %w", err)
-	}
-	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
-		return fmt.Errorf("failed to unmarshal Contained: %w", err)
+	if err := unmarshalUnion(b, "note", safe.Note.Typename, &o.Note); err != nil {
+		return fmt.Errorf("failed to unmarshal Note: %w", err)
 	}
 	if err := unmarshalUnion(b, "site", safe.Site.Typename, &o.Site); err != nil {
 		return fmt.Errorf("failed to unmarshal Site: %w", err)
+	}
+	if err := unmarshalUnion(b, "associatedParty", safe.AssociatedParty.Typename, &o.AssociatedParty); err != nil {
+		return fmt.Errorf("failed to unmarshal AssociatedParty: %w", err)
+	}
+	if err := unmarshalUnion(b, "result", safe.Result.Typename, &o.Result); err != nil {
+		return fmt.Errorf("failed to unmarshal Result: %w", err)
+	}
+	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
+		return fmt.Errorf("failed to unmarshal Contained: %w", err)
 	}
 
 	return nil

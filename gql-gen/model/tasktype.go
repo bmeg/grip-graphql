@@ -7,43 +7,44 @@ import (
 )
 
 type SafeTaskType struct {
-	InstantiatesURI *string `json:"instantiatesUri,omitempty"`
-	Owner TypedObject `json:"owner"`
-	ID *string `json:"id,omitempty"`
-	Intent *string `json:"intent,omitempty"`
-	Code *CodeableConcept `json:"code,omitempty"`
-	RequestedPeriod *Period `json:"requestedPeriod,omitempty"`
-	Restriction TypedObject `json:"restriction"`
-	AuthoredOn *string `json:"authoredOn,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	Note TypedObject `json:"note"`
-	DoNotPerform *string `json:"doNotPerform,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	Language *string `json:"language,omitempty"`
-	Output []*TaskOutput `json:"output,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
-	InstantiatesCanonical *string `json:"instantiatesCanonical,omitempty"`
-	Status *string `json:"status,omitempty"`
-	BusinessStatus *CodeableConcept `json:"businessStatus,omitempty"`
-	ExecutionPeriod *Period `json:"executionPeriod,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	BasedOn TypedObject `json:"basedOn"`
-	PartOf *TaskType `json:"partOf"`
-	StatusReason *CodeableReference `json:"statusReason,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
-	Performer TypedObject `json:"performer"`
 	Input []*TaskInput `json:"input,omitempty"`
+	Owner TypedObject `json:"owner"`
+	Meta *Meta `json:"meta,omitempty"`
+	Code *CodeableConcept `json:"code,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	BasedOn TypedObject `json:"basedOn"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	Requester TypedObject `json:"requester"`
-	Description *string `json:"description,omitempty"`
-	GroupIdentifier *Identifier `json:"groupIdentifier,omitempty"`
-	Focus TypedObject `json:"focus"`
+	Restriction TypedObject `json:"restriction"`
+	PartOf *TaskType `json:"partOf"`
+	ExecutionPeriod *Period `json:"executionPeriod,omitempty"`
 	Priority *string `json:"priority,omitempty"`
-	LastModified *string `json:"lastModified,omitempty"`
+	ID *string `json:"id,omitempty"`
+	Performer TypedObject `json:"performer"`
 	ResourceType *string `json:"resourceType,omitempty"`
-	RequestedPerformer []*CodeableReference `json:"requestedPerformer,omitempty"`
+	DoNotPerform *string `json:"doNotPerform,omitempty"`
+	Output []*TaskOutput `json:"output,omitempty"`
+	StatusReason *CodeableReference `json:"statusReason,omitempty"`
+	Note TypedObject `json:"note"`
+	LastModified *string `json:"lastModified,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
 	Reason []*CodeableReference `json:"reason,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Intent *string `json:"intent,omitempty"`
+	Status *string `json:"status,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	BusinessStatus *CodeableConcept `json:"businessStatus,omitempty"`
+	Focus TypedObject `json:"focus"`
+	RequestedPeriod *Period `json:"requestedPeriod,omitempty"`
+	InstantiatesCanonical *string `json:"instantiatesCanonical,omitempty"`
+	GroupIdentifier *Identifier `json:"groupIdentifier,omitempty"`
+	Language *string `json:"language,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	AuthoredOn *string `json:"authoredOn,omitempty"`
+	InstantiatesURI *string `json:"instantiatesUri,omitempty"`
+	RequestedPerformer []*CodeableReference `json:"requestedPerformer,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
 func (o *TaskType) UnmarshalJSON(b []byte) error {
@@ -53,56 +54,57 @@ func (o *TaskType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = TaskType{
-		InstantiatesURI: safe.InstantiatesURI,
-		ID: safe.ID,
-		Intent: safe.Intent,
-		Code: safe.Code,
-		RequestedPeriod: safe.RequestedPeriod,
-		AuthoredOn: safe.AuthoredOn,
-		ModifierExtension: safe.ModifierExtension,
-		DoNotPerform: safe.DoNotPerform,
-		Text: safe.Text,
-		Identifier: safe.Identifier,
-		Language: safe.Language,
-		Output: safe.Output,
-		Extension: safe.Extension,
-		InstantiatesCanonical: safe.InstantiatesCanonical,
-		Status: safe.Status,
-		BusinessStatus: safe.BusinessStatus,
-		ExecutionPeriod: safe.ExecutionPeriod,
-		Meta: safe.Meta,
-		ImplicitRules: safe.ImplicitRules,
-		PartOf: safe.PartOf,
-		StatusReason: safe.StatusReason,
 		Input: safe.Input,
-		Description: safe.Description,
-		GroupIdentifier: safe.GroupIdentifier,
+		Meta: safe.Meta,
+		Code: safe.Code,
+		Extension: safe.Extension,
+		ModifierExtension: safe.ModifierExtension,
+		PartOf: safe.PartOf,
+		ExecutionPeriod: safe.ExecutionPeriod,
 		Priority: safe.Priority,
-		LastModified: safe.LastModified,
+		ID: safe.ID,
 		ResourceType: safe.ResourceType,
-		RequestedPerformer: safe.RequestedPerformer,
+		DoNotPerform: safe.DoNotPerform,
+		Output: safe.Output,
+		StatusReason: safe.StatusReason,
+		LastModified: safe.LastModified,
 		Reason: safe.Reason,
+		Description: safe.Description,
+		Intent: safe.Intent,
+		Status: safe.Status,
+		Identifier: safe.Identifier,
+		BusinessStatus: safe.BusinessStatus,
+		RequestedPeriod: safe.RequestedPeriod,
+		InstantiatesCanonical: safe.InstantiatesCanonical,
+		GroupIdentifier: safe.GroupIdentifier,
+		Language: safe.Language,
+		Text: safe.Text,
+		AuthoredOn: safe.AuthoredOn,
+		InstantiatesURI: safe.InstantiatesURI,
+		RequestedPerformer: safe.RequestedPerformer,
+		ImplicitRules: safe.ImplicitRules,
+		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "owner", safe.Owner.Typename, &o.Owner); err != nil {
 		return fmt.Errorf("failed to unmarshal Owner: %w", err)
 	}
-	if err := unmarshalUnion(b, "restriction", safe.Restriction.Typename, &o.Restriction); err != nil {
-		return fmt.Errorf("failed to unmarshal Restriction: %w", err)
-	}
-	if err := unmarshalUnion(b, "note", safe.Note.Typename, &o.Note); err != nil {
-		return fmt.Errorf("failed to unmarshal Note: %w", err)
-	}
 	if err := unmarshalUnion(b, "basedOn", safe.BasedOn.Typename, &o.BasedOn); err != nil {
 		return fmt.Errorf("failed to unmarshal BasedOn: %w", err)
 	}
-	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
-		return fmt.Errorf("failed to unmarshal Contained: %w", err)
+	if err := unmarshalUnion(b, "requester", safe.Requester.Typename, &o.Requester); err != nil {
+		return fmt.Errorf("failed to unmarshal Requester: %w", err)
+	}
+	if err := unmarshalUnion(b, "restriction", safe.Restriction.Typename, &o.Restriction); err != nil {
+		return fmt.Errorf("failed to unmarshal Restriction: %w", err)
 	}
 	if err := unmarshalUnion(b, "performer", safe.Performer.Typename, &o.Performer); err != nil {
 		return fmt.Errorf("failed to unmarshal Performer: %w", err)
 	}
-	if err := unmarshalUnion(b, "requester", safe.Requester.Typename, &o.Requester); err != nil {
-		return fmt.Errorf("failed to unmarshal Requester: %w", err)
+	if err := unmarshalUnion(b, "note", safe.Note.Typename, &o.Note); err != nil {
+		return fmt.Errorf("failed to unmarshal Note: %w", err)
+	}
+	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
+		return fmt.Errorf("failed to unmarshal Contained: %w", err)
 	}
 	if err := unmarshalUnion(b, "focus", safe.Focus.Typename, &o.Focus); err != nil {
 		return fmt.Errorf("failed to unmarshal Focus: %w", err)

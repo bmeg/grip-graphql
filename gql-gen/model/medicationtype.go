@@ -7,23 +7,24 @@ import (
 )
 
 type SafeMedicationType struct {
-	Meta *Meta `json:"meta,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	MarketingAuthorizationHolder *OrganizationType `json:"marketingAuthorizationHolder"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	TotalVolume *Quantity `json:"totalVolume,omitempty"`
-	Language *string `json:"language,omitempty"`
-	DoseForm *CodeableConcept `json:"doseForm,omitempty"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	Ingredient []*MedicationIngredient `json:"ingredient,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	ID *string `json:"id,omitempty"`
 	Status *string `json:"status,omitempty"`
-	Batch *MedicationBatch `json:"batch,omitempty"`
 	Code *CodeableConcept `json:"code,omitempty"`
+	Batch *MedicationBatch `json:"batch,omitempty"`
+	ID *string `json:"id,omitempty"`
+	MarketingAuthorizationHolder *OrganizationType `json:"marketingAuthorizationHolder"`
+	Extension []*Extension `json:"extension,omitempty"`
+	DoseForm *CodeableConcept `json:"doseForm,omitempty"`
+	Ingredient []*MedicationIngredient `json:"ingredient,omitempty"`
+	Language *string `json:"language,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	TotalVolume *Quantity `json:"totalVolume,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
 func (o *MedicationType) UnmarshalJSON(b []byte) error {
@@ -33,22 +34,23 @@ func (o *MedicationType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = MedicationType{
-		Meta: safe.Meta,
-		Text: safe.Text,
-		MarketingAuthorizationHolder: safe.MarketingAuthorizationHolder,
-		ModifierExtension: safe.ModifierExtension,
-		TotalVolume: safe.TotalVolume,
-		Language: safe.Language,
-		DoseForm: safe.DoseForm,
-		ResourceType: safe.ResourceType,
-		ImplicitRules: safe.ImplicitRules,
-		Ingredient: safe.Ingredient,
-		Extension: safe.Extension,
-		Identifier: safe.Identifier,
-		ID: safe.ID,
 		Status: safe.Status,
-		Batch: safe.Batch,
 		Code: safe.Code,
+		Batch: safe.Batch,
+		ID: safe.ID,
+		MarketingAuthorizationHolder: safe.MarketingAuthorizationHolder,
+		Extension: safe.Extension,
+		DoseForm: safe.DoseForm,
+		Ingredient: safe.Ingredient,
+		Language: safe.Language,
+		Identifier: safe.Identifier,
+		Meta: safe.Meta,
+		TotalVolume: safe.TotalVolume,
+		ImplicitRules: safe.ImplicitRules,
+		ResourceType: safe.ResourceType,
+		Text: safe.Text,
+		ModifierExtension: safe.ModifierExtension,
+		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
 		return fmt.Errorf("failed to unmarshal Contained: %w", err)

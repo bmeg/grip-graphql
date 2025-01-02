@@ -7,35 +7,36 @@ import (
 )
 
 type SafeDiagnosticReportType struct {
-	SupportingInfo TypedObject `json:"supportingInfo"`
-	Specimen *SpecimenType `json:"specimen"`
-	Contained TypedObject `json:"contained,omitempty"`
-	Language *string `json:"language,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	ResultsInterpreter TypedObject `json:"resultsInterpreter"`
-	ID *string `json:"id,omitempty"`
+	Performer TypedObject `json:"performer"`
 	BasedOn TypedObject `json:"basedOn"`
-	Note TypedObject `json:"note"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	EffectiveDateTime *string `json:"effectiveDateTime,omitempty"`
-	Category []*CodeableConcept `json:"category,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	EffectivePeriod *Period `json:"effectivePeriod,omitempty"`
 	ResourceType *string `json:"resourceType,omitempty"`
-	Code *CodeableConcept `json:"code,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
-	PresentedForm []*Attachment `json:"presentedForm,omitempty"`
+	Category []*CodeableConcept `json:"category,omitempty"`
+	ID *string `json:"id,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	Conclusion *string `json:"conclusion,omitempty"`
+	Note TypedObject `json:"note"`
+	ConclusionCode []*CodeableConcept `json:"conclusionCode,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	Subject TypedObject `json:"subject"`
 	Study TypedObject `json:"study"`
-	Media []*DiagnosticReportMedia `json:"media,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	ConclusionCode []*CodeableConcept `json:"conclusionCode,omitempty"`
-	Result *ObservationType `json:"result"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	Issued *string `json:"issued,omitempty"`
-	Performer TypedObject `json:"performer"`
 	Status *string `json:"status,omitempty"`
-	Conclusion *string `json:"conclusion,omitempty"`
+	Language *string `json:"language,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	EffectiveDateTime *string `json:"effectiveDateTime,omitempty"`
+	Issued *string `json:"issued,omitempty"`
+	SupportingInfo TypedObject `json:"supportingInfo"`
+	Contained TypedObject `json:"contained,omitempty"`
+	Specimen *SpecimenType `json:"specimen"`
+	EffectivePeriod *Period `json:"effectivePeriod,omitempty"`
+	Media []*DiagnosticReportMedia `json:"media,omitempty"`
+	ResultsInterpreter TypedObject `json:"resultsInterpreter"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	Result *ObservationType `json:"result"`
+	Code *CodeableConcept `json:"code,omitempty"`
+	PresentedForm []*Attachment `json:"presentedForm,omitempty"`
+	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
 func (o *DiagnosticReportType) UnmarshalJSON(b []byte) error {
@@ -45,36 +46,31 @@ func (o *DiagnosticReportType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = DiagnosticReportType{
-		Specimen: safe.Specimen,
-		Language: safe.Language,
-		Meta: safe.Meta,
-		ID: safe.ID,
-		ModifierExtension: safe.ModifierExtension,
-		EffectiveDateTime: safe.EffectiveDateTime,
-		Category: safe.Category,
-		Identifier: safe.Identifier,
-		EffectivePeriod: safe.EffectivePeriod,
 		ResourceType: safe.ResourceType,
-		Code: safe.Code,
-		Extension: safe.Extension,
-		PresentedForm: safe.PresentedForm,
-		Media: safe.Media,
+		Category: safe.Category,
+		ID: safe.ID,
+		Meta: safe.Meta,
 		Text: safe.Text,
-		ConclusionCode: safe.ConclusionCode,
-		Result: safe.Result,
-		ImplicitRules: safe.ImplicitRules,
-		Issued: safe.Issued,
-		Status: safe.Status,
 		Conclusion: safe.Conclusion,
+		ConclusionCode: safe.ConclusionCode,
+		ModifierExtension: safe.ModifierExtension,
+		Status: safe.Status,
+		Language: safe.Language,
+		ImplicitRules: safe.ImplicitRules,
+		Extension: safe.Extension,
+		EffectiveDateTime: safe.EffectiveDateTime,
+		Issued: safe.Issued,
+		Specimen: safe.Specimen,
+		EffectivePeriod: safe.EffectivePeriod,
+		Media: safe.Media,
+		Identifier: safe.Identifier,
+		Result: safe.Result,
+		Code: safe.Code,
+		PresentedForm: safe.PresentedForm,
+		AuthResourcePath: safe.AuthResourcePath,
 	}
-	if err := unmarshalUnion(b, "supportingInfo", safe.SupportingInfo.Typename, &o.SupportingInfo); err != nil {
-		return fmt.Errorf("failed to unmarshal SupportingInfo: %w", err)
-	}
-	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
-		return fmt.Errorf("failed to unmarshal Contained: %w", err)
-	}
-	if err := unmarshalUnion(b, "resultsInterpreter", safe.ResultsInterpreter.Typename, &o.ResultsInterpreter); err != nil {
-		return fmt.Errorf("failed to unmarshal ResultsInterpreter: %w", err)
+	if err := unmarshalUnion(b, "performer", safe.Performer.Typename, &o.Performer); err != nil {
+		return fmt.Errorf("failed to unmarshal Performer: %w", err)
 	}
 	if err := unmarshalUnion(b, "basedOn", safe.BasedOn.Typename, &o.BasedOn); err != nil {
 		return fmt.Errorf("failed to unmarshal BasedOn: %w", err)
@@ -88,8 +84,14 @@ func (o *DiagnosticReportType) UnmarshalJSON(b []byte) error {
 	if err := unmarshalUnion(b, "study", safe.Study.Typename, &o.Study); err != nil {
 		return fmt.Errorf("failed to unmarshal Study: %w", err)
 	}
-	if err := unmarshalUnion(b, "performer", safe.Performer.Typename, &o.Performer); err != nil {
-		return fmt.Errorf("failed to unmarshal Performer: %w", err)
+	if err := unmarshalUnion(b, "supportingInfo", safe.SupportingInfo.Typename, &o.SupportingInfo); err != nil {
+		return fmt.Errorf("failed to unmarshal SupportingInfo: %w", err)
+	}
+	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
+		return fmt.Errorf("failed to unmarshal Contained: %w", err)
+	}
+	if err := unmarshalUnion(b, "resultsInterpreter", safe.ResultsInterpreter.Typename, &o.ResultsInterpreter); err != nil {
+		return fmt.Errorf("failed to unmarshal ResultsInterpreter: %w", err)
 	}
 
 	return nil

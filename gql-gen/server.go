@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -8,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/bmeg/grip-graphql/middleware"
 
 	"github.com/bmeg/grip-graphql/gql-gen/generated"
 	"github.com/bmeg/grip-graphql/gql-gen/graph"
@@ -26,7 +28,31 @@ type Handler struct {
 	client  gripql.Client
 }
 
-func (gh *Handler) graphqlHandler(client gripql.Client) gin.HandlerFunc {
+func RegError(c *gin.Context, writer http.ResponseWriter, graph string, err error) {
+	if ae, ok := err.(*middleware.ServerError); ok {
+		log.WithFields(log.Fields{
+			"graph":  graph,
+			"status": ae.StatusCode,
+		}).Info(ae.Message)
+		c.AbortWithStatusJSON(ae.StatusCode, gin.H{
+			"status":  ae.StatusCode,
+			"message": ae.Message,
+			"data":    nil,
+		})
+		return
+	}
+	log.WithFields(log.Fields{
+		"graph":  graph,
+		"status": "500",
+	}).Info("Internal Server Error")
+	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+		"status":  "500",
+		"message": "[500] Internal Server Error",
+		"data":    nil,
+	})
+}
+
+func (gh *Handler) graphqlHandler(client gripql.Client, jwtHandler middleware.JWTHandler) gin.HandlerFunc {
 	executableSchema := generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}})
 	schema := executableSchema.Schema()
 	resolvers := &graph.Resolver{
@@ -47,8 +73,21 @@ func (gh *Handler) graphqlHandler(client gripql.Client) gin.HandlerFunc {
 	})
 
 	return func(c *gin.Context) {
+		requestHeaders := c.Request.Header
+		if val, ok := requestHeaders["Authorization"]; ok {
+			Token := val[0]
+			anyList, err := jwtHandler.HandleJWTToken(Token, "read")
+			if err != nil {
+				RegError(c, c.Writer, c.Param("graph"), err)
+				return
+			}
+			c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), "auth_list", anyList))
+			//c.Set("auth_list", anyList)
+		} else {
+			RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 400, Message: "Authorization token not provided"})
+			return
+		}
 		gh.handler.ServeHTTP(c.Writer, c.Request)
-		//c.Next()
 	}
 }
 
@@ -65,6 +104,12 @@ func playgroundHandler() gin.HandlerFunc {
 }
 
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
+
+	var mware middleware.JWTHandler = &middleware.ProdJWTHandler{}
+	if config["test"] == "true" {
+		mware = &middleware.MockJWTHandler{}
+	}
+
 	// Setting up Gin
 	r := gin.New()
 	logConfig := log.Logger{
@@ -93,7 +138,7 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 		config: config,
 		client: client,
 	}
-	r.POST("/query", h.graphqlHandler(client))
+	r.POST("/query", h.graphqlHandler(client, mware))
 	r.GET("/", playgroundHandler())
 	return h, nil
 

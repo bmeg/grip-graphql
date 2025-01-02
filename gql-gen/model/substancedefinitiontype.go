@@ -8,33 +8,34 @@ import (
 
 type SafeSubstanceDefinitionType struct {
 	Version *string `json:"version,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
-	Manufacturer *OrganizationType `json:"manufacturer"`
-	ID *string `json:"id,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	Classification []*CodeableConcept `json:"classification,omitempty"`
-	Code []*SubstanceDefinitionCode `json:"code,omitempty"`
-	Characterization []*SubstanceDefinitionCharacterization `json:"characterization,omitempty"`
 	Supplier *OrganizationType `json:"supplier"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	SourceMaterial *SubstanceDefinitionSourceMaterial `json:"sourceMaterial,omitempty"`
 	Contained TypedObject `json:"contained,omitempty"`
-	Status *CodeableConcept `json:"status,omitempty"`
-	Property []*SubstanceDefinitionProperty `json:"property,omitempty"`
-	Language *string `json:"language,omitempty"`
-	Name []*SubstanceDefinitionName `json:"name,omitempty"`
-	Structure *SubstanceDefinitionStructure `json:"structure,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	MolecularWeight []*SubstanceDefinitionMolecularWeight `json:"molecularWeight,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
 	Identifier []*Identifier `json:"identifier,omitempty"`
 	Relationship []*SubstanceDefinitionRelationship `json:"relationship,omitempty"`
-	Domain *CodeableConcept `json:"domain,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	Moiety []*SubstanceDefinitionMoiety `json:"moiety,omitempty"`
+	Name []*SubstanceDefinitionName `json:"name,omitempty"`
+	SourceMaterial *SubstanceDefinitionSourceMaterial `json:"sourceMaterial,omitempty"`
+	Code []*SubstanceDefinitionCode `json:"code,omitempty"`
 	Note TypedObject `json:"note"`
+	MolecularWeight []*SubstanceDefinitionMolecularWeight `json:"molecularWeight,omitempty"`
+	Property []*SubstanceDefinitionProperty `json:"property,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
 	Grade []*CodeableConcept `json:"grade,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	Manufacturer *OrganizationType `json:"manufacturer"`
+	Moiety []*SubstanceDefinitionMoiety `json:"moiety,omitempty"`
+	Status *CodeableConcept `json:"status,omitempty"`
+	Characterization []*SubstanceDefinitionCharacterization `json:"characterization,omitempty"`
+	Classification []*CodeableConcept `json:"classification,omitempty"`
+	Domain *CodeableConcept `json:"domain,omitempty"`
+	Structure *SubstanceDefinitionStructure `json:"structure,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Language *string `json:"language,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	ID *string `json:"id,omitempty"`
+	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
 func (o *SubstanceDefinitionType) UnmarshalJSON(b []byte) error {
@@ -45,31 +46,32 @@ func (o *SubstanceDefinitionType) UnmarshalJSON(b []byte) error {
 
 	*o = SubstanceDefinitionType{
 		Version: safe.Version,
-		Extension: safe.Extension,
-		Manufacturer: safe.Manufacturer,
-		ID: safe.ID,
-		Meta: safe.Meta,
-		Classification: safe.Classification,
-		Code: safe.Code,
-		Characterization: safe.Characterization,
 		Supplier: safe.Supplier,
-		ResourceType: safe.ResourceType,
-		SourceMaterial: safe.SourceMaterial,
-		Status: safe.Status,
-		Property: safe.Property,
-		Language: safe.Language,
-		Name: safe.Name,
-		Structure: safe.Structure,
-		Description: safe.Description,
-		Text: safe.Text,
-		MolecularWeight: safe.MolecularWeight,
-		ImplicitRules: safe.ImplicitRules,
 		Identifier: safe.Identifier,
 		Relationship: safe.Relationship,
-		Domain: safe.Domain,
-		ModifierExtension: safe.ModifierExtension,
-		Moiety: safe.Moiety,
+		Name: safe.Name,
+		SourceMaterial: safe.SourceMaterial,
+		Code: safe.Code,
+		MolecularWeight: safe.MolecularWeight,
+		Property: safe.Property,
+		ResourceType: safe.ResourceType,
 		Grade: safe.Grade,
+		Extension: safe.Extension,
+		Manufacturer: safe.Manufacturer,
+		Moiety: safe.Moiety,
+		Status: safe.Status,
+		Characterization: safe.Characterization,
+		Classification: safe.Classification,
+		Domain: safe.Domain,
+		Structure: safe.Structure,
+		Description: safe.Description,
+		Language: safe.Language,
+		ModifierExtension: safe.ModifierExtension,
+		Meta: safe.Meta,
+		Text: safe.Text,
+		ImplicitRules: safe.ImplicitRules,
+		ID: safe.ID,
+		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
 		return fmt.Errorf("failed to unmarshal Contained: %w", err)

@@ -11,6 +11,14 @@ grip server -w graphql=gql-gen.so
 
 Open http://localhost:8201/graphql/
 
+## Generate
+
+To generate new codegen after changing config or schema
+
+```
+go run github.com/99designs/gqlgen generate
+```
+
 ## Example FHIR query:
 
 ```

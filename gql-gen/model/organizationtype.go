@@ -7,24 +7,25 @@ import (
 )
 
 type SafeOrganizationType struct {
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
-	Active *string `json:"active,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	PartOf *OrganizationType `json:"partOf"`
-	ResourceType *string `json:"resourceType,omitempty"`
+	Contact []*ExtendedContactDetail `json:"contact,omitempty"`
 	Extension []*Extension `json:"extension,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	ID *string `json:"id,omitempty"`
+	Language *string `json:"language,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
 	Meta *Meta `json:"meta,omitempty"`
 	Name *string `json:"name,omitempty"`
-	Type []*CodeableConcept `json:"type,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	ID *string `json:"id,omitempty"`
-	Qualification []*OrganizationQualification `json:"qualification,omitempty"`
-	Alias *string `json:"alias,omitempty"`
-	Contact []*ExtendedContactDetail `json:"contact,omitempty"`
 	Text *Narrative `json:"text,omitempty"`
-	Language *string `json:"language,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	Qualification []*OrganizationQualification `json:"qualification,omitempty"`
+	PartOf *OrganizationType `json:"partOf"`
+	Type []*CodeableConcept `json:"type,omitempty"`
+	Alias *string `json:"alias,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Active *string `json:"active,omitempty"`
+	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
 func (o *OrganizationType) UnmarshalJSON(b []byte) error {
@@ -34,23 +35,24 @@ func (o *OrganizationType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = OrganizationType{
-		Identifier: safe.Identifier,
-		Active: safe.Active,
-		ModifierExtension: safe.ModifierExtension,
-		PartOf: safe.PartOf,
-		ResourceType: safe.ResourceType,
+		Contact: safe.Contact,
 		Extension: safe.Extension,
-		Description: safe.Description,
+		Identifier: safe.Identifier,
+		ModifierExtension: safe.ModifierExtension,
+		ResourceType: safe.ResourceType,
+		ID: safe.ID,
+		Language: safe.Language,
+		ImplicitRules: safe.ImplicitRules,
 		Meta: safe.Meta,
 		Name: safe.Name,
-		Type: safe.Type,
-		ImplicitRules: safe.ImplicitRules,
-		ID: safe.ID,
-		Qualification: safe.Qualification,
-		Alias: safe.Alias,
-		Contact: safe.Contact,
 		Text: safe.Text,
-		Language: safe.Language,
+		Qualification: safe.Qualification,
+		PartOf: safe.PartOf,
+		Type: safe.Type,
+		Alias: safe.Alias,
+		Description: safe.Description,
+		Active: safe.Active,
+		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
 		return fmt.Errorf("failed to unmarshal Contained: %w", err)

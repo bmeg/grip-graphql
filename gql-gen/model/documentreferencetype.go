@@ -7,37 +7,38 @@ import (
 )
 
 type SafeDocumentReferenceType struct {
-	Modality []*CodeableConcept `json:"modality,omitempty"`
-	SecurityLabel []*CodeableConcept `json:"securityLabel,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	Subject TypedObject `json:"subject"`
-	ID *string `json:"id,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
-	Event []*CodeableReference `json:"event,omitempty"`
-	PracticeSetting *CodeableConcept `json:"practiceSetting,omitempty"`
 	BodySite []*CodeableReference `json:"bodySite,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	Date *string `json:"date,omitempty"`
-	Language *string `json:"language,omitempty"`
 	Author TypedObject `json:"author"`
-	Type *CodeableConcept `json:"type,omitempty"`
-	Category []*CodeableConcept `json:"category,omitempty"`
-	Period *Period `json:"period,omitempty"`
-	FacilityType *CodeableConcept `json:"facilityType,omitempty"`
-	Attester TypedObject `json:"attester"`
+	Language *string `json:"language,omitempty"`
+	Version *string `json:"version,omitempty"`
+	BasedOn TypedObject `json:"basedOn"`
 	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Type *CodeableConcept `json:"type,omitempty"`
+	Status *string `json:"status,omitempty"`
+	Modality []*CodeableConcept `json:"modality,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	Attester TypedObject `json:"attester"`
+	Date *string `json:"date,omitempty"`
+	Event []*CodeableReference `json:"event,omitempty"`
 	DocStatus *string `json:"docStatus,omitempty"`
+	Content []*DocumentReferenceContent `json:"content,omitempty"`
 	Custodian *OrganizationType `json:"custodian"`
 	Description *string `json:"description,omitempty"`
-	BasedOn TypedObject `json:"basedOn"`
-	RelatesTo []*DocumentReferenceRelatesTo `json:"relatesTo,omitempty"`
+	ID *string `json:"id,omitempty"`
 	ResourceType *string `json:"resourceType,omitempty"`
-	Status *string `json:"status,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	Content []*DocumentReferenceContent `json:"content,omitempty"`
-	Version *string `json:"version,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	Subject TypedObject `json:"subject"`
+	SecurityLabel []*CodeableConcept `json:"securityLabel,omitempty"`
+	Period *Period `json:"period,omitempty"`
 	Extension []*Extension `json:"extension,omitempty"`
+	PracticeSetting *CodeableConcept `json:"practiceSetting,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	RelatesTo []*DocumentReferenceRelatesTo `json:"relatesTo,omitempty"`
+	Category []*CodeableConcept `json:"category,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	FacilityType *CodeableConcept `json:"facilityType,omitempty"`
+	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
 func (o *DocumentReferenceType) UnmarshalJSON(b []byte) error {
@@ -47,47 +48,48 @@ func (o *DocumentReferenceType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = DocumentReferenceType{
-		Modality: safe.Modality,
-		SecurityLabel: safe.SecurityLabel,
-		Meta: safe.Meta,
-		ID: safe.ID,
-		ModifierExtension: safe.ModifierExtension,
-		Event: safe.Event,
-		PracticeSetting: safe.PracticeSetting,
 		BodySite: safe.BodySite,
-		Identifier: safe.Identifier,
-		Date: safe.Date,
 		Language: safe.Language,
-		Type: safe.Type,
-		Category: safe.Category,
-		Period: safe.Period,
-		FacilityType: safe.FacilityType,
+		Version: safe.Version,
 		ImplicitRules: safe.ImplicitRules,
+		Type: safe.Type,
+		Status: safe.Status,
+		Modality: safe.Modality,
+		Meta: safe.Meta,
+		Date: safe.Date,
+		Event: safe.Event,
 		DocStatus: safe.DocStatus,
+		Content: safe.Content,
 		Custodian: safe.Custodian,
 		Description: safe.Description,
-		RelatesTo: safe.RelatesTo,
+		ID: safe.ID,
 		ResourceType: safe.ResourceType,
-		Status: safe.Status,
-		Text: safe.Text,
-		Content: safe.Content,
-		Version: safe.Version,
+		ModifierExtension: safe.ModifierExtension,
+		SecurityLabel: safe.SecurityLabel,
+		Period: safe.Period,
 		Extension: safe.Extension,
+		PracticeSetting: safe.PracticeSetting,
+		Text: safe.Text,
+		RelatesTo: safe.RelatesTo,
+		Category: safe.Category,
+		Identifier: safe.Identifier,
+		FacilityType: safe.FacilityType,
+		AuthResourcePath: safe.AuthResourcePath,
+	}
+	if err := unmarshalUnion(b, "author", safe.Author.Typename, &o.Author); err != nil {
+		return fmt.Errorf("failed to unmarshal Author: %w", err)
+	}
+	if err := unmarshalUnion(b, "basedOn", safe.BasedOn.Typename, &o.BasedOn); err != nil {
+		return fmt.Errorf("failed to unmarshal BasedOn: %w", err)
+	}
+	if err := unmarshalUnion(b, "attester", safe.Attester.Typename, &o.Attester); err != nil {
+		return fmt.Errorf("failed to unmarshal Attester: %w", err)
 	}
 	if err := unmarshalUnion(b, "subject", safe.Subject.Typename, &o.Subject); err != nil {
 		return fmt.Errorf("failed to unmarshal Subject: %w", err)
 	}
 	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
 		return fmt.Errorf("failed to unmarshal Contained: %w", err)
-	}
-	if err := unmarshalUnion(b, "author", safe.Author.Typename, &o.Author); err != nil {
-		return fmt.Errorf("failed to unmarshal Author: %w", err)
-	}
-	if err := unmarshalUnion(b, "attester", safe.Attester.Typename, &o.Attester); err != nil {
-		return fmt.Errorf("failed to unmarshal Attester: %w", err)
-	}
-	if err := unmarshalUnion(b, "basedOn", safe.BasedOn.Typename, &o.BasedOn); err != nil {
-		return fmt.Errorf("failed to unmarshal BasedOn: %w", err)
 	}
 
 	return nil

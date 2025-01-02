@@ -7,27 +7,28 @@ import (
 )
 
 type SafePractitionerType struct {
-	BirthDate *string `json:"birthDate,omitempty"`
-	ID *string `json:"id,omitempty"`
-	Language *string `json:"language,omitempty"`
-	Qualification []*PractitionerQualification `json:"qualification,omitempty"`
-	Address []*Address `json:"address,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	Active *string `json:"active,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
-	Gender *string `json:"gender,omitempty"`
-	Name []*HumanName `json:"name,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
 	DeceasedDateTime *string `json:"deceasedDateTime,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	Photo []*Attachment `json:"photo,omitempty"`
-	Telecom []*ContactPoint `json:"telecom,omitempty"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	Communication []*PractitionerCommunication `json:"communication,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
+	BirthDate *string `json:"birthDate,omitempty"`
 	DeceasedBoolean *string `json:"deceasedBoolean,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	Address []*Address `json:"address,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	Photo []*Attachment `json:"photo,omitempty"`
+	Qualification []*PractitionerQualification `json:"qualification,omitempty"`
 	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Active *string `json:"active,omitempty"`
+	ID *string `json:"id,omitempty"`
+	Communication []*PractitionerCommunication `json:"communication,omitempty"`
+	Gender *string `json:"gender,omitempty"`
+	Telecom []*ContactPoint `json:"telecom,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	Language *string `json:"language,omitempty"`
+	Name []*HumanName `json:"name,omitempty"`
+	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
 func (o *PractitionerType) UnmarshalJSON(b []byte) error {
@@ -37,26 +38,27 @@ func (o *PractitionerType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = PractitionerType{
-		BirthDate: safe.BirthDate,
-		ID: safe.ID,
-		Language: safe.Language,
-		Qualification: safe.Qualification,
-		Address: safe.Address,
-		ModifierExtension: safe.ModifierExtension,
-		Active: safe.Active,
-		Gender: safe.Gender,
-		Name: safe.Name,
-		Text: safe.Text,
 		DeceasedDateTime: safe.DeceasedDateTime,
-		Extension: safe.Extension,
-		Meta: safe.Meta,
-		Photo: safe.Photo,
-		Telecom: safe.Telecom,
-		ResourceType: safe.ResourceType,
-		Communication: safe.Communication,
-		Identifier: safe.Identifier,
+		BirthDate: safe.BirthDate,
 		DeceasedBoolean: safe.DeceasedBoolean,
+		ModifierExtension: safe.ModifierExtension,
+		Meta: safe.Meta,
+		Address: safe.Address,
+		Text: safe.Text,
+		Identifier: safe.Identifier,
+		ResourceType: safe.ResourceType,
+		Photo: safe.Photo,
+		Qualification: safe.Qualification,
 		ImplicitRules: safe.ImplicitRules,
+		Active: safe.Active,
+		ID: safe.ID,
+		Communication: safe.Communication,
+		Gender: safe.Gender,
+		Telecom: safe.Telecom,
+		Extension: safe.Extension,
+		Language: safe.Language,
+		Name: safe.Name,
+		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
 		return fmt.Errorf("failed to unmarshal Contained: %w", err)

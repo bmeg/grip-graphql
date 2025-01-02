@@ -4,6 +4,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/bmeg/grip-graphql/gql-gen/generated"
@@ -142,6 +143,13 @@ func (r *queryResolver) Specimen(ctx context.Context, offset *int, first *int, f
 
 // Observation is the resolver for the observation field.
 func (r *queryResolver) Observation(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.ObservationType, error) {
+
+	authList, ok := ctx.Value("auth_list").([]interface{})
+	if !ok {
+		return nil, errors.New("auth_list not found or invalid")
+	}
+	fmt.Println("VALUE OF AUTH LIST: ", authList)
+
 	data, err := r.GetSelectedFieldsAst(ctx, "ObservationType")
 	//fmt.Println("DATA: ", data)
 

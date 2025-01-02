@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+
 func UnmarshalOrganizationTypeSlice(input []any) ([]OrganizationType, error) {
 	out := []OrganizationType{}
 	for _, item := range input {
