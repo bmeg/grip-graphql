@@ -6,4 +6,4 @@ Server:
 Drivers:
   mongo:
     MongoDB:
-      URL: mongodb://local-mongodb
+      URL: mongodb://mongodb-service

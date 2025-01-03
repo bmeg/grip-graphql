@@ -7,21 +7,33 @@ import (
 	"github.com/bmeg/grip/gripql"
 )
 
+func applyUnwinds(query **gripql.Query, rt *renderTree){
+	/* Assumes query is at f0 and only applies unwinds to that node currently*/
+	for _, val := range rt.rFieldPaths["f0"].unwindPath{
+		*query = (*query).Unwind(val)
+	}
+}
+
 func applyFilters(query **gripql.Query, args map[string]any) error {
-	//Todo: support "accessiblity", "format", "sort":
+	//Todo: support "sort" operations
+	//fmt.Printf("FIRST: %v, TYPE: %T\n", args, args["first"])
 	if filter, ok := args["filter"]; ok {
-		chainedFilter, err := applyJsonFilter(filter.(map[string]any))
-		if err != nil {
-			return err
+		if filter != nil && len(filter.(map[string]any)) > 0{
+			chainedFilter, err := applyJsonFilter(filter.(map[string]any))
+			if err != nil {
+				fmt.Println("ERR != NIL: ", err)
+				return err
+			}
+			//fmt.Printf("CHAINED FILTER: %s\n", chainedFilter.String())
+			*query = (*query).Has(chainedFilter)
 		}
-		fmt.Printf("CHAINED FILTER: %s\n", chainedFilter.String())
-		*query = (*query).Has(chainedFilter)
 	}
 	if first, ok := args["first"]; ok {
-		if first.(*int) == nil {
+		firstPtr, _ := first.(*int)
+		if firstPtr == nil {
 			*query = (*query).Limit(uint32(10))
 		} else {
-			*query = (*query).Limit(uint32(*first.(*int)))
+			*query = (*query).Limit(uint32(*firstPtr))
 		}
 	}
 	if offset, ok := args["offset"]; ok {

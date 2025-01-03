@@ -13,8 +13,9 @@ import (
 
 // Organization is the resolver for the organization field.
 func (r *queryResolver) Organization(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.OrganizationType, error) {
+
 	data, err := r.GetSelectedFieldsAst(ctx, "OrganizationType")
-	fmt.Println("DATA: ", data)
+	//fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalOrganizationTypeSlice(data)
 	if err != nil {
