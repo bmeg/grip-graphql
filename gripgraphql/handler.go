@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 
 	//"encoding/json"
@@ -44,6 +45,7 @@ type GraphQLJS struct {
 	gjHandler *handler.Handler
 	Pool      sync.Pool
 	cw        *JSClientWrapper
+	auth      bool
 	//Once      sync.Once
 }
 
@@ -151,7 +153,7 @@ func (e *Endpoint) Add(x map[string]any) {
 		objField, err := parseField(name, schemaA)
 		if err == nil {
 			objField.Resolve = func(params graphql.ResolveParams) (interface{}, error) {
-				log.Infof("Calling resolver \n")
+				log.Debug("Calling resolver")
 				uArgs := map[string]any{}
 				for k, v := range defaults {
 					uArgs[k] = v
@@ -174,9 +176,10 @@ func (e *Endpoint) Add(x map[string]any) {
 				args := goja.FunctionCall{
 					Arguments: []goja.Value{e.cw.toValue(), vArgs},
 				}
-
+				log.Infof("Calling user function")
 				val := jHandler(args)
 				out := jsExport(val)
+				log.Infof("User function returned : %#v", out)
 				return out, nil
 			}
 
@@ -257,6 +260,10 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	if c, ok := config["graph"]; ok {
 		graph = c
 	}
+	auth := false
+	if c, ok := config["auth"]; ok {
+		auth, _ = strconv.ParseBool(c)
+	}
 	file, err := os.Open(configPath)
 	if err != nil {
 		return nil, err
@@ -272,7 +279,7 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 		New: func() any {
 			vm := goja.New()
 			vm.SetFieldNameMapper(JSRenamer{})
-			jsClient, err := GetJSClient(graph, client, vm)
+			jsClient, err := GetJSClient(graph, client, vm, auth)
 			if err != nil {
 				log.Infof("js error: %s\n", err)
 			}
@@ -286,9 +293,11 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 				"Boolean": "Boolean",
 			})
 
+			vm.Set("print", fmt.Printf) //Adding print statement for debugging. This may need to be removed/updated
+
 			_, err = vm.RunString(string(data))
 			if err != nil {
-				log.Errorf("Error running data config", err)
+				log.Errorf("Error running data config %s", err)
 			}
 
 			schema, err := e.Build()
@@ -298,15 +307,15 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 			hnd = handler.New(&handler.Config{
 				Schema: schema,
 			})
-			gh := &GraphQLJS{client: client, gjHandler: hnd, cw: jsClient}
+			gh := &GraphQLJS{client: client, gjHandler: hnd, cw: jsClient, auth: auth}
 			return gh
 		},
 	}
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		log.Infof("Getting graph handler from Sync Pool +++++++++++++++++++++++++++++++++++++++++++++++++++++")
+		log.Debug("Getting graph handler from Sync Pool +++++++++++++++++++++++++++++++++++++++++++++++++++++")
 		gh := Pool.Get().(*GraphQLJS)
 		defer func() {
-			log.Infof("Putting graph handler back to Pool ---------------------------------------------------")
+			log.Debug("Putting graph handler back to Pool ---------------------------------------------------")
 			Pool.Put(gh)
 		}()
 		gh.ServeHTTP(writer, request)
@@ -322,35 +331,35 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 	if request.URL.Path == "/api" || request.URL.Path == "api" {
 		requestHeaders := request.Header
 		ctx := context.WithValue(context.Background(), "Header", requestHeaders)
-
-		var jwtHandler middleware.JWTHandler = &middleware.ProdJWTHandler{}
-		if gh.cw.graph == "TEST" {
-			jwtHandler = &middleware.MockJWTHandler{}
-		}
-		//fmt.Println("REQUEST HEADERS:::: +++++++++++++++++++", requestHeaders)
-		if val, ok := requestHeaders["Authorization"]; ok {
-			Token := val[0]
-			resourceList, err := jwtHandler.HandleJWTToken(Token, "read")
-			//resourceList := []any{"/programs/cbds/projects/demo", "/programs/cbds/projects/welcome", "/programs/synthea/projects/test"}
-			if err != nil {
-				middleware.HandleError(err, writer)
-				return err
+		if gh.auth {
+			var jwtHandler middleware.JWTHandler = &middleware.ProdJWTHandler{}
+			if gh.cw.graph == "TEST" {
+				jwtHandler = &middleware.MockJWTHandler{}
 			}
-
-			if len(resourceList) == 0 || err != nil {
-				if len(resourceList) == 0 {
-					err = &middleware.ServerError{StatusCode: http.StatusForbidden, Message: "User does not have access to any projects"}
+			//fmt.Println("REQUEST HEADERS:::: +++++++++++++++++++", requestHeaders)
+			if val, ok := requestHeaders["Authorization"]; ok {
+				Token := val[0]
+				resourceList, err := jwtHandler.HandleJWTToken(Token, "read")
+				//resourceList := []any{"/programs/cbds/projects/demo", "/programs/cbds/projects/welcome", "/programs/synthea/projects/test"}
+				if err != nil {
+					middleware.HandleError(err, writer)
+					return err
 				}
-				middleware.HandleError(err, writer)
+
+				if len(resourceList) == 0 || err != nil {
+					if len(resourceList) == 0 {
+						err = &middleware.ServerError{StatusCode: http.StatusForbidden, Message: "User does not have access to any projects"}
+					}
+					middleware.HandleError(err, writer)
+					return err
+				}
+				ctx = context.WithValue(ctx, "ResourceList", resourceList)
+			} else {
+				err := middleware.HandleError(&middleware.ServerError{StatusCode: http.StatusUnauthorized, Message: "No authorization header provided."}, writer)
+				log.Infoln("ERR: ", err)
 				return err
 			}
-			ctx = context.WithValue(ctx, "ResourceList", resourceList)
-		} else {
-			err := middleware.HandleError(&middleware.ServerError{StatusCode: http.StatusUnauthorized, Message: "No authorization header provided."}, writer)
-			log.Infoln("ERR: ", err)
-			return err
 		}
-
 		gh.gjHandler.ServeHTTP(writer, request.WithContext(ctx))
 	}
 
