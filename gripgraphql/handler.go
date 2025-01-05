@@ -36,6 +36,7 @@ var sandBox = `
  </script>`
 
 type QueryField struct {
+	name    string
 	field   *graphql.Field
 	handler func(goja.FunctionCall) goja.Value
 }
@@ -50,10 +51,11 @@ type GraphQLJS struct {
 }
 
 type Endpoint struct {
-	client     gripql.Client
-	vm         *goja.Runtime
-	cw         *JSClientWrapper
-	queryNodes map[string]QueryField
+	client        gripql.Client
+	vm            *goja.Runtime
+	cw            *JSClientWrapper
+	queryNodes    map[string]QueryField
+	mutationNodes map[string]QueryField
 }
 
 func parseField(name string, x any) (*graphql.Field, error) {
@@ -108,7 +110,7 @@ func parseObject(name string, x map[string]any) (*graphql.Object, error) {
 	}), nil
 }
 
-func (e *Endpoint) Add(x map[string]any) {
+func (e *Endpoint) parseJSHandler(x map[string]any) (QueryField, error) {
 	name := ""
 	if nameA, ok := x["name"]; ok {
 		if nameStr, ok := nameA.(string); ok {
@@ -116,8 +118,7 @@ func (e *Endpoint) Add(x map[string]any) {
 		}
 	}
 	if name == "" {
-		log.Errorf("Name not defined")
-		return
+		return QueryField{}, fmt.Errorf("name not defined")
 	}
 
 	var jHandler func(goja.FunctionCall) goja.Value
@@ -125,8 +126,7 @@ func (e *Endpoint) Add(x map[string]any) {
 		if handler, ok := handlerA.(func(goja.FunctionCall) goja.Value); ok {
 			jHandler = handler
 		} else {
-			log.Errorf("Unknown handler type: %#T\n", handlerA)
-			return
+			return QueryField{}, fmt.Errorf("unknown handler type: %#T", handlerA)
 		}
 	}
 
@@ -148,7 +148,7 @@ func (e *Endpoint) Add(x map[string]any) {
 		}
 	}
 
-	log.Infof("Loading query %s", name)
+	log.Infof("Loading handler %s", name)
 	if schemaA, ok := x["schema"]; ok {
 		objField, err := parseField(name, schemaA)
 		if err == nil {
@@ -198,16 +198,38 @@ func (e *Endpoint) Add(x map[string]any) {
 				}
 				objField.Args = args
 			}
-			e.queryNodes[name] = QueryField{
-				objField, jHandler,
-			}
-			log.Infof("Added GraphQL query node : %s", name)
+			return QueryField{
+				name:    name,
+				field:   objField,
+				handler: jHandler,
+			}, nil
 		} else {
-			log.Errorf("Parse Error: %s", err)
+			return QueryField{}, fmt.Errorf("parse error: %s", err)
 		}
 	} else {
-		log.Errorf("Schema not found for %s", name)
+		return QueryField{}, fmt.Errorf("schema not found for %s", name)
 	}
+}
+
+func (e *Endpoint) Add(x map[string]any) {
+	o, err := e.parseJSHandler(x)
+	if err == nil {
+		e.queryNodes[o.name] = o
+		log.Infof("Added GraphQL query node : %s", o.name)
+	} else {
+		log.Errorf("Query 'add' error: %s", err)
+	}
+}
+
+func (e *Endpoint) AddMutation(x map[string]any) {
+	o, err := e.parseJSHandler(x)
+	if err == nil {
+		e.mutationNodes[o.name] = o
+		log.Infof("Added GraphQL mutation node : %s", o.name)
+	} else {
+		log.Errorf("Query 'addMutation' error: %s", err)
+	}
+
 }
 
 func jsExport(val goja.Value) any {
@@ -216,12 +238,22 @@ func jsExport(val goja.Value) any {
 		out := []any{}
 		for _, i := range oList {
 			if ov, ok := i.(goja.Value); ok {
-				out = append(out, ov.Export())
+				out = append(out, jsExport(ov))
 			} else {
 				out = append(out, i)
 			}
 		}
 		return out
+	}
+	if oMap, ok := o.(map[string]any); ok {
+		out := map[string]any{}
+		for k, v := range oMap {
+			if ov, ok := v.(goja.Value); ok {
+				out[k] = jsExport(ov)
+			} else {
+				out[k] = v
+			}
+		}
 	}
 	return o
 }
@@ -239,11 +271,57 @@ func (e *Endpoint) Build() (*graphql.Schema, error) {
 		Query: queryObj,
 	}
 
+	if len(e.mutationNodes) > 0 {
+		mf := graphql.Fields{}
+		for k, v := range e.mutationNodes {
+			//log.Infof("fields: %+v", v.field)
+			mf[k] = v.field
+		}
+		mutationObj := graphql.NewObject(graphql.ObjectConfig{Name: "Mutation", Fields: mf})
+		schemaConfig.Mutation = mutationObj
+	}
+
 	gqlSchema, err := graphql.NewSchema(schemaConfig)
 	if err != nil {
 		return nil, fmt.Errorf("graphql.NewSchema error: %v", err)
 	}
 	return &gqlSchema, nil
+}
+
+func NewGraphQLJS(graph string, auth bool, client gripql.Client, code string) *GraphQLJS {
+	vm := goja.New()
+	vm.SetFieldNameMapper(JSRenamer{})
+	jsClient, err := GetJSClient(graph, client, vm, auth)
+	if err != nil {
+		log.Infof("js error: %s\n", err)
+	}
+
+	e := &Endpoint{queryNodes: map[string]QueryField{}, mutationNodes: map[string]QueryField{}, client: client, vm: vm, cw: jsClient}
+	vm.Set("endpoint", map[string]any{
+		"add":         e.Add,
+		"addMutation": e.AddMutation,
+		"String":      "String",
+		"Int":         "Int",
+		"Float":       "Float",
+		"Boolean":     "Boolean",
+	})
+
+	vm.Set("print", fmt.Printf) //Adding print statement for debugging. This may need to be removed/updated
+
+	_, err = vm.RunString(code)
+	if err != nil {
+		log.Errorf("Error running data config %s", err)
+	}
+
+	schema, err := e.Build()
+	if err != nil {
+		log.Errorf("Error building Handler: %s", err)
+	}
+	var hnd *handler.Handler = handler.New(&handler.Config{
+		Schema: schema,
+	})
+	gh := &GraphQLJS{client: client, gjHandler: hnd, cw: jsClient, auth: auth}
+	return gh
 }
 
 /*
@@ -272,43 +350,10 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	if err != nil {
 		return nil, err
 	}
-	var hnd *handler.Handler
-
 	log.Infof("Creating new pool ==============================================================")
 	Pool := sync.Pool{
 		New: func() any {
-			vm := goja.New()
-			vm.SetFieldNameMapper(JSRenamer{})
-			jsClient, err := GetJSClient(graph, client, vm, auth)
-			if err != nil {
-				log.Infof("js error: %s\n", err)
-			}
-
-			e := &Endpoint{queryNodes: map[string]QueryField{}, client: client, vm: vm, cw: jsClient}
-			vm.Set("endpoint", map[string]any{
-				"add":     e.Add,
-				"String":  "String",
-				"Int":     "Int",
-				"Float":   "Float",
-				"Boolean": "Boolean",
-			})
-
-			vm.Set("print", fmt.Printf) //Adding print statement for debugging. This may need to be removed/updated
-
-			_, err = vm.RunString(string(data))
-			if err != nil {
-				log.Errorf("Error running data config %s", err)
-			}
-
-			schema, err := e.Build()
-			if err != nil {
-				log.Errorf("Error building Handler: %s", err)
-			}
-			hnd = handler.New(&handler.Config{
-				Schema: schema,
-			})
-			gh := &GraphQLJS{client: client, gjHandler: hnd, cw: jsClient, auth: auth}
-			return gh
+			return NewGraphQLJS(graph, auth, client, string(data))
 		},
 	}
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {

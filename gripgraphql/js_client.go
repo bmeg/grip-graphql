@@ -9,6 +9,7 @@ import (
 
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/gripql/inspect"
+	"github.com/google/uuid"
 
 	//"github.com/bmeg/grip-graphql/middleware"
 	//"github.com/bmeg/grip/jobstorage"
@@ -82,6 +83,9 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 
 	query := gripql.GraphQuery{}
 	err = protojson.Unmarshal(queryJSON, &query)
+	if err != nil {
+		log.Errorf("unmarshal error: %s", err)
+	}
 	query.Graph = cw.graph
 
 	var ctx context.Context
@@ -174,6 +178,50 @@ func (cw *JSClientWrapper) V(args goja.Value) goja.Value {
 	out, _ := vFunc(gObj, args)
 	//fmt.Printf("JS LAND: %s %s %s\n", args, gObj, out)
 	return out
+}
+
+func (cw *JSClientWrapper) AddVertex(args ...goja.Value) goja.Value {
+	log.Infof("addVertex %s", args)
+
+	gid := ""
+	if args[0] != nil {
+		g := args[0].Export()
+		if gstr, ok := g.(string); ok {
+			gid = gstr
+		}
+	}
+	if gid == "" {
+		gid = uuid.New().String()
+	}
+
+	log.Info("getting label")
+	label := ""
+	l := args[1].Export()
+	if lstr, ok := l.(string); ok {
+		label = lstr
+	}
+
+	vData := map[string]any{}
+	data := jsExport(args[2])
+	if data != nil {
+		if jData, ok := data.(map[string]any); ok {
+			vData = jData
+		}
+	}
+
+	vertex := &gripql.Vertex{
+		Gid:   gid,
+		Label: label,
+	}
+	vertex.SetDataMap(vData)
+
+	log.Infof("adding vertex: %s", vertex)
+	err := cw.client.AddVertex(cw.graph, vertex)
+	if err != nil {
+		log.Errorf("error adding vertex: %s", err)
+	}
+	log.Infof("Added vertex")
+	return cw.vm.ToValue(gid)
 }
 
 func (cw *JSClientWrapper) toValue() goja.Value {
