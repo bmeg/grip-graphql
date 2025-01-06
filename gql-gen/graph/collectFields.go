@@ -3,16 +3,17 @@ package graph
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"reflect"
-	"strings"
 	"strconv"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bmeg/grip/gripql"
-	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/bmeg/grip/gripql/inspect"
+	"github.com/vektah/gqlparser/v2/ast"
 	//"google.golang.org/protobuf/types/known/structpb"
-
 )
 
 type Resolver struct {
@@ -20,8 +21,8 @@ type Resolver struct {
 	Schema *ast.Schema
 }
 
-type renderTreePath struct{
-	path []string
+type renderTreePath struct {
+	path       []string
 	unwindPath []string
 }
 
@@ -67,8 +68,8 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 				}
 				if !exists {
 					rPath := rt.rFieldPaths[curElement]
-    				rPath.path = append(rPath.path, firstTerm)
-    				rt.rFieldPaths[curElement] = rPath
+					rPath.path = append(rPath.path, firstTerm)
+					rt.rFieldPaths[curElement] = rPath
 				}
 				currentTree[curElement] = rt.rFieldPaths[curElement]
 			} else {
@@ -77,7 +78,7 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 				fmt.Printf("DEF TYPE: %#v\n", sel.Definition.Type)
 				fmt.Printf("DEF TYPE ELEM: %#v\n", sel.Definition.Type.Elem)
 				fmt.Println("PARENT PATH: ", newParentPath)*/
-				if sel.Definition.Type.Elem != nil{
+				if sel.Definition.Type.Elem != nil {
 					rPath := rt.rFieldPaths[curElement]
 					rPath.unwindPath = append(rPath.unwindPath, newParentPath)
 					rt.rFieldPaths[curElement] = rPath
@@ -120,51 +121,53 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 			render[path+"_data"] = "$" + checkpoint + "." + path
 		}
 	}
-
-	// Traverse back to f0 since only filters on the root node are applied currently
 	q = q.Select("f0")
-
-	// apply the unwinds on f0 before the filters so that the filters work properly.
 	applyUnwinds(&q, rt)
-	fmt.Println("QUERY BEFORE: ",q)
-
+	q = q.As("f0")
 	fmt.Printf("ARGS: %#v\n", resctx.Args)
-	applyFilters(&q, resctx.Args)
-
-	authList, ok := ctx.Value("auth_list").([]interface{})
-    if !ok {
-    	return nil, fmt.Errorf("auth_list not found or invalid")
-    }
-
-    //fmt.Println("AUTHLIST: ", authList)
-	Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{gripql.Within("auth_resource_path", authList...)}}
-	steps := inspect.PipelineSteps(q.Statements)
-	FilteredGS := []*gripql.GraphStatement{}
-	for i, v := range q.Statements{
-		steps_index, _ := strconv.Atoi(steps[i])
-		if i == 0{
-			FilteredGS = append(FilteredGS, v)
-			continue
-		}else if i == steps_index {
-			FilteredGS = append(FilteredGS, v, Has_Statement)
-		}else{
-			FilteredGS = append(FilteredGS, v)
-		}
+	err := applyFilters(&q, resctx.Args)
+	if err != nil {
+		return nil, err
 	}
+	err = applyRewinds(&q, rt)
+	q = q.As("f0")
 
-	q.Statements = FilteredGS
+	if os.Getenv("AUTH_ENABLED") == "true" {
+		authList, ok := ctx.Value("auth_list").([]interface{})
+		if !ok {
+			return nil, fmt.Errorf("auth_list not found or invalid")
+		}
+
+		Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{gripql.Within("auth_resource_path", authList...)}}
+		steps := inspect.PipelineSteps(q.Statements)
+		FilteredGS := []*gripql.GraphStatement{}
+		for i, v := range q.Statements {
+			steps_index, _ := strconv.Atoi(steps[i])
+			if i == 0 {
+				FilteredGS = append(FilteredGS, v)
+				continue
+			} else if i == steps_index {
+				FilteredGS = append(FilteredGS, v, Has_Statement)
+			} else {
+				FilteredGS = append(FilteredGS, v)
+			}
+		}
+
+		q.Statements = FilteredGS
+	}
 	q = q.Render(render)
 	fmt.Println("QUERY AFTER: ", q)
 
 	result, err := r.GripDb.Traversal(context.Background(), &gripql.GraphQuery{Graph: "CALIPER", Query: q.Statements})
 	if err != nil {
+		fmt.Println("HELLO WE HERE: ", err)
 		return nil, fmt.Errorf("Traversal Error: %s", err)
 	}
 
 	out := []any{}
 	for r := range result {
 		values := r.GetRender().GetStructValue().AsMap()
-		//fmt.Printf("VALUES: %#v\n", values)
+		fmt.Printf("VALUES: %#v\n", values)
 		data := buildOutputTree(rt.rTree, values)
 		//fmt.Printf("DATA: %#v\n", data)
 		out = append(out, data)
@@ -177,9 +180,7 @@ func buildOutputTree(renderTree map[string]interface{}, values map[string]interf
 	for key, val := range renderTree {
 		switch v := val.(type) {
 		case renderTreePath:
-			fmt.Println("V: ",v)
 			for _, fieldPath := range v.path {
-				fmt.Println("FIELD PATH: ", fieldPath)
 				segments := strings.Split(fieldPath, ".")
 				current := output
 				for i := 0; i < len(segments)-1; i++ {

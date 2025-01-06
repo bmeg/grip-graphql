@@ -4,7 +4,6 @@ package graph
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/bmeg/grip-graphql/gql-gen/generated"
@@ -13,9 +12,11 @@ import (
 
 // Organization is the resolver for the organization field.
 func (r *queryResolver) Organization(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.OrganizationType, error) {
-
 	data, err := r.GetSelectedFieldsAst(ctx, "OrganizationType")
-	//fmt.Println("DATA: ", data)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalOrganizationTypeSlice(data)
 	if err != nil {
@@ -28,6 +29,9 @@ func (r *queryResolver) Organization(ctx context.Context, offset *int, first *in
 // Group is the resolver for the group field.
 func (r *queryResolver) Group(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.GroupType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "GroupType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalGroupTypeSlice(data)
@@ -41,6 +45,9 @@ func (r *queryResolver) Group(ctx context.Context, offset *int, first *int, filt
 // Practitioner is the resolver for the practitioner field.
 func (r *queryResolver) Practitioner(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.PractitionerType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "PractitionerType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalPractitionerTypeSlice(data)
@@ -54,6 +61,9 @@ func (r *queryResolver) Practitioner(ctx context.Context, offset *int, first *in
 // PractitionerRole is the resolver for the practitionerRole field.
 func (r *queryResolver) PractitionerRole(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.PractitionerRoleType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "PractitionerRoleType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalPractitionerRoleTypeSlice(data)
@@ -67,6 +77,9 @@ func (r *queryResolver) PractitionerRole(ctx context.Context, offset *int, first
 // ResearchStudy is the resolver for the researchStudy field.
 func (r *queryResolver) ResearchStudy(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.ResearchStudyType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "ResearchStudyType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalResearchStudyTypeSlice(data)
@@ -80,6 +93,9 @@ func (r *queryResolver) ResearchStudy(ctx context.Context, offset *int, first *i
 // Patient is the resolver for the patient field.
 func (r *queryResolver) Patient(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.PatientType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "PatientType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalPatientTypeSlice(data)
@@ -93,6 +109,9 @@ func (r *queryResolver) Patient(ctx context.Context, offset *int, first *int, fi
 // ResearchSubject is the resolver for the researchSubject field.
 func (r *queryResolver) ResearchSubject(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.ResearchSubjectType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "ResearchSubjectType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalResearchSubjectTypeSlice(data)
@@ -106,6 +125,9 @@ func (r *queryResolver) ResearchSubject(ctx context.Context, offset *int, first 
 // Substance is the resolver for the substance field.
 func (r *queryResolver) Substance(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.SubstanceType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "SubstanceType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalSubstanceTypeSlice(data)
@@ -119,6 +141,9 @@ func (r *queryResolver) Substance(ctx context.Context, offset *int, first *int, 
 // SubstanceDefinition is the resolver for the substanceDefinition field.
 func (r *queryResolver) SubstanceDefinition(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.SubstanceDefinitionType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "SubstanceDefinitionType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalSubstanceDefinitionTypeSlice(data)
@@ -132,6 +157,9 @@ func (r *queryResolver) SubstanceDefinition(ctx context.Context, offset *int, fi
 // Specimen is the resolver for the specimen field.
 func (r *queryResolver) Specimen(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.SpecimenType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "SpecimenType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalSpecimenTypeSlice(data)
@@ -144,14 +172,10 @@ func (r *queryResolver) Specimen(ctx context.Context, offset *int, first *int, f
 
 // Observation is the resolver for the observation field.
 func (r *queryResolver) Observation(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.ObservationType, error) {
-
-	authList, ok := ctx.Value("auth_list").([]interface{})
-	if !ok {
-		return nil, errors.New("auth_list not found or invalid")
-	}
-	fmt.Println("VALUE OF AUTH LIST: ", authList)
-
 	data, err := r.GetSelectedFieldsAst(ctx, "ObservationType")
+	if err != nil {
+		return nil, err
+	}
 	//fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalObservationTypeSlice(data)
@@ -166,6 +190,9 @@ func (r *queryResolver) Observation(ctx context.Context, offset *int, first *int
 // DiagnosticReport is the resolver for the diagnosticReport field.
 func (r *queryResolver) DiagnosticReport(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.DiagnosticReportType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "DiagnosticReportType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalDiagnosticReportTypeSlice(data)
@@ -179,6 +206,9 @@ func (r *queryResolver) DiagnosticReport(ctx context.Context, offset *int, first
 // Condition is the resolver for the condition field.
 func (r *queryResolver) Condition(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.ConditionType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "ConditionType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalConditionTypeSlice(data)
@@ -192,6 +222,9 @@ func (r *queryResolver) Condition(ctx context.Context, offset *int, first *int, 
 // Medication is the resolver for the medication field.
 func (r *queryResolver) Medication(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.MedicationType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "MedicationType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalMedicationTypeSlice(data)
@@ -205,6 +238,9 @@ func (r *queryResolver) Medication(ctx context.Context, offset *int, first *int,
 // MedicationAdministration is the resolver for the medicationAdministration field.
 func (r *queryResolver) MedicationAdministration(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.MedicationAdministrationType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "MedicationAdministrationType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalMedicationAdministrationTypeSlice(data)
@@ -218,6 +254,9 @@ func (r *queryResolver) MedicationAdministration(ctx context.Context, offset *in
 // MedicationStatement is the resolver for the medicationStatement field.
 func (r *queryResolver) MedicationStatement(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.MedicationStatementType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "MedicationStatementType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalMedicationStatementTypeSlice(data)
@@ -231,6 +270,9 @@ func (r *queryResolver) MedicationStatement(ctx context.Context, offset *int, fi
 // MedicationRequest is the resolver for the medicationRequest field.
 func (r *queryResolver) MedicationRequest(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.MedicationRequestType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "MedicationRequestType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalMedicationRequestTypeSlice(data)
@@ -244,6 +286,9 @@ func (r *queryResolver) MedicationRequest(ctx context.Context, offset *int, firs
 // Procedure is the resolver for the procedure field.
 func (r *queryResolver) Procedure(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.ProcedureType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "ProcedureType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalProcedureTypeSlice(data)
@@ -257,6 +302,9 @@ func (r *queryResolver) Procedure(ctx context.Context, offset *int, first *int, 
 // DocumentReference is the resolver for the documentReference field.
 func (r *queryResolver) DocumentReference(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.DocumentReferenceType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "DocumentReferenceType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalDocumentReferenceTypeSlice(data)
@@ -270,6 +318,9 @@ func (r *queryResolver) DocumentReference(ctx context.Context, offset *int, firs
 // Task is the resolver for the task field.
 func (r *queryResolver) Task(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.TaskType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "TaskType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalTaskTypeSlice(data)
@@ -283,6 +334,9 @@ func (r *queryResolver) Task(ctx context.Context, offset *int, first *int, filte
 // ImagingStudy is the resolver for the imagingStudy field.
 func (r *queryResolver) ImagingStudy(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.ImagingStudyType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "ImagingStudyType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalImagingStudyTypeSlice(data)
@@ -296,6 +350,9 @@ func (r *queryResolver) ImagingStudy(ctx context.Context, offset *int, first *in
 // FamilyMemberHistory is the resolver for the familyMemberHistory field.
 func (r *queryResolver) FamilyMemberHistory(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.FamilyMemberHistoryType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "FamilyMemberHistoryType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalFamilyMemberHistoryTypeSlice(data)
@@ -309,6 +366,9 @@ func (r *queryResolver) FamilyMemberHistory(ctx context.Context, offset *int, fi
 // BodyStructure is the resolver for the bodyStructure field.
 func (r *queryResolver) BodyStructure(ctx context.Context, offset *int, first *int, filter map[string]interface{}, sort map[string]interface{}, accessibility *model.Accessibility, format *model.Format) ([]model.BodyStructureType, error) {
 	data, err := r.GetSelectedFieldsAst(ctx, "BodyStructureType")
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalBodyStructureTypeSlice(data)

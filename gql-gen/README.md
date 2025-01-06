@@ -19,11 +19,23 @@ To generate new codegen after changing config or schema
 go run github.com/99designs/gqlgen generate
 ```
 
+## Local dev no auth
+
+To start server with no auth checks for local development run:
+
+```
+grip server -w graphql=gql-gen.so  -l graphql:auth=false
+```
+
+## Filters
+
+Filters only currently supported on the first node that is queried. Ex: specimen for the example query below
+
 ## Example FHIR query:
 
 ```
 query($filter: JSON){
-  specimen(filter: $filter first:10){
+  specimen(filter: $filter first:100){
     id
     subject{
       ... on PatientType{
@@ -49,8 +61,8 @@ query($filter: JSON){
 {
   "filter": {
         "=": {
-          "id":
-            "example-uuid"
+          "processing.method.coding.display":
+            "WhateverFieldYouWant"
         }
       }
 }

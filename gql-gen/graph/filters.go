@@ -5,20 +5,70 @@ import (
 	"strings"
 
 	"github.com/bmeg/grip/gripql"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
-func applyUnwinds(query **gripql.Query, rt *renderTree){
+func applyUnwinds(query **gripql.Query, rt *renderTree) {
 	/* Assumes query is at f0 and only applies unwinds to that node currently*/
-	for _, val := range rt.rFieldPaths["f0"].unwindPath{
+	for _, val := range rt.rFieldPaths["f0"].unwindPath {
 		*query = (*query).Unwind(val)
+		fmt.Println(*query)
 	}
+}
+
+/*
+Note since this function only has access to one row at a time it cannot merge
+the rows and do a full rewind it can only add list objects to make it valid with the existing schema.
+TODO: create proper merge function in grip
+*/
+func applyRewinds(query **gripql.Query, rt *renderTree) error {
+	/*
+		Applies a JS function to every row in the grip query
+		Args:
+			x - input row object
+			args - user defined function args used in the function
+	*/
+	jsfunc := `
+function RewindObj(x, args) {
+  args.paths.sort((a, b) => b.split('.').length - a.split('.').length);
+  args.paths.forEach(path => {
+    const keys = path.split('.');
+    let current = x;
+
+    for (let i = 0; i < keys.length - 1; i++) {
+      if (current[keys[i]] === undefined) {
+        return;
+      }
+      current = current[keys[i]];
+    }
+
+    const lastKey = keys[keys.length - 1];
+    if (current[lastKey] !== undefined && !Array.isArray(current[lastKey])) {
+      current[lastKey] = [current[lastKey]];
+    }
+  });
+
+  return [x];
+}
+`
+
+	fields := make(map[string]*structpb.Value)
+	values := make([]*structpb.Value, len(rt.rFieldPaths["f0"].unwindPath))
+	for i, p := range rt.rFieldPaths["f0"].unwindPath {
+		values[i] = structpb.NewStringValue(p)
+	}
+
+	fields["paths"] = structpb.NewListValue(&structpb.ListValue{Values: values})
+	pbStruct := &structpb.Struct{Fields: fields}
+	*query = (*query).FlatMap(&gripql.Code{Function: "RewindObj", Source: jsfunc, Args: pbStruct})
+	return nil
 }
 
 func applyFilters(query **gripql.Query, args map[string]any) error {
 	//Todo: support "sort" operations
 	//fmt.Printf("FIRST: %v, TYPE: %T\n", args, args["first"])
 	if filter, ok := args["filter"]; ok {
-		if filter != nil && len(filter.(map[string]any)) > 0{
+		if filter != nil && len(filter.(map[string]any)) > 0 {
 			chainedFilter, err := applyJsonFilter(filter.(map[string]any))
 			if err != nil {
 				fmt.Println("ERR != NIL: ", err)

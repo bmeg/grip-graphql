@@ -6,7 +6,7 @@ ENV PATH="/go/bin:${PATH}"
 ADD ./ /go/src/github.com/bmeg/grip-graphql
 WORKDIR /go/src/github.com/bmeg/grip-graphql
 
-RUN go install github.com/bmeg/grip@c2dbbc7c623061153da0ae572333d2b1ec12f6af
+RUN go install github.com/bmeg/grip@7a9207d1ea5f6a3c9e762729faa9fd2b117157bf
 RUN make all
 
 #FROM alpine

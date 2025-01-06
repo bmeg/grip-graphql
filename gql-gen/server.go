@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -74,18 +75,19 @@ func (gh *Handler) graphqlHandler(client gripql.Client, jwtHandler middleware.JW
 
 	return func(c *gin.Context) {
 		requestHeaders := c.Request.Header
-		if val, ok := requestHeaders["Authorization"]; ok {
-			Token := val[0]
-			anyList, err := jwtHandler.HandleJWTToken(Token, "read")
-			if err != nil {
-				RegError(c, c.Writer, c.Param("graph"), err)
+		if os.Getenv("AUTH_ENABLED") == "true" {
+			if val, ok := requestHeaders["Authorization"]; ok {
+				Token := val[0]
+				anyList, err := jwtHandler.HandleJWTToken(Token, "read")
+				if err != nil {
+					RegError(c, c.Writer, c.Param("graph"), err)
+					return
+				}
+				c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), "auth_list", anyList))
+			} else {
+				RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 400, Message: "Authorization token not provided"})
 				return
 			}
-			c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), "auth_list", anyList))
-			//c.Set("auth_list", anyList)
-		} else {
-			RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 400, Message: "Authorization token not provided"})
-			return
 		}
 		gh.handler.ServeHTTP(c.Writer, c.Request)
 	}
@@ -108,6 +110,10 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	var mware middleware.JWTHandler = &middleware.ProdJWTHandler{}
 	if config["test"] == "true" {
 		mware = &middleware.MockJWTHandler{}
+	}
+	os.Setenv("AUTH_ENABLED", "true")
+	if c, ok := config["auth"]; ok {
+		os.Setenv("AUTH_ENABLED", c)
 	}
 
 	// Setting up Gin
