@@ -8,11 +8,10 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-func applyUnwinds(query **gripql.Query, rt *renderTree) {
+func (rt *renderTree) applyUnwinds(query **gripql.Query) {
 	/* Assumes query is at f0 and only applies unwinds to that node currently*/
 	for _, val := range rt.rFieldPaths["f0"].unwindPath {
 		*query = (*query).Unwind(val)
-		fmt.Println(*query)
 	}
 }
 
@@ -21,7 +20,7 @@ Note since this function only has access to one row at a time it cannot merge
 the rows and do a full rewind it can only add list objects to make it valid with the existing schema.
 TODO: create proper merge function in grip
 */
-func applyRewinds(query **gripql.Query, rt *renderTree) error {
+func (rt *renderTree) applyRewinds(query **gripql.Query) error {
 	/*
 		Applies a JS function to every row in the grip query
 		Args:
@@ -64,33 +63,23 @@ function RewindObj(x, args) {
 	return nil
 }
 
-func applyFilters(query **gripql.Query, args map[string]any) error {
+func (rt *renderTree) applyFilters(query **gripql.Query, filter map[string]any) error {
 	//Todo: support "sort" operations
-	//fmt.Printf("FIRST: %v, TYPE: %T\n", args, args["first"])
-	if filter, ok := args["filter"]; ok {
-		if filter != nil && len(filter.(map[string]any)) > 0 {
-			chainedFilter, err := applyJsonFilter(filter.(map[string]any))
-			if err != nil {
-				fmt.Println("ERR != NIL: ", err)
-				return err
-			}
-			//fmt.Printf("CHAINED FILTER: %s\n", chainedFilter.String())
-			*query = (*query).Has(chainedFilter)
-		}
+
+	rt.applyUnwinds(query)
+	*query = (*query).As("f0")
+	chainedFilter, err := applyJsonFilter(filter)
+	if err != nil {
+		return err
 	}
-	if first, ok := args["first"]; ok {
-		firstPtr, _ := first.(*int)
-		if firstPtr == nil {
-			*query = (*query).Limit(uint32(10))
-		} else {
-			*query = (*query).Limit(uint32(*firstPtr))
-		}
+
+	*query = (*query).Has(chainedFilter)
+	err = rt.applyRewinds(query)
+	if err != nil {
+		return err
 	}
-	if offset, ok := args["offset"]; ok {
-		if offset.(*int) != nil {
-			*query = (*query).Skip(uint32(*offset.(*int)))
-		}
-	}
+	*query = (*query).As("f0")
+
 	return nil
 }
 

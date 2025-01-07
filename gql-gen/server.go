@@ -61,6 +61,8 @@ func (gh *Handler) graphqlHandler(client gripql.Client, jwtHandler middleware.JW
 		GripDb: client,
 	}
 	srv := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: resolvers}))
+	//srv.Use(extension.FixedComplexityLimit(50)) If you want to limit complexity
+
 	gh.handler = srv
 
 	gh.handler.AddTransport(transport.Options{})
@@ -94,7 +96,6 @@ func (gh *Handler) graphqlHandler(client gripql.Client, jwtHandler middleware.JW
 }
 
 func (gh *Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	//log.Infoln("HELLO INSIDE SERVE HTTP ", request)
 	gh.router.ServeHTTP(writer, request)
 }
 
@@ -124,17 +125,17 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	}
 	log.ConfigureLogger(logConfig)
 	r.Use(gin.Logger())
-	/*r.NoRoute(func(c *gin.Context) {
-	log.WithFields(log.Fields{
-		"graph":  nil,
-		"status": "404",
-	}).Info(c.Request.URL.Path + " Not Found")
-	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-		"status":  "404",
-		"message": c.Request.URL.Path + " Not Found",
-		"data":    nil,
+	r.NoRoute(func(c *gin.Context) {
+		log.WithFields(log.Fields{
+			"graph":  nil,
+			"status": "404",
+		}).Info(c.Request.URL.Path + " Not Found")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"status":  "404",
+			"message": c.Request.URL.Path + " Not Found",
+			"data":    nil,
+		})
 	})
-	})*/
 	r.Use(gin.Recovery())
 
 	r.RemoveExtraSlash = true

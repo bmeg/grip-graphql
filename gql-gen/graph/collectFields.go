@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"reflect"
 	"strconv"
 	"strings"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/gripql/inspect"
 	"github.com/vektah/gqlparser/v2/ast"
-	//"google.golang.org/protobuf/types/known/structpb"
 )
 
 type Resolver struct {
@@ -73,11 +71,6 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 				}
 				currentTree[curElement] = rt.rFieldPaths[curElement]
 			} else {
-
-				/*fmt.Printf("OBJ DEF: %#v\n", sel.ObjectDefinition)
-				fmt.Printf("DEF TYPE: %#v\n", sel.Definition.Type)
-				fmt.Printf("DEF TYPE ELEM: %#v\n", sel.Definition.Type.Elem)
-				fmt.Println("PARENT PATH: ", newParentPath)*/
 				if sel.Definition.Type.Elem != nil {
 					rPath := rt.rFieldPaths[curElement]
 					rPath.unwindPath = append(rPath.unwindPath, newParentPath)
@@ -91,7 +84,6 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 				currentTree[rt.prevName] = map[string]any{"__typename": sel.TypeCondition}
 			}
 			fragmentTree := currentTree[rt.prevName].(map[string]interface{})
-			//[sel.TypeCondition].(map[string]interface{})
 			*query = (*query).OutNull(rt.prevName + "_" + sel.TypeCondition[:len(sel.TypeCondition)-4]).As(elem)
 			queryBuild(query, sel.SelectionSet, elem, rt, "", fragmentTree)
 			rt.moved = true
@@ -114,23 +106,42 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 	fmt.Printf("RNAME TREE: %#v\n", rt.rFieldPaths)
 	fmt.Printf("R TREE: %#v\n", rt.rTree)
 
-	render := map[string]any{}
+	render := make(map[string]any, len(rt.rFieldPaths)*2)
 	for checkpoint, paths := range rt.rFieldPaths {
-		render[checkpoint+"_gid"] = "$" + checkpoint + ".id"
+		checkpointPrefix := "$" + checkpoint + "."
+		render[checkpoint+"_gid"] = checkpointPrefix + "id"
 		for _, path := range paths.path {
-			render[path+"_data"] = "$" + checkpoint + "." + path
+			render[path+"_data"] = checkpointPrefix + path
 		}
 	}
+
 	q = q.Select("f0")
-	applyUnwinds(&q, rt)
-	q = q.As("f0")
 	fmt.Printf("ARGS: %#v\n", resctx.Args)
-	err := applyFilters(&q, resctx.Args)
-	if err != nil {
-		return nil, err
+
+	if filter, ok := resctx.Args["filter"]; ok {
+		if filter != nil && len(filter.(map[string]any)) > 0 {
+			err := rt.applyFilters(&q, filter.(map[string]any))
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, fmt.Errorf("filter is specified but filter not populated in variables")
+		}
 	}
-	err = applyRewinds(&q, rt)
-	q = q.As("f0")
+
+	if first, ok := resctx.Args["first"]; ok {
+		firstPtr, _ := first.(*int)
+		if firstPtr == nil {
+			q = q.Limit(uint32(10))
+		} else {
+			q = q.Limit(uint32(*firstPtr))
+		}
+	}
+	if offset, ok := resctx.Args["offset"]; ok {
+		if offset.(*int) != nil {
+			q = q.Skip(uint32(*offset.(*int)))
+		}
+	}
 
 	if os.Getenv("AUTH_ENABLED") == "true" {
 		authList, ok := ctx.Value("auth_list").([]interface{})
@@ -156,27 +167,26 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 		q.Statements = FilteredGS
 	}
 	q = q.Render(render)
-	fmt.Println("QUERY AFTER: ", q)
+	fmt.Println("QUERY AFTER RENDER: ", q)
 
 	result, err := r.GripDb.Traversal(context.Background(), &gripql.GraphQuery{Graph: "CALIPER", Query: q.Statements})
 	if err != nil {
-		fmt.Println("HELLO WE HERE: ", err)
 		return nil, fmt.Errorf("Traversal Error: %s", err)
 	}
+
+	cachedTree := make(map[string]any, len(rt.rTree))
+	buildTreeStructure(cachedTree, rt.rTree)
 
 	out := []any{}
 	for r := range result {
 		values := r.GetRender().GetStructValue().AsMap()
-		//fmt.Printf("VALUES: %#v\n", values)
-		data := buildOutputTree(rt.rTree, values)
-		//fmt.Printf("DATA: %#v\n", data)
+		data := buildFilteredResponseTree(cachedTree, values)
 		out = append(out, data)
 	}
 	return out, nil
 }
 
-func buildOutputTree(renderTree map[string]interface{}, values map[string]interface{}) map[string]interface{} {
-	output := map[string]interface{}{}
+func buildTreeStructure(output map[string]any, renderTree map[string]any) {
 	for key, val := range renderTree {
 		switch v := val.(type) {
 		case renderTreePath:
@@ -184,27 +194,22 @@ func buildOutputTree(renderTree map[string]interface{}, values map[string]interf
 				segments := strings.Split(fieldPath, ".")
 				current := output
 				for i := 0; i < len(segments)-1; i++ {
-					//fmt.Println("CURRENT: ", current, "SEGMENTS[i]", segments[i])
-					//fmt.Println("VALUES: ", values)
-					if _, exists := current[segments[i]]; !exists {
-						current[segments[i]] = map[string]interface{}{}
+					segment := segments[i]
+					if next, exists := current[segment]; exists {
+						current = next.(map[string]any)
+					} else {
+						newMap := make(map[string]any, len(segments)-i-1)
+						current[segment] = newMap
+						current = newMap
 					}
-					//current = current[segments[i]].(map[string]interface{})
 				}
 				lastSegment := segments[len(segments)-1]
-				fieldKey := fieldPath + "_data"
-				if renderedValue, exists := values[fieldKey]; exists {
-					current[lastSegment] = renderedValue
-					// if rendered value is string and render was not found return nil instead of string.
-					if reflect.TypeOf("$f") == reflect.TypeOf(renderedValue) && strings.HasPrefix(renderedValue.(string), "$f") {
-						current[lastSegment] = nil
-					}
-				} else {
-					current[lastSegment] = nil
-				}
+				current[lastSegment] = nil
 			}
-		case map[string]interface{}:
-			output[key] = buildOutputTree(v, values)
+		case map[string]any:
+			subTree := make(map[string]any)
+			buildTreeStructure(subTree, v)
+			output[key] = subTree
 		case string:
 			if key == "__typename" {
 				output[key] = val
@@ -215,6 +220,23 @@ func buildOutputTree(renderTree map[string]interface{}, values map[string]interf
 			fmt.Printf("Unexpected type: %T\n", val)
 		}
 	}
+}
 
+func buildFilteredResponseTree(cachedTree, values map[string]any) map[string]any {
+	output := make(map[string]any, len(cachedTree))
+	for key, val := range cachedTree {
+		switch v := val.(type) {
+		case map[string]any:
+			if filteredSubTree := buildFilteredResponseTree(v, values); len(filteredSubTree) > 0 {
+				output[key] = filteredSubTree
+			}
+		case nil:
+			if renderedValue, exists := values[key+"_data"]; exists {
+				output[key] = renderedValue
+			}
+		default:
+			output[key] = val
+		}
+	}
 	return output
 }
