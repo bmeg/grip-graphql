@@ -167,7 +167,7 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 	out := []any{}
 	for r := range result {
 		values := r.GetRender().GetStructValue().AsMap()
-		fmt.Printf("VALUES: %#v\n", values)
+		//fmt.Printf("VALUES: %#v\n", values)
 		data := buildOutputTree(rt.rTree, values)
 		//fmt.Printf("DATA: %#v\n", data)
 		out = append(out, data)

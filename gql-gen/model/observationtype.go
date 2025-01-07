@@ -7,54 +7,54 @@ import (
 )
 
 type SafeObservationType struct {
-	DataAbsentReason *CodeableConcept `json:"dataAbsentReason,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	Code *CodeableConcept `json:"code,omitempty"`
-	ValuePeriod *Period `json:"valuePeriod,omitempty"`
-	ValueRatio *Ratio `json:"valueRatio,omitempty"`
-	ValueSampledData *SampledData `json:"valueSampledData,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	TriggeredBy []*ObservationTriggeredBy `json:"triggeredBy,omitempty"`
-	ValueAttachment *Attachment `json:"valueAttachment,omitempty"`
-	ValueQuantity *Quantity `json:"valueQuantity,omitempty"`
-	EffectivePeriod *Period `json:"effectivePeriod,omitempty"`
-	ValueRange *Range `json:"valueRange,omitempty"`
-	ValueInteger *string `json:"valueInteger,omitempty"`
-	ValueString *string `json:"valueString,omitempty"`
-	EffectiveDateTime *string `json:"effectiveDateTime,omitempty"`
-	ValueCodeableConcept *CodeableConcept `json:"valueCodeableConcept,omitempty"`
-	BodySite *CodeableConcept `json:"bodySite,omitempty"`
-	Focus TypedObject `json:"focus"`
-	ReferenceRange []*ObservationReferenceRange `json:"referenceRange,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
-	ValueDateTime *string `json:"valueDateTime,omitempty"`
-	Specimen TypedObject `json:"specimen"`
-	ID *string `json:"id,omitempty"`
-	Issued *string `json:"issued,omitempty"`
-	HasMember TypedObject `json:"hasMember"`
-	Note TypedObject `json:"note"`
-	Interpretation []*CodeableConcept `json:"interpretation,omitempty"`
-	Status *string `json:"status,omitempty"`
-	BodyStructure *BodyStructureType `json:"bodyStructure"`
-	ValueTime *string `json:"valueTime,omitempty"`
-	Language *string `json:"language,omitempty"`
-	Method *CodeableConcept `json:"method,omitempty"`
-	EffectiveInstant *string `json:"effectiveInstant,omitempty"`
-	EffectiveTiming *Timing `json:"effectiveTiming,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	Performer TypedObject `json:"performer"`
-	Component []*ObservationComponent `json:"component,omitempty"`
 	Meta *Meta `json:"meta,omitempty"`
-	ValueBoolean *string `json:"valueBoolean,omitempty"`
-	Subject TypedObject `json:"subject"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	PartOf TypedObject `json:"partOf"`
-	Extension []*Extension `json:"extension,omitempty"`
-	Category []*CodeableConcept `json:"category,omitempty"`
 	Identifier []*Identifier `json:"identifier,omitempty"`
-	BasedOn TypedObject `json:"basedOn"`
-	InstantiatesCanonical *string `json:"instantiatesCanonical,omitempty"`
+	PartOf TypedObject `json:"partOf"`
+	ValueString *string `json:"valueString,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	ValueQuantity *Quantity `json:"valueQuantity,omitempty"`
+	Issued *string `json:"issued,omitempty"`
 	DerivedFrom TypedObject `json:"derivedFrom"`
+	EffectiveTiming *Timing `json:"effectiveTiming,omitempty"`
+	Focus TypedObject `json:"focus"`
+	ValueBoolean *string `json:"valueBoolean,omitempty"`
+	Status *string `json:"status,omitempty"`
+	EffectivePeriod *Period `json:"effectivePeriod,omitempty"`
+	Method *CodeableConcept `json:"method,omitempty"`
+	TriggeredBy []*ObservationTriggeredBy `json:"triggeredBy,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Subject TypedObject `json:"subject"`
+	DataAbsentReason *CodeableConcept `json:"dataAbsentReason,omitempty"`
+	ValueAttachment *Attachment `json:"valueAttachment,omitempty"`
+	ValueInteger *string `json:"valueInteger,omitempty"`
+	Interpretation []*CodeableConcept `json:"interpretation,omitempty"`
+	ValueTime *string `json:"valueTime,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	ReferenceRange []*ObservationReferenceRange `json:"referenceRange,omitempty"`
+	Component []*ObservationComponent `json:"component,omitempty"`
+	ID *string `json:"id,omitempty"`
+	EffectiveInstant *string `json:"effectiveInstant,omitempty"`
+	Language *string `json:"language,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	EffectiveDateTime *string `json:"effectiveDateTime,omitempty"`
+	InstantiatesCanonical *string `json:"instantiatesCanonical,omitempty"`
+	HasMember TypedObject `json:"hasMember"`
+	Category []*CodeableConcept `json:"category,omitempty"`
+	ValueRatio *Ratio `json:"valueRatio,omitempty"`
+	BasedOn TypedObject `json:"basedOn"`
+	BodyStructure *BodyStructureType `json:"bodyStructure"`
+	Performer TypedObject `json:"performer"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	ValueRange *Range `json:"valueRange,omitempty"`
+	ValuePeriod *Period `json:"valuePeriod,omitempty"`
+	Code *CodeableConcept `json:"code,omitempty"`
+	Specimen TypedObject `json:"specimen"`
+	Text *Narrative `json:"text,omitempty"`
+	BodySite *CodeableConcept `json:"bodySite,omitempty"`
+	ValueDateTime *string `json:"valueDateTime,omitempty"`
+	ValueCodeableConcept *CodeableConcept `json:"valueCodeableConcept,omitempty"`
+	Note []*Annotation `json:"note,omitempty"`
+	ValueSampledData *SampledData `json:"valueSampledData,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -65,75 +65,73 @@ func (o *ObservationType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = ObservationType{
-		DataAbsentReason: safe.DataAbsentReason,
-		Text: safe.Text,
-		Code: safe.Code,
-		ValuePeriod: safe.ValuePeriod,
-		ValueRatio: safe.ValueRatio,
-		ValueSampledData: safe.ValueSampledData,
-		ModifierExtension: safe.ModifierExtension,
-		TriggeredBy: safe.TriggeredBy,
-		ValueAttachment: safe.ValueAttachment,
-		ValueQuantity: safe.ValueQuantity,
-		EffectivePeriod: safe.EffectivePeriod,
-		ValueRange: safe.ValueRange,
-		ValueInteger: safe.ValueInteger,
-		ValueString: safe.ValueString,
-		EffectiveDateTime: safe.EffectiveDateTime,
-		ValueCodeableConcept: safe.ValueCodeableConcept,
-		BodySite: safe.BodySite,
-		ReferenceRange: safe.ReferenceRange,
-		ValueDateTime: safe.ValueDateTime,
-		ID: safe.ID,
-		Issued: safe.Issued,
-		Interpretation: safe.Interpretation,
-		Status: safe.Status,
-		BodyStructure: safe.BodyStructure,
-		ValueTime: safe.ValueTime,
-		Language: safe.Language,
-		Method: safe.Method,
-		EffectiveInstant: safe.EffectiveInstant,
-		EffectiveTiming: safe.EffectiveTiming,
-		ImplicitRules: safe.ImplicitRules,
-		Component: safe.Component,
 		Meta: safe.Meta,
-		ValueBoolean: safe.ValueBoolean,
-		ResourceType: safe.ResourceType,
-		Extension: safe.Extension,
-		Category: safe.Category,
 		Identifier: safe.Identifier,
+		ValueString: safe.ValueString,
+		Extension: safe.Extension,
+		ValueQuantity: safe.ValueQuantity,
+		Issued: safe.Issued,
+		EffectiveTiming: safe.EffectiveTiming,
+		ValueBoolean: safe.ValueBoolean,
+		Status: safe.Status,
+		EffectivePeriod: safe.EffectivePeriod,
+		Method: safe.Method,
+		TriggeredBy: safe.TriggeredBy,
+		ImplicitRules: safe.ImplicitRules,
+		DataAbsentReason: safe.DataAbsentReason,
+		ValueAttachment: safe.ValueAttachment,
+		ValueInteger: safe.ValueInteger,
+		Interpretation: safe.Interpretation,
+		ValueTime: safe.ValueTime,
+		ReferenceRange: safe.ReferenceRange,
+		Component: safe.Component,
+		ID: safe.ID,
+		EffectiveInstant: safe.EffectiveInstant,
+		Language: safe.Language,
+		ModifierExtension: safe.ModifierExtension,
+		EffectiveDateTime: safe.EffectiveDateTime,
 		InstantiatesCanonical: safe.InstantiatesCanonical,
+		Category: safe.Category,
+		ValueRatio: safe.ValueRatio,
+		BodyStructure: safe.BodyStructure,
+		ResourceType: safe.ResourceType,
+		ValueRange: safe.ValueRange,
+		ValuePeriod: safe.ValuePeriod,
+		Code: safe.Code,
+		Text: safe.Text,
+		BodySite: safe.BodySite,
+		ValueDateTime: safe.ValueDateTime,
+		ValueCodeableConcept: safe.ValueCodeableConcept,
+		Note: safe.Note,
+		ValueSampledData: safe.ValueSampledData,
 		AuthResourcePath: safe.AuthResourcePath,
-	}
-	if err := unmarshalUnion(b, "focus", safe.Focus.Typename, &o.Focus); err != nil {
-		return fmt.Errorf("failed to unmarshal Focus: %w", err)
-	}
-	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
-		return fmt.Errorf("failed to unmarshal Contained: %w", err)
-	}
-	if err := unmarshalUnion(b, "specimen", safe.Specimen.Typename, &o.Specimen); err != nil {
-		return fmt.Errorf("failed to unmarshal Specimen: %w", err)
-	}
-	if err := unmarshalUnion(b, "hasMember", safe.HasMember.Typename, &o.HasMember); err != nil {
-		return fmt.Errorf("failed to unmarshal HasMember: %w", err)
-	}
-	if err := unmarshalUnion(b, "note", safe.Note.Typename, &o.Note); err != nil {
-		return fmt.Errorf("failed to unmarshal Note: %w", err)
-	}
-	if err := unmarshalUnion(b, "performer", safe.Performer.Typename, &o.Performer); err != nil {
-		return fmt.Errorf("failed to unmarshal Performer: %w", err)
-	}
-	if err := unmarshalUnion(b, "subject", safe.Subject.Typename, &o.Subject); err != nil {
-		return fmt.Errorf("failed to unmarshal Subject: %w", err)
 	}
 	if err := unmarshalUnion(b, "partOf", safe.PartOf.Typename, &o.PartOf); err != nil {
 		return fmt.Errorf("failed to unmarshal PartOf: %w", err)
 	}
+	if err := unmarshalUnion(b, "derivedFrom", safe.DerivedFrom.Typename, &o.DerivedFrom); err != nil {
+		return fmt.Errorf("failed to unmarshal DerivedFrom: %w", err)
+	}
+	if err := unmarshalUnion(b, "focus", safe.Focus.Typename, &o.Focus); err != nil {
+		return fmt.Errorf("failed to unmarshal Focus: %w", err)
+	}
+	if err := unmarshalUnion(b, "subject", safe.Subject.Typename, &o.Subject); err != nil {
+		return fmt.Errorf("failed to unmarshal Subject: %w", err)
+	}
+	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
+		return fmt.Errorf("failed to unmarshal Contained: %w", err)
+	}
+	if err := unmarshalUnion(b, "hasMember", safe.HasMember.Typename, &o.HasMember); err != nil {
+		return fmt.Errorf("failed to unmarshal HasMember: %w", err)
+	}
 	if err := unmarshalUnion(b, "basedOn", safe.BasedOn.Typename, &o.BasedOn); err != nil {
 		return fmt.Errorf("failed to unmarshal BasedOn: %w", err)
 	}
-	if err := unmarshalUnion(b, "derivedFrom", safe.DerivedFrom.Typename, &o.DerivedFrom); err != nil {
-		return fmt.Errorf("failed to unmarshal DerivedFrom: %w", err)
+	if err := unmarshalUnion(b, "performer", safe.Performer.Typename, &o.Performer); err != nil {
+		return fmt.Errorf("failed to unmarshal Performer: %w", err)
+	}
+	if err := unmarshalUnion(b, "specimen", safe.Specimen.Typename, &o.Specimen); err != nil {
+		return fmt.Errorf("failed to unmarshal Specimen: %w", err)
 	}
 
 	return nil

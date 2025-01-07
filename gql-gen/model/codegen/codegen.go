@@ -1,15 +1,18 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 	"text/template"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slices"
 )
 
 type ClassDefinition struct {
@@ -87,9 +90,9 @@ func Unmarshal{{ .Name }}Slice(input []any) ([]{{ .Name }}, error) {
 `
 
 func main() {
-	var classNames []string
-	var Names []string
+	var schemaPath string
 	var modelFile string
+	var classNames []string
 
 	// Define the root command
 	var rootCmd = &cobra.Command{
@@ -113,7 +116,16 @@ func main() {
 			}
 
 			modelText := string(content)
-			classDefinitions := extractClassDefinitions(modelText, classNames)
+
+			schema, err := loadSchema(schemaPath)
+			if err != nil {
+				fmt.Printf("Error loading schema: %s\n", err)
+				os.Exit(1)
+			}
+
+			resolvers := findTypesWithResolvers(schema)
+
+			classDefinitions := extractClassDefinitions(modelText, resolvers)
 
 			for _, classDef := range classDefinitions {
 				generateSafeStruct(classDef)
@@ -126,18 +138,15 @@ func main() {
 		Use:   "unmarshal",
 		Short: "Generate Unmarshal functions for predefined types",
 		Run: func(cmd *cobra.Command, args []string) {
-			if Names == nil {
-				log.Fatal("Names was not provided")
-				return
-			}
-			generateUnmarshalFuncs(Names)
+
+			generateUnmarshalFuncs(classNames)
 		},
 	}
 
-	generateCmd.Flags().StringSliceVarP(&classNames, "classes", "c", nil, "List of class names to process")
+	generateCmd.Flags().StringVarP(&schemaPath, "schemaPath", "c", "", "Path to graphql schema")
 	generateCmd.Flags().StringVarP(&modelFile, "model-file", "m", "", "Path to the model file")
 
-	unmarshalCmd.Flags().StringSliceVarP(&Names, "names", "n", nil, "List of class names to process")
+	unmarshalCmd.Flags().StringSliceVarP(&classNames, "classes", "c", nil, "List of class names to process")
 
 	rootCmd.AddCommand(generateCmd)
 	rootCmd.AddCommand(unmarshalCmd)
@@ -270,14 +279,12 @@ func generateUnmarshalFuncs(classNames []string) {
 
 	var buf bytes.Buffer
 
-	// Add package and import statements to the file
 	buf.WriteString("package model\n\n")
 	buf.WriteString("import (\n")
 	buf.WriteString("\t\"encoding/json\"\n")
 	buf.WriteString("\t\"fmt\"\n")
 	buf.WriteString(")\n\n")
 
-	// Generate Unmarshal function for each type and append to the buffer
 	for _, t := range classNames {
 		data := struct {
 			Name string
@@ -291,11 +298,56 @@ func generateUnmarshalFuncs(classNames []string) {
 		}
 	}
 
-	// Write the generated content to the unmarshalSlice.go file
 	outputFile := "../unmarshalSlice.go"
 	if err := ioutil.WriteFile(outputFile, buf.Bytes(), 0644); err != nil {
 		log.Fatalf("Failed to write file: %v", err)
 	}
 
 	fmt.Printf("Generated: %s\n", outputFile)
+}
+
+// findTypesWithResolvers parses a GraphQL schema and identifies types with resolver fields
+func findTypesWithResolvers(schema string) []string {
+	typePattern := regexp.MustCompile(`type\s+(\w+)\s*\{([^}]*)\}`)
+	fieldPattern := regexp.MustCompile(`(\w+)\s*\(.*\):\s*[\w\[\]!]+`)
+
+	resolvers := []string{}
+
+	matches := typePattern.FindAllStringSubmatch(schema, -1)
+	for _, match := range matches {
+		typeName := match[1]
+		fields := match[2]
+		fieldMatches := fieldPattern.FindAllStringSubmatch(fields, -1)
+		for _, fieldMatch := range fieldMatches {
+			if len(fieldMatch) > 0 {
+				if strings.HasSuffix(fieldMatch[0], "Union!") || strings.HasSuffix(fieldMatch[0], "Union") {
+					if !slices.Contains(resolvers, typeName) && typeName != "Query" {
+						resolvers = append(resolvers, typeName)
+					}
+				}
+			}
+		}
+	}
+
+	return resolvers
+}
+
+// loadSchema reads the GraphQL schema from the specified file path
+func loadSchema(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open file: %w", err)
+	}
+	defer file.Close()
+
+	var sb strings.Builder
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		sb.WriteString(scanner.Text() + "\n")
+	}
+	if err := scanner.Err(); err != nil {
+		return "", fmt.Errorf("error reading file: %w", err)
+	}
+
+	return sb.String(), nil
 }

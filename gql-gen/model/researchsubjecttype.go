@@ -7,23 +7,23 @@ import (
 )
 
 type SafeResearchSubjectType struct {
-	Meta *Meta `json:"meta,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
-	Subject TypedObject `json:"subject"`
 	AssignedComparisonGroup *string `json:"assignedComparisonGroup,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	Status *string `json:"status,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	Language *string `json:"language,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	ID *string `json:"id,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Subject TypedObject `json:"subject"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	ResourceType *string `json:"resourceType,omitempty"`
 	Period *Period `json:"period,omitempty"`
-	Study *ResearchStudyType `json:"study"`
-	Text *Narrative `json:"text,omitempty"`
-	Language *string `json:"language,omitempty"`
-	ID *string `json:"id,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	ActualComparisonGroup *string `json:"actualComparisonGroup,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	Status *string `json:"status,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
 	Progress []*ResearchSubjectProgress `json:"progress,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	Study *ResearchStudyType `json:"study"`
+	ActualComparisonGroup *string `json:"actualComparisonGroup,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -34,21 +34,21 @@ func (o *ResearchSubjectType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = ResearchSubjectType{
-		Meta: safe.Meta,
-		ModifierExtension: safe.ModifierExtension,
 		AssignedComparisonGroup: safe.AssignedComparisonGroup,
+		Status: safe.Status,
+		Identifier: safe.Identifier,
+		Language: safe.Language,
+		Text: safe.Text,
+		ID: safe.ID,
+		Extension: safe.Extension,
+		ImplicitRules: safe.ImplicitRules,
+		ModifierExtension: safe.ModifierExtension,
 		ResourceType: safe.ResourceType,
 		Period: safe.Period,
-		Study: safe.Study,
-		Text: safe.Text,
-		Language: safe.Language,
-		ID: safe.ID,
-		Identifier: safe.Identifier,
-		ActualComparisonGroup: safe.ActualComparisonGroup,
-		ImplicitRules: safe.ImplicitRules,
-		Status: safe.Status,
-		Extension: safe.Extension,
 		Progress: safe.Progress,
+		Meta: safe.Meta,
+		Study: safe.Study,
+		ActualComparisonGroup: safe.ActualComparisonGroup,
 		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {

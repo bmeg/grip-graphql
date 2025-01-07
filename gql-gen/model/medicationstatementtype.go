@@ -7,33 +7,33 @@ import (
 )
 
 type SafeMedicationStatementType struct {
-	Category []*CodeableConcept `json:"category,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
-	ID *string `json:"id,omitempty"`
-	RenderedDosageInstruction *string `json:"renderedDosageInstruction,omitempty"`
 	DateAsserted *string `json:"dateAsserted,omitempty"`
-	Reason []*CodeableReference `json:"reason,omitempty"`
-	Language *string `json:"language,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	EffectiveTiming *Timing `json:"effectiveTiming,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	RelatedClinicalInformation TypedObject `json:"relatedClinicalInformation"`
+	Subject TypedObject `json:"subject"`
 	EffectivePeriod *Period `json:"effectivePeriod,omitempty"`
+	PartOf TypedObject `json:"partOf"`
+	Extension []*Extension `json:"extension,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	Dosage []*Dosage `json:"dosage,omitempty"`
+	InformationSource TypedObject `json:"informationSource"`
+	Note []*Annotation `json:"note,omitempty"`
+	EffectiveTiming *Timing `json:"effectiveTiming,omitempty"`
+	Reason []*CodeableReference `json:"reason,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
 	ImplicitRules *string `json:"implicitRules,omitempty"`
-	Medication *CodeableReference `json:"medication,omitempty"`
-	Note TypedObject `json:"note"`
+	Adherence *MedicationStatementAdherence `json:"adherence,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
 	EffectiveDateTime *string `json:"effectiveDateTime,omitempty"`
 	Status *string `json:"status,omitempty"`
-	Dosage []*Dosage `json:"dosage,omitempty"`
-	PartOf TypedObject `json:"partOf"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	RelatedClinicalInformation TypedObject `json:"relatedClinicalInformation"`
-	DerivedFrom TypedObject `json:"derivedFrom"`
-	InformationSource TypedObject `json:"informationSource"`
-	Subject TypedObject `json:"subject"`
+	ID *string `json:"id,omitempty"`
 	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	Adherence *MedicationStatementAdherence `json:"adherence,omitempty"`
+	DerivedFrom TypedObject `json:"derivedFrom"`
+	RenderedDosageInstruction *string `json:"renderedDosageInstruction,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	Language *string `json:"language,omitempty"`
+	Category []*CodeableConcept `json:"category,omitempty"`
+	Medication *CodeableReference `json:"medication,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -44,48 +44,46 @@ func (o *MedicationStatementType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = MedicationStatementType{
-		Category: safe.Category,
-		Meta: safe.Meta,
-		ID: safe.ID,
-		RenderedDosageInstruction: safe.RenderedDosageInstruction,
 		DateAsserted: safe.DateAsserted,
-		Reason: safe.Reason,
-		Language: safe.Language,
-		Text: safe.Text,
-		EffectiveTiming: safe.EffectiveTiming,
-		Identifier: safe.Identifier,
-		Extension: safe.Extension,
+		Meta: safe.Meta,
 		EffectivePeriod: safe.EffectivePeriod,
+		Extension: safe.Extension,
+		Dosage: safe.Dosage,
+		Note: safe.Note,
+		EffectiveTiming: safe.EffectiveTiming,
+		Reason: safe.Reason,
+		Text: safe.Text,
 		ImplicitRules: safe.ImplicitRules,
-		Medication: safe.Medication,
+		Adherence: safe.Adherence,
+		Identifier: safe.Identifier,
 		EffectiveDateTime: safe.EffectiveDateTime,
 		Status: safe.Status,
-		Dosage: safe.Dosage,
-		ResourceType: safe.ResourceType,
+		ID: safe.ID,
 		ModifierExtension: safe.ModifierExtension,
-		Adherence: safe.Adherence,
+		RenderedDosageInstruction: safe.RenderedDosageInstruction,
+		ResourceType: safe.ResourceType,
+		Language: safe.Language,
+		Category: safe.Category,
+		Medication: safe.Medication,
 		AuthResourcePath: safe.AuthResourcePath,
-	}
-	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
-		return fmt.Errorf("failed to unmarshal Contained: %w", err)
-	}
-	if err := unmarshalUnion(b, "note", safe.Note.Typename, &o.Note); err != nil {
-		return fmt.Errorf("failed to unmarshal Note: %w", err)
-	}
-	if err := unmarshalUnion(b, "partOf", safe.PartOf.Typename, &o.PartOf); err != nil {
-		return fmt.Errorf("failed to unmarshal PartOf: %w", err)
 	}
 	if err := unmarshalUnion(b, "relatedClinicalInformation", safe.RelatedClinicalInformation.Typename, &o.RelatedClinicalInformation); err != nil {
 		return fmt.Errorf("failed to unmarshal RelatedClinicalInformation: %w", err)
 	}
-	if err := unmarshalUnion(b, "derivedFrom", safe.DerivedFrom.Typename, &o.DerivedFrom); err != nil {
-		return fmt.Errorf("failed to unmarshal DerivedFrom: %w", err)
+	if err := unmarshalUnion(b, "subject", safe.Subject.Typename, &o.Subject); err != nil {
+		return fmt.Errorf("failed to unmarshal Subject: %w", err)
+	}
+	if err := unmarshalUnion(b, "partOf", safe.PartOf.Typename, &o.PartOf); err != nil {
+		return fmt.Errorf("failed to unmarshal PartOf: %w", err)
+	}
+	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
+		return fmt.Errorf("failed to unmarshal Contained: %w", err)
 	}
 	if err := unmarshalUnion(b, "informationSource", safe.InformationSource.Typename, &o.InformationSource); err != nil {
 		return fmt.Errorf("failed to unmarshal InformationSource: %w", err)
 	}
-	if err := unmarshalUnion(b, "subject", safe.Subject.Typename, &o.Subject); err != nil {
-		return fmt.Errorf("failed to unmarshal Subject: %w", err)
+	if err := unmarshalUnion(b, "derivedFrom", safe.DerivedFrom.Typename, &o.DerivedFrom); err != nil {
+		return fmt.Errorf("failed to unmarshal DerivedFrom: %w", err)
 	}
 
 	return nil

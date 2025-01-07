@@ -7,46 +7,46 @@ import (
 )
 
 type SafeProcedureType struct {
+	InstantiatesURI *string `json:"instantiatesUri,omitempty"`
+	ID *string `json:"id,omitempty"`
+	Language *string `json:"language,omitempty"`
+	PartOf TypedObject `json:"partOf"`
+	OccurrenceRange *Range `json:"occurrenceRange,omitempty"`
+	Note []*Annotation `json:"note,omitempty"`
+	Category []*CodeableConcept `json:"category,omitempty"`
+	OccurrencePeriod *Period `json:"occurrencePeriod,omitempty"`
+	ReportedReference TypedObject `json:"reportedReference"`
+	Report TypedObject `json:"report"`
+	Reason []*CodeableReference `json:"reason,omitempty"`
+	Outcome *CodeableConcept `json:"outcome,omitempty"`
+	ReportedBoolean *string `json:"reportedBoolean,omitempty"`
+	BodySite []*CodeableConcept `json:"bodySite,omitempty"`
+	SupportingInfo TypedObject `json:"supportingInfo"`
+	Extension []*Extension `json:"extension,omitempty"`
+	Used []*CodeableReference `json:"used,omitempty"`
+	OccurrenceString *string `json:"occurrenceString,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	FocalDevice []*ProcedureFocalDevice `json:"focalDevice,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	InstantiatesCanonical *string `json:"instantiatesCanonical,omitempty"`
+	FollowUp []*CodeableConcept `json:"followUp,omitempty"`
+	OccurrenceAge *Age `json:"occurrenceAge,omitempty"`
 	OccurrenceTiming *Timing `json:"occurrenceTiming,omitempty"`
 	Subject TypedObject `json:"subject"`
-	Code *CodeableConcept `json:"code,omitempty"`
-	ReportedBoolean *string `json:"reportedBoolean,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
-	Status *string `json:"status,omitempty"`
-	OccurrenceRange *Range `json:"occurrenceRange,omitempty"`
-	Used []*CodeableReference `json:"used,omitempty"`
 	OccurrenceDateTime *string `json:"occurrenceDateTime,omitempty"`
-	ID *string `json:"id,omitempty"`
-	BodySite []*CodeableConcept `json:"bodySite,omitempty"`
-	OccurrenceString *string `json:"occurrenceString,omitempty"`
-	Recorded *string `json:"recorded,omitempty"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	InstantiatesURI *string `json:"instantiatesUri,omitempty"`
-	Outcome *CodeableConcept `json:"outcome,omitempty"`
 	ImplicitRules *string `json:"implicitRules,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	OccurrencePeriod *Period `json:"occurrencePeriod,omitempty"`
 	Recorder TypedObject `json:"recorder"`
-	Focus TypedObject `json:"focus"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	ReportedReference TypedObject `json:"reportedReference"`
-	PartOf TypedObject `json:"partOf"`
-	StatusReason *CodeableConcept `json:"statusReason,omitempty"`
-	Note TypedObject `json:"note"`
-	Extension []*Extension `json:"extension,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	OccurrenceAge *Age `json:"occurrenceAge,omitempty"`
-	Report TypedObject `json:"report"`
-	FocalDevice []*ProcedureFocalDevice `json:"focalDevice,omitempty"`
-	Category []*CodeableConcept `json:"category,omitempty"`
-	Reason []*CodeableReference `json:"reason,omitempty"`
-	Language *string `json:"language,omitempty"`
-	FollowUp []*CodeableConcept `json:"followUp,omitempty"`
-	SupportingInfo TypedObject `json:"supportingInfo"`
+	Status *string `json:"status,omitempty"`
 	Complication []*CodeableReference `json:"complication,omitempty"`
-	Performer TypedObject `json:"performer"`
-	InstantiatesCanonical *string `json:"instantiatesCanonical,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	StatusReason *CodeableConcept `json:"statusReason,omitempty"`
+	Focus TypedObject `json:"focus"`
+	Performer []*ProcedurePerformer `json:"performer,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	Code *CodeableConcept `json:"code,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	Recorded *string `json:"recorded,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -57,58 +57,45 @@ func (o *ProcedureType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = ProcedureType{
-		OccurrenceTiming: safe.OccurrenceTiming,
-		Code: safe.Code,
-		ReportedBoolean: safe.ReportedBoolean,
-		Meta: safe.Meta,
-		Status: safe.Status,
-		OccurrenceRange: safe.OccurrenceRange,
-		Used: safe.Used,
-		OccurrenceDateTime: safe.OccurrenceDateTime,
-		ID: safe.ID,
-		BodySite: safe.BodySite,
-		OccurrenceString: safe.OccurrenceString,
-		Recorded: safe.Recorded,
-		ResourceType: safe.ResourceType,
 		InstantiatesURI: safe.InstantiatesURI,
-		Outcome: safe.Outcome,
-		ImplicitRules: safe.ImplicitRules,
-		ModifierExtension: safe.ModifierExtension,
-		OccurrencePeriod: safe.OccurrencePeriod,
-		Identifier: safe.Identifier,
-		StatusReason: safe.StatusReason,
-		Extension: safe.Extension,
-		Text: safe.Text,
-		OccurrenceAge: safe.OccurrenceAge,
-		FocalDevice: safe.FocalDevice,
-		Category: safe.Category,
-		Reason: safe.Reason,
+		ID: safe.ID,
 		Language: safe.Language,
-		FollowUp: safe.FollowUp,
-		Complication: safe.Complication,
+		OccurrenceRange: safe.OccurrenceRange,
+		Note: safe.Note,
+		Category: safe.Category,
+		OccurrencePeriod: safe.OccurrencePeriod,
+		Reason: safe.Reason,
+		Outcome: safe.Outcome,
+		ReportedBoolean: safe.ReportedBoolean,
+		BodySite: safe.BodySite,
+		Extension: safe.Extension,
+		Used: safe.Used,
+		OccurrenceString: safe.OccurrenceString,
+		FocalDevice: safe.FocalDevice,
+		Identifier: safe.Identifier,
 		InstantiatesCanonical: safe.InstantiatesCanonical,
+		FollowUp: safe.FollowUp,
+		OccurrenceAge: safe.OccurrenceAge,
+		OccurrenceTiming: safe.OccurrenceTiming,
+		OccurrenceDateTime: safe.OccurrenceDateTime,
+		ImplicitRules: safe.ImplicitRules,
+		Status: safe.Status,
+		Complication: safe.Complication,
+		Meta: safe.Meta,
+		ResourceType: safe.ResourceType,
+		StatusReason: safe.StatusReason,
+		Performer: safe.Performer,
+		Text: safe.Text,
+		Code: safe.Code,
+		ModifierExtension: safe.ModifierExtension,
+		Recorded: safe.Recorded,
 		AuthResourcePath: safe.AuthResourcePath,
-	}
-	if err := unmarshalUnion(b, "subject", safe.Subject.Typename, &o.Subject); err != nil {
-		return fmt.Errorf("failed to unmarshal Subject: %w", err)
-	}
-	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
-		return fmt.Errorf("failed to unmarshal Contained: %w", err)
-	}
-	if err := unmarshalUnion(b, "recorder", safe.Recorder.Typename, &o.Recorder); err != nil {
-		return fmt.Errorf("failed to unmarshal Recorder: %w", err)
-	}
-	if err := unmarshalUnion(b, "focus", safe.Focus.Typename, &o.Focus); err != nil {
-		return fmt.Errorf("failed to unmarshal Focus: %w", err)
-	}
-	if err := unmarshalUnion(b, "reportedReference", safe.ReportedReference.Typename, &o.ReportedReference); err != nil {
-		return fmt.Errorf("failed to unmarshal ReportedReference: %w", err)
 	}
 	if err := unmarshalUnion(b, "partOf", safe.PartOf.Typename, &o.PartOf); err != nil {
 		return fmt.Errorf("failed to unmarshal PartOf: %w", err)
 	}
-	if err := unmarshalUnion(b, "note", safe.Note.Typename, &o.Note); err != nil {
-		return fmt.Errorf("failed to unmarshal Note: %w", err)
+	if err := unmarshalUnion(b, "reportedReference", safe.ReportedReference.Typename, &o.ReportedReference); err != nil {
+		return fmt.Errorf("failed to unmarshal ReportedReference: %w", err)
 	}
 	if err := unmarshalUnion(b, "report", safe.Report.Typename, &o.Report); err != nil {
 		return fmt.Errorf("failed to unmarshal Report: %w", err)
@@ -116,8 +103,17 @@ func (o *ProcedureType) UnmarshalJSON(b []byte) error {
 	if err := unmarshalUnion(b, "supportingInfo", safe.SupportingInfo.Typename, &o.SupportingInfo); err != nil {
 		return fmt.Errorf("failed to unmarshal SupportingInfo: %w", err)
 	}
-	if err := unmarshalUnion(b, "performer", safe.Performer.Typename, &o.Performer); err != nil {
-		return fmt.Errorf("failed to unmarshal Performer: %w", err)
+	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
+		return fmt.Errorf("failed to unmarshal Contained: %w", err)
+	}
+	if err := unmarshalUnion(b, "subject", safe.Subject.Typename, &o.Subject); err != nil {
+		return fmt.Errorf("failed to unmarshal Subject: %w", err)
+	}
+	if err := unmarshalUnion(b, "recorder", safe.Recorder.Typename, &o.Recorder); err != nil {
+		return fmt.Errorf("failed to unmarshal Recorder: %w", err)
+	}
+	if err := unmarshalUnion(b, "focus", safe.Focus.Typename, &o.Focus); err != nil {
+		return fmt.Errorf("failed to unmarshal Focus: %w", err)
 	}
 
 	return nil

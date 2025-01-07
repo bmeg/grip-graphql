@@ -16,7 +16,6 @@ func (r *queryResolver) Organization(ctx context.Context, offset *int, first *in
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalOrganizationTypeSlice(data)
 	if err != nil {
@@ -32,7 +31,6 @@ func (r *queryResolver) Group(ctx context.Context, offset *int, first *int, filt
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalGroupTypeSlice(data)
 	if err != nil {
@@ -48,7 +46,6 @@ func (r *queryResolver) Practitioner(ctx context.Context, offset *int, first *in
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalPractitionerTypeSlice(data)
 	if err != nil {
@@ -64,7 +61,6 @@ func (r *queryResolver) PractitionerRole(ctx context.Context, offset *int, first
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalPractitionerRoleTypeSlice(data)
 	if err != nil {
@@ -80,7 +76,6 @@ func (r *queryResolver) ResearchStudy(ctx context.Context, offset *int, first *i
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalResearchStudyTypeSlice(data)
 	if err != nil {
@@ -96,7 +91,6 @@ func (r *queryResolver) Patient(ctx context.Context, offset *int, first *int, fi
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalPatientTypeSlice(data)
 	if err != nil {
@@ -112,7 +106,6 @@ func (r *queryResolver) ResearchSubject(ctx context.Context, offset *int, first 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalResearchSubjectTypeSlice(data)
 	if err != nil {
@@ -128,7 +121,6 @@ func (r *queryResolver) Substance(ctx context.Context, offset *int, first *int, 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalSubstanceTypeSlice(data)
 	if err != nil {
@@ -144,7 +136,6 @@ func (r *queryResolver) SubstanceDefinition(ctx context.Context, offset *int, fi
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalSubstanceDefinitionTypeSlice(data)
 	if err != nil {
@@ -160,7 +151,6 @@ func (r *queryResolver) Specimen(ctx context.Context, offset *int, first *int, f
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalSpecimenTypeSlice(data)
 	if err != nil {
@@ -176,7 +166,6 @@ func (r *queryResolver) Observation(ctx context.Context, offset *int, first *int
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalObservationTypeSlice(data)
 	if err != nil {
@@ -193,7 +182,6 @@ func (r *queryResolver) DiagnosticReport(ctx context.Context, offset *int, first
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalDiagnosticReportTypeSlice(data)
 	if err != nil {
@@ -209,7 +197,6 @@ func (r *queryResolver) Condition(ctx context.Context, offset *int, first *int, 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalConditionTypeSlice(data)
 	if err != nil {
@@ -225,7 +212,6 @@ func (r *queryResolver) Medication(ctx context.Context, offset *int, first *int,
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalMedicationTypeSlice(data)
 	if err != nil {
@@ -241,7 +227,6 @@ func (r *queryResolver) MedicationAdministration(ctx context.Context, offset *in
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalMedicationAdministrationTypeSlice(data)
 	if err != nil {
@@ -257,7 +242,6 @@ func (r *queryResolver) MedicationStatement(ctx context.Context, offset *int, fi
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalMedicationStatementTypeSlice(data)
 	if err != nil {
@@ -273,7 +257,6 @@ func (r *queryResolver) MedicationRequest(ctx context.Context, offset *int, firs
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalMedicationRequestTypeSlice(data)
 	if err != nil {
@@ -289,7 +272,6 @@ func (r *queryResolver) Procedure(ctx context.Context, offset *int, first *int, 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalProcedureTypeSlice(data)
 	if err != nil {
@@ -305,7 +287,6 @@ func (r *queryResolver) DocumentReference(ctx context.Context, offset *int, firs
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalDocumentReferenceTypeSlice(data)
 	if err != nil {
@@ -321,7 +302,6 @@ func (r *queryResolver) Task(ctx context.Context, offset *int, first *int, filte
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalTaskTypeSlice(data)
 	if err != nil {
@@ -337,7 +317,6 @@ func (r *queryResolver) ImagingStudy(ctx context.Context, offset *int, first *in
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalImagingStudyTypeSlice(data)
 	if err != nil {
@@ -353,7 +332,6 @@ func (r *queryResolver) FamilyMemberHistory(ctx context.Context, offset *int, fi
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalFamilyMemberHistoryTypeSlice(data)
 	if err != nil {
@@ -369,7 +347,6 @@ func (r *queryResolver) BodyStructure(ctx context.Context, offset *int, first *i
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("DATA: ", data)
 
 	slice, err := model.UnmarshalBodyStructureTypeSlice(data)
 	if err != nil {

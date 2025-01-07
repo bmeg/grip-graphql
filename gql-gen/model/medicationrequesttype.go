@@ -7,45 +7,45 @@ import (
 )
 
 type SafeMedicationRequestType struct {
-	Requester TypedObject `json:"requester"`
-	EffectiveDosePeriod *Period `json:"effectiveDosePeriod,omitempty"`
-	PerformerType *CodeableConcept `json:"performerType,omitempty"`
-	AuthoredOn *string `json:"authoredOn,omitempty"`
-	StatusChanged *string `json:"statusChanged,omitempty"`
-	GroupIdentifier *Identifier `json:"groupIdentifier,omitempty"`
-	SupportingInformation TypedObject `json:"supportingInformation"`
-	Text *Narrative `json:"text,omitempty"`
-	StatusReason *CodeableConcept `json:"statusReason,omitempty"`
-	DispenseRequest *MedicationRequestDispenseRequest `json:"dispenseRequest,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	Substitution *MedicationRequestSubstitution `json:"substitution,omitempty"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	DosageInstruction []*Dosage `json:"dosageInstruction,omitempty"`
-	Category []*CodeableConcept `json:"category,omitempty"`
-	CourseOfTherapyType *CodeableConcept `json:"courseOfTherapyType,omitempty"`
-	Intent *string `json:"intent,omitempty"`
-	PriorPrescription *MedicationRequestType `json:"priorPrescription"`
 	Medication *CodeableReference `json:"medication,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	Device []*CodeableReference `json:"device,omitempty"`
+	StatusReason *CodeableConcept `json:"statusReason,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	DispenseRequest *MedicationRequestDispenseRequest `json:"dispenseRequest,omitempty"`
+	Status *string `json:"status,omitempty"`
+	PriorPrescription *MedicationRequestType `json:"priorPrescription"`
+	StatusChanged *string `json:"statusChanged,omitempty"`
+	Substitution *MedicationRequestSubstitution `json:"substitution,omitempty"`
+	Requester TypedObject `json:"requester"`
+	ID *string `json:"id,omitempty"`
+	AuthoredOn *string `json:"authoredOn,omitempty"`
+	Language *string `json:"language,omitempty"`
+	Intent *string `json:"intent,omitempty"`
+	SupportingInformation TypedObject `json:"supportingInformation"`
+	RenderedDosageInstruction *string `json:"renderedDosageInstruction,omitempty"`
+	DoNotPerform *string `json:"doNotPerform,omitempty"`
+	Reason []*CodeableReference `json:"reason,omitempty"`
+	PerformerType *CodeableConcept `json:"performerType,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Priority *string `json:"priority,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	InformationSource TypedObject `json:"informationSource"`
+	BasedOn TypedObject `json:"basedOn"`
 	Subject TypedObject `json:"subject"`
 	Recorder TypedObject `json:"recorder"`
-	Contained TypedObject `json:"contained,omitempty"`
-	RenderedDosageInstruction *string `json:"renderedDosageInstruction,omitempty"`
 	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	DosageInstruction []*Dosage `json:"dosageInstruction,omitempty"`
 	Identifier []*Identifier `json:"identifier,omitempty"`
-	Language *string `json:"language,omitempty"`
-	Priority *string `json:"priority,omitempty"`
-	Reason []*CodeableReference `json:"reason,omitempty"`
-	DoNotPerform *string `json:"doNotPerform,omitempty"`
-	Device []*CodeableReference `json:"device,omitempty"`
-	ID *string `json:"id,omitempty"`
-	Status *string `json:"status,omitempty"`
-	BasedOn TypedObject `json:"basedOn"`
+	Note []*Annotation `json:"note,omitempty"`
+	CourseOfTherapyType *CodeableConcept `json:"courseOfTherapyType,omitempty"`
+	EffectiveDosePeriod *Period `json:"effectiveDosePeriod,omitempty"`
+	Category []*CodeableConcept `json:"category,omitempty"`
 	Reported *string `json:"reported,omitempty"`
-	InformationSource TypedObject `json:"informationSource"`
-	Note TypedObject `json:"note"`
-	Extension []*Extension `json:"extension,omitempty"`
+	GroupIdentifier *Identifier `json:"groupIdentifier,omitempty"`
 	Performer TypedObject `json:"performer"`
+	Extension []*Extension `json:"extension,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -56,35 +56,36 @@ func (o *MedicationRequestType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = MedicationRequestType{
-		EffectiveDosePeriod: safe.EffectiveDosePeriod,
-		PerformerType: safe.PerformerType,
-		AuthoredOn: safe.AuthoredOn,
-		StatusChanged: safe.StatusChanged,
-		GroupIdentifier: safe.GroupIdentifier,
-		Text: safe.Text,
-		StatusReason: safe.StatusReason,
-		DispenseRequest: safe.DispenseRequest,
-		Meta: safe.Meta,
-		Substitution: safe.Substitution,
-		ResourceType: safe.ResourceType,
-		DosageInstruction: safe.DosageInstruction,
-		Category: safe.Category,
-		CourseOfTherapyType: safe.CourseOfTherapyType,
-		Intent: safe.Intent,
-		PriorPrescription: safe.PriorPrescription,
 		Medication: safe.Medication,
-		RenderedDosageInstruction: safe.RenderedDosageInstruction,
-		ModifierExtension: safe.ModifierExtension,
-		ImplicitRules: safe.ImplicitRules,
-		Identifier: safe.Identifier,
-		Language: safe.Language,
-		Priority: safe.Priority,
-		Reason: safe.Reason,
-		DoNotPerform: safe.DoNotPerform,
+		Meta: safe.Meta,
 		Device: safe.Device,
-		ID: safe.ID,
+		StatusReason: safe.StatusReason,
+		ResourceType: safe.ResourceType,
+		DispenseRequest: safe.DispenseRequest,
 		Status: safe.Status,
+		PriorPrescription: safe.PriorPrescription,
+		StatusChanged: safe.StatusChanged,
+		Substitution: safe.Substitution,
+		ID: safe.ID,
+		AuthoredOn: safe.AuthoredOn,
+		Language: safe.Language,
+		Intent: safe.Intent,
+		RenderedDosageInstruction: safe.RenderedDosageInstruction,
+		DoNotPerform: safe.DoNotPerform,
+		Reason: safe.Reason,
+		PerformerType: safe.PerformerType,
+		ImplicitRules: safe.ImplicitRules,
+		Priority: safe.Priority,
+		ModifierExtension: safe.ModifierExtension,
+		Text: safe.Text,
+		DosageInstruction: safe.DosageInstruction,
+		Identifier: safe.Identifier,
+		Note: safe.Note,
+		CourseOfTherapyType: safe.CourseOfTherapyType,
+		EffectiveDosePeriod: safe.EffectiveDosePeriod,
+		Category: safe.Category,
 		Reported: safe.Reported,
+		GroupIdentifier: safe.GroupIdentifier,
 		Extension: safe.Extension,
 		AuthResourcePath: safe.AuthResourcePath,
 	}
@@ -94,23 +95,20 @@ func (o *MedicationRequestType) UnmarshalJSON(b []byte) error {
 	if err := unmarshalUnion(b, "supportingInformation", safe.SupportingInformation.Typename, &o.SupportingInformation); err != nil {
 		return fmt.Errorf("failed to unmarshal SupportingInformation: %w", err)
 	}
+	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
+		return fmt.Errorf("failed to unmarshal Contained: %w", err)
+	}
+	if err := unmarshalUnion(b, "informationSource", safe.InformationSource.Typename, &o.InformationSource); err != nil {
+		return fmt.Errorf("failed to unmarshal InformationSource: %w", err)
+	}
+	if err := unmarshalUnion(b, "basedOn", safe.BasedOn.Typename, &o.BasedOn); err != nil {
+		return fmt.Errorf("failed to unmarshal BasedOn: %w", err)
+	}
 	if err := unmarshalUnion(b, "subject", safe.Subject.Typename, &o.Subject); err != nil {
 		return fmt.Errorf("failed to unmarshal Subject: %w", err)
 	}
 	if err := unmarshalUnion(b, "recorder", safe.Recorder.Typename, &o.Recorder); err != nil {
 		return fmt.Errorf("failed to unmarshal Recorder: %w", err)
-	}
-	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
-		return fmt.Errorf("failed to unmarshal Contained: %w", err)
-	}
-	if err := unmarshalUnion(b, "basedOn", safe.BasedOn.Typename, &o.BasedOn); err != nil {
-		return fmt.Errorf("failed to unmarshal BasedOn: %w", err)
-	}
-	if err := unmarshalUnion(b, "informationSource", safe.InformationSource.Typename, &o.InformationSource); err != nil {
-		return fmt.Errorf("failed to unmarshal InformationSource: %w", err)
-	}
-	if err := unmarshalUnion(b, "note", safe.Note.Typename, &o.Note); err != nil {
-		return fmt.Errorf("failed to unmarshal Note: %w", err)
 	}
 	if err := unmarshalUnion(b, "performer", safe.Performer.Typename, &o.Performer); err != nil {
 		return fmt.Errorf("failed to unmarshal Performer: %w", err)

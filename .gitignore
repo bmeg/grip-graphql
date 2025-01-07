@@ -133,3 +133,5 @@ dmypy.json
 
 # scratch
 tmp/
+.DS_Store
+gencli

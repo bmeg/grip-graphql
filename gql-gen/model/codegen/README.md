@@ -7,6 +7,6 @@ Ex from this dir:
 
 go build -o gencli
 
-./gencli union --classes OrganizationType,GroupType,PractitionerType,PractitionerRoleType,ResearchStudyType,PatientType,ResearchSubjectType,SubstanceType,SubstanceDefinitionType,SpecimenType,ObservationType,DiagnosticReportType,ConditionType,MedicationType,MedicationAdministrationType,MedicationStatementType,MedicationRequestType,ProcedureType,DocumentReferenceType,TaskType,ImagingStudyType,FamilyMemberHistoryType,BodyStructureType --model-file ../generated.go
+./gencli union --model-file ../generated.go --schemaPath ../../graph/schema.graphql
 
-./gencli unmarshal --names OrganizationType,GroupType,PractitionerType,PractitionerRoleType,ResearchStudyType,PatientType,ResearchSubjectType,SubstanceType,SubstanceDefinitionType,SpecimenType,ObservationType,DiagnosticReportType,ConditionType,MedicationType,MedicationAdministrationType,MedicationStatementType,MedicationRequestType,ProcedureType,DocumentReferenceType,TaskType,ImagingStudyType,FamilyMemberHistoryType,BodyStructureType
+./gencli unmarshal --classes OrganizationType,GroupType,PractitionerType,PractitionerRoleType,ResearchStudyType,PatientType,ResearchSubjectType,SubstanceType,SubstanceDefinitionType,SpecimenType,ObservationType,DiagnosticReportType,ConditionType,MedicationType,MedicationAdministrationType,MedicationStatementType,MedicationRequestType,ProcedureType,DocumentReferenceType,TaskType,ImagingStudyType,FamilyMemberHistoryType,BodyStructureType
