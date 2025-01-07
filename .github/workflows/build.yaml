@@ -27,11 +27,11 @@ jobs:
 
         # Login to Quay.io and build image
         docker login quay.io
-        docker buildx create --use
-        docker buildx build --platform linux/amd64,linux/arm64 -t $REPO:$BRANCH . --push
+        docker build -t $REPO:$BRANCH .
 
+        # Add 'latest' tag to 'main' image
         if [[ $BRANCH == 'main' ]]; then
-          docker buildx build --platform linux/amd64,linux/arm64 -t $REPO:latest . --push
+          docker image tag $REPO:main $REPO:latest
         fi
 
         # Push the tagged image to Quay.io

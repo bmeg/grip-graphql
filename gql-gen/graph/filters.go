@@ -4,9 +4,47 @@ import (
 	"fmt"
 	"strings"
 
+	"strconv"
+
+	"github.com/bmeg/grip/gripql/inspect"
+
 	"github.com/bmeg/grip/gripql"
 	"google.golang.org/protobuf/types/known/structpb"
 )
+
+func applyAuthFilters(q *gripql.Query, authList []any) {
+	Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{gripql.Within("auth_resource_path", authList...)}}
+	steps := inspect.PipelineSteps(q.Statements)
+	FilteredGS := []*gripql.GraphStatement{}
+	for i, v := range q.Statements {
+		steps_index, _ := strconv.Atoi(steps[i])
+		if i == 0 {
+			FilteredGS = append(FilteredGS, v)
+			continue
+		} else if i == steps_index {
+			FilteredGS = append(FilteredGS, v, Has_Statement)
+		} else {
+			FilteredGS = append(FilteredGS, v)
+		}
+	}
+	q.Statements = FilteredGS
+}
+
+func applyDefaultFilters(q **gripql.Query, args map[string]any) {
+	if first, ok := args["first"]; ok {
+		firstPtr, _ := first.(*int)
+		if firstPtr == nil {
+			*q = (*q).Limit(uint32(10))
+		} else {
+			*q = (*q).Limit(uint32(*firstPtr))
+		}
+	}
+	if offset, ok := args["offset"]; ok {
+		if offset.(*int) != nil {
+			*q = (*q).Skip(uint32(*offset.(*int)))
+		}
+	}
+}
 
 func (rt *renderTree) applyUnwinds(query **gripql.Query) {
 	/* Assumes query is at f0 and only applies unwinds to that node currently*/

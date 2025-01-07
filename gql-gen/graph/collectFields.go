@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"reflect"
 
-	"strconv"
 	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bmeg/grip/gripql"
-	"github.com/bmeg/grip/gripql/inspect"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -38,7 +37,7 @@ func (rt *renderTree) NewElement() string {
 }
 
 func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string, rt *renderTree, parentPath string, currentTree map[string]any) {
-	// Recursively traverses AST and builds grip query, renders field tree
+	// Recursively traverses AST and build grip query, renders field tree
 	for _, s := range selSet {
 		switch sel := s.(type) {
 		case *ast.Field:
@@ -95,7 +94,6 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 
 func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType string) ([]any, error) {
 	resctx := graphql.GetFieldContext(ctx)
-
 	rt := &renderTree{
 		rFieldPaths: map[string]renderTreePath{"f0": renderTreePath{path: []string{}, unwindPath: []string{}}},
 		rTree:       map[string]any{},
@@ -124,48 +122,20 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 			if err != nil {
 				return nil, err
 			}
-		} else {
-			return nil, fmt.Errorf("filter is specified but filter not populated in variables")
 		}
 	}
 
-	if first, ok := resctx.Args["first"]; ok {
-		firstPtr, _ := first.(*int)
-		if firstPtr == nil {
-			q = q.Limit(uint32(10))
-		} else {
-			q = q.Limit(uint32(*firstPtr))
-		}
-	}
-	if offset, ok := resctx.Args["offset"]; ok {
-		if offset.(*int) != nil {
-			q = q.Skip(uint32(*offset.(*int)))
-		}
-	}
+	// apply default filters after main filters so that all data can be considered in filter before apply filter statements
+	applyDefaultFilters(&q, resctx.Args)
 
 	if os.Getenv("AUTH_ENABLED") == "true" {
 		authList, ok := ctx.Value("auth_list").([]interface{})
 		if !ok {
 			return nil, fmt.Errorf("auth_list not found or invalid")
 		}
-
-		Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{gripql.Within("auth_resource_path", authList...)}}
-		steps := inspect.PipelineSteps(q.Statements)
-		FilteredGS := []*gripql.GraphStatement{}
-		for i, v := range q.Statements {
-			steps_index, _ := strconv.Atoi(steps[i])
-			if i == 0 {
-				FilteredGS = append(FilteredGS, v)
-				continue
-			} else if i == steps_index {
-				FilteredGS = append(FilteredGS, v, Has_Statement)
-			} else {
-				FilteredGS = append(FilteredGS, v)
-			}
-		}
-
-		q.Statements = FilteredGS
+		applyAuthFilters(q, authList)
 	}
+
 	q = q.Render(render)
 	fmt.Println("QUERY AFTER RENDER: ", q)
 
@@ -174,19 +144,19 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 		return nil, fmt.Errorf("Traversal Error: %s", err)
 	}
 
-	cachedTree := make(map[string]any, len(rt.rTree))
-	buildTreeStructure(cachedTree, rt.rTree)
+	// Build response tree once, traverse/populate it len(result) times
+	responseTree := make(map[string]any, len(rt.rTree))
+	buildResponseTree(responseTree, rt.rTree)
 
 	out := []any{}
 	for r := range result {
-		values := r.GetRender().GetStructValue().AsMap()
-		data := buildFilteredResponseTree(cachedTree, values)
-		out = append(out, data)
+		out = append(out, populateResponseTree(responseTree, r.GetRender().GetStructValue().AsMap()))
 	}
 	return out, nil
 }
 
-func buildTreeStructure(output map[string]any, renderTree map[string]any) {
+func buildResponseTree(output map[string]any, renderTree map[string]any) {
+	/* Build the skeleton of the response tree without filling in the values */
 	for key, val := range renderTree {
 		switch v := val.(type) {
 		case renderTreePath:
@@ -208,7 +178,7 @@ func buildTreeStructure(output map[string]any, renderTree map[string]any) {
 			}
 		case map[string]any:
 			subTree := make(map[string]any)
-			buildTreeStructure(subTree, v)
+			buildResponseTree(subTree, v)
 			output[key] = subTree
 		case string:
 			if key == "__typename" {
@@ -222,17 +192,24 @@ func buildTreeStructure(output map[string]any, renderTree map[string]any) {
 	}
 }
 
-func buildFilteredResponseTree(cachedTree, values map[string]any) map[string]any {
+func populateResponseTree(cachedTree, values map[string]any) map[string]any {
+	/* fill in the values of the given response tree */
 	output := make(map[string]any, len(cachedTree))
 	for key, val := range cachedTree {
 		switch v := val.(type) {
 		case map[string]any:
-			if filteredSubTree := buildFilteredResponseTree(v, values); len(filteredSubTree) > 0 {
+			if filteredSubTree := populateResponseTree(v, values); len(filteredSubTree) > 0 {
 				output[key] = filteredSubTree
 			}
 		case nil:
 			if renderedValue, exists := values[key+"_data"]; exists {
-				output[key] = renderedValue
+				if reflect.TypeOf(renderedValue) == reflect.TypeOf("") && strings.HasPrefix(renderedValue.(string), "$f") {
+					output[key] = nil
+				} else {
+					output[key] = renderedValue
+				}
+			} else {
+				output[key] = nil
 			}
 		default:
 			output[key] = val
