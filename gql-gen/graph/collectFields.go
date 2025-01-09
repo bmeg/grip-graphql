@@ -125,16 +125,16 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 		}
 	}
 
-	// apply default filters after main filters so that all data can be considered in filter before apply filter statements
-	applyDefaultFilters(&q, resctx.Args)
-
 	if os.Getenv("AUTH_ENABLED") == "true" {
 		authList, ok := ctx.Value("auth_list").([]interface{})
 		if !ok {
 			return nil, fmt.Errorf("auth_list not found or invalid")
 		}
-		applyAuthFilters(q, authList)
+		applyAuthFilters(&q, authList)
 	}
+
+	// apply default filters after main filters so that all data can be considered in filter before apply filter statements
+	applyDefaultFilters(&q, resctx.Args)
 
 	q = q.Render(render)
 	fmt.Println("QUERY AFTER RENDER: ", q)

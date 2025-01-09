@@ -2,32 +2,34 @@ package graph
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
-	"strconv"
-
-	"github.com/bmeg/grip/gripql/inspect"
-
 	"github.com/bmeg/grip/gripql"
+	"github.com/bmeg/grip/gripql/inspect"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-func applyAuthFilters(q *gripql.Query, authList []any) {
+func applyAuthFilters(q **gripql.Query, authList []any) {
 	Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{gripql.Within("auth_resource_path", authList...)}}
-	steps := inspect.PipelineSteps(q.Statements)
+	steps := inspect.PipelineSteps((*q).Statements)
+	//fmt.Println("STEPS: ", steps)
 	FilteredGS := []*gripql.GraphStatement{}
-	for i, v := range q.Statements {
+	step_value := 0
+	for i, v := range (*q).Statements {
+		//fmt.Println("statement v: ", v)
 		steps_index, _ := strconv.Atoi(steps[i])
 		if i == 0 {
 			FilteredGS = append(FilteredGS, v)
 			continue
-		} else if i == steps_index {
+		} else if steps_index > step_value {
 			FilteredGS = append(FilteredGS, v, Has_Statement)
+			step_value++
 		} else {
 			FilteredGS = append(FilteredGS, v)
 		}
 	}
-	q.Statements = FilteredGS
+	(*q).Statements = FilteredGS
 }
 
 func applyDefaultFilters(q **gripql.Query, args map[string]any) {

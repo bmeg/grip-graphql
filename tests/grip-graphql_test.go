@@ -811,8 +811,8 @@ func Test_Graphql_Edge_Traversal_Ok(t *testing.T) {
 	if !ok {
 		t.Error("observation index not found in data")
 	}
-	if len(data) != 3 {
-		t.Errorf("expected 3 observations, found %d\n", len(data))
+	if len(data) != 2 {
+		t.Errorf("expected 2 observations, found %d\n", len(data))
 	}
 	focus_content_attachement_extension, ok := data[0].(map[string]any)["focus"].(map[string]any)["content"].([]any)[0].(map[string]any)["attachment"].(map[string]any)["extension"].([]any)
 	if !ok {
@@ -837,6 +837,7 @@ func Test_Graphql_Edge_Traversal_Ok(t *testing.T) {
 }
 
 func Test_Nested_Edge_Traversal_Ok(t *testing.T) {
+	/* This test also acts as an auth test because there contains extra fields in the conformance data that are not in the TEST project */
 	query := strings.ReplaceAll(`query{
 	  observation(first:10){
 	    id
@@ -854,6 +855,7 @@ func Test_Nested_Edge_Traversal_Ok(t *testing.T) {
 	        }
 	        subject{
 	          ... on SpecimenType{
+				id
 	            processing{
 	              method{
 	                coding{
@@ -886,23 +888,50 @@ func Test_Nested_Edge_Traversal_Ok(t *testing.T) {
 	if !ok {
 		t.Error("observation index not found in data")
 	}
-	observation_docref_specimen, ok := data[0].(map[string]any)["focus"].(map[string]any)["subject"].(map[string]any)
+	obs_docref_specimen_id, ok := data[0].(map[string]any)["focus"].(map[string]any)["subject"].(map[string]any)
 	if !ok {
 		t.Error("observation docref specimen not found in data")
 	}
-	specimen_processing_code, ok := observation_docref_specimen["processing"].([]any)[0].(map[string]any)["method"].(map[string]any)["coding"].([]any)
+	specimen_processing_code, ok := obs_docref_specimen_id["processing"].([]any)[0].(map[string]any)["method"].(map[string]any)["coding"].([]any)
 	if !ok {
 		t.Error("observation docref specimen specimen_processing_code not found in data")
 	}
 	t.Log("2x edge traversal specimen_processing_code data", specimen_processing_code)
 
-	if len(data) != 3 {
-		t.Errorf("expected 3 observations, found %d\n", len(data))
+	if len(data) != 2 {
+		t.Errorf("expected 2 observations, found %d\n", len(data))
 	}
 	if !status {
 		t.Error("Status returned false: ", response)
 	}
+
+	for _, row := range data {
+		t.Log("Row: ", row)
+		id, ok := row.(map[string]any)["id"]
+		if !ok {
+			t.Error("id not indexable on type observation")
+		}
+		if id == "11f3411d-89a4-4bcc-9ce7-b76edb1c745f" {
+			t.Error("Non test project row detected. Auth filtering failed")
+		}
+		obs_docref_id, ok := row.(map[string]any)["focus"].(map[string]any)["id"]
+		if !ok {
+			t.Error("id not indexable on type obs_docref id")
+		}
+		if obs_docref_id == "8ae7e542-767f-4b03-a854-7ceed17152cb" {
+			t.Error("Non test project row detected. Auth filtering failed")
+		}
+
+		obs_docref_specimen_id, ok := row.(map[string]any)["focus"].(map[string]any)["subject"].(map[string]any)["id"]
+		if !ok {
+			t.Error("id not indexable on type obs_docref_specimen id")
+		}
+		if obs_docref_specimen_id == "50c67a06-ea2d-4d24-9249-418dc77a16a9" {
+			t.Error("Non test project row detected. Auth filtering failed")
+		}
+	}
 }
+
 func Test_Delete_Proj(t *testing.T) {
 	/* Delete Everything from test graph project ohsu-test. Should return 200 */
 	req := &Request{
