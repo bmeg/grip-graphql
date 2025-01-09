@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"reflect"
 
 	"strings"
 
@@ -105,15 +104,15 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 	fmt.Printf("RNAME TREE: %#v\n", rt.rFieldPaths)
 	fmt.Printf("R TREE: %#v\n", rt.rTree)
 
-	render := make(map[string]any, len(rt.rFieldPaths)*2)
+	render := make(map[string]any, len(rt.rFieldPaths))
 	for checkpoint, paths := range rt.rFieldPaths {
 		checkpointPrefix := "$" + checkpoint + "."
-		render[checkpoint+"_gid"] = checkpointPrefix + "id"
 		for _, path := range paths.path {
-			render[path+"_data"] = checkpointPrefix + path
+			render[checkpointPrefix+path] = checkpointPrefix + path
 		}
 	}
 
+	fmt.Println("RENDER: ", render)
 	q = q.Select("f0")
 	fmt.Printf("ARGS: %#v\n", resctx.Args)
 
@@ -148,6 +147,7 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 	// Build response tree once, traverse/populate it len(result) times
 	responseTree := make(map[string]any, len(rt.rTree))
 	buildResponseTree(responseTree, rt.rTree)
+	fmt.Println("CACHED TREE: ", responseTree)
 
 	out := []any{}
 	for r := range result {
@@ -162,20 +162,13 @@ func buildResponseTree(output map[string]any, renderTree map[string]any) {
 		switch v := val.(type) {
 		case renderTreePath:
 			for _, fieldPath := range v.path {
-				segments := strings.Split(fieldPath, ".")
 				current := output
-				for i := 0; i < len(segments)-1; i++ {
-					segment := segments[i]
-					if next, exists := current[segment]; exists {
-						current = next.(map[string]any)
-					} else {
-						newMap := make(map[string]any, len(segments)-i-1)
-						current[segment] = newMap
-						current = newMap
-					}
+				renderKey := "$" + key + "." + fieldPath
+				if next, exists := current[renderKey]; exists {
+					current = next.(map[string]any)
+				} else {
+					current[renderKey] = nil
 				}
-				lastSegment := segments[len(segments)-1]
-				current[lastSegment] = nil
 			}
 		case map[string]any:
 			subTree := make(map[string]any)
@@ -203,14 +196,14 @@ func populateResponseTree(cachedTree, values map[string]any) map[string]any {
 				output[key] = filteredSubTree
 			}
 		case nil:
-			if renderedValue, exists := values[key+"_data"]; exists {
-				if reflect.TypeOf(renderedValue) == reflect.TypeOf("") && strings.HasPrefix(renderedValue.(string), "$f") {
-					output[key] = nil
+			if renderedValue, exists := values[key]; exists {
+				// Remove render prefix so that output prop key name matches schema
+				keySuffix := key[strings.IndexByte(key, '.')+1:]
+				if strValue, ok := renderedValue.(string); ok && key == strValue {
+					output[keySuffix] = nil
 				} else {
-					output[key] = renderedValue
+					output[keySuffix] = renderedValue
 				}
-			} else {
-				output[key] = nil
 			}
 		default:
 			output[key] = val
