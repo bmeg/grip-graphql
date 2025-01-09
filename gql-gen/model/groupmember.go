@@ -7,13 +7,13 @@ import (
 )
 
 type SafeGroupMember struct {
+	ResourceType *string `json:"resourceType,omitempty"`
 	Entity TypedObject `json:"entity"`
 	Extension []*Extension `json:"extension,omitempty"`
 	ID *string `json:"id,omitempty"`
-	Inactive *string `json:"inactive,omitempty"`
+	Inactive *bool `json:"inactive,omitempty"`
 	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	Period *Period `json:"period,omitempty"`
-	ResourceType *string `json:"resourceType,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -24,12 +24,12 @@ func (o *GroupMember) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = GroupMember{
+		ResourceType: safe.ResourceType,
 		Extension: safe.Extension,
 		ID: safe.ID,
 		Inactive: safe.Inactive,
 		ModifierExtension: safe.ModifierExtension,
 		Period: safe.Period,
-		ResourceType: safe.ResourceType,
 		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "entity", safe.Entity.Typename, &o.Entity); err != nil {

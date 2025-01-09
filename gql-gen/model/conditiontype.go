@@ -7,38 +7,38 @@ import (
 )
 
 type SafeConditionType struct {
-	Contained TypedObject `json:"contained,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	Participant []*ConditionParticipant `json:"participant,omitempty"`
-	BodySite []*CodeableConcept `json:"bodySite,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	AbatementDateTime *string `json:"abatementDateTime,omitempty"`
-	Severity *CodeableConcept `json:"severity,omitempty"`
-	Code *CodeableConcept `json:"code,omitempty"`
-	RecordedDate *string `json:"recordedDate,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	Stage []*ConditionStage `json:"stage,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
-	OnsetPeriod *Period `json:"onsetPeriod,omitempty"`
-	Subject TypedObject `json:"subject"`
-	OnsetDateTime *string `json:"onsetDateTime,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	Evidence []*CodeableReference `json:"evidence,omitempty"`
 	ClinicalStatus *CodeableConcept `json:"clinicalStatus,omitempty"`
-	OnsetAge *Age `json:"onsetAge,omitempty"`
-	ID *string `json:"id,omitempty"`
-	OnsetString *string `json:"onsetString,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	OnsetRange *Range `json:"onsetRange,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	Stage []*ConditionStage `json:"stage,omitempty"`
+	RecordedDate *string `json:"recordedDate,omitempty"`
+	AbatementDateTime *string `json:"abatementDateTime,omitempty"`
+	OnsetPeriod *Period `json:"onsetPeriod,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	Evidence []*CodeableReference `json:"evidence,omitempty"`
 	AbatementRange *Range `json:"abatementRange,omitempty"`
 	AbatementPeriod *Period `json:"abatementPeriod,omitempty"`
-	AbatementAge *Age `json:"abatementAge,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	VerificationStatus *CodeableConcept `json:"verificationStatus,omitempty"`
-	Category []*CodeableConcept `json:"category,omitempty"`
+	BodySite []*CodeableConcept `json:"bodySite,omitempty"`
 	Language *string `json:"language,omitempty"`
-	Note []*Annotation `json:"note,omitempty"`
+	OnsetAge *Age `json:"onsetAge,omitempty"`
+	Participant []*ConditionParticipant `json:"participant,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	OnsetDateTime *string `json:"onsetDateTime,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	AbatementAge *Age `json:"abatementAge,omitempty"`
 	AbatementString *string `json:"abatementString,omitempty"`
-	OnsetRange *Range `json:"onsetRange,omitempty"`
+	Code *CodeableConcept `json:"code,omitempty"`
+	Subject TypedObject `json:"subject"`
+	ID *string `json:"id,omitempty"`
+	OnsetString *string `json:"onsetString,omitempty"`
+	Category []*CodeableConcept `json:"category,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	Note []*Annotation `json:"note,omitempty"`
+	VerificationStatus *CodeableConcept `json:"verificationStatus,omitempty"`
+	Severity *CodeableConcept `json:"severity,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -49,36 +49,36 @@ func (o *ConditionType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = ConditionType{
-		Meta: safe.Meta,
-		Participant: safe.Participant,
-		BodySite: safe.BodySite,
-		ModifierExtension: safe.ModifierExtension,
-		AbatementDateTime: safe.AbatementDateTime,
-		Severity: safe.Severity,
-		Code: safe.Code,
-		RecordedDate: safe.RecordedDate,
-		Text: safe.Text,
-		ResourceType: safe.ResourceType,
-		Stage: safe.Stage,
-		Extension: safe.Extension,
-		OnsetPeriod: safe.OnsetPeriod,
-		OnsetDateTime: safe.OnsetDateTime,
-		ImplicitRules: safe.ImplicitRules,
-		Evidence: safe.Evidence,
 		ClinicalStatus: safe.ClinicalStatus,
-		OnsetAge: safe.OnsetAge,
-		ID: safe.ID,
-		OnsetString: safe.OnsetString,
+		Meta: safe.Meta,
+		OnsetRange: safe.OnsetRange,
+		Identifier: safe.Identifier,
+		Stage: safe.Stage,
+		RecordedDate: safe.RecordedDate,
+		AbatementDateTime: safe.AbatementDateTime,
+		OnsetPeriod: safe.OnsetPeriod,
+		Extension: safe.Extension,
+		Evidence: safe.Evidence,
 		AbatementRange: safe.AbatementRange,
 		AbatementPeriod: safe.AbatementPeriod,
-		AbatementAge: safe.AbatementAge,
-		Identifier: safe.Identifier,
-		VerificationStatus: safe.VerificationStatus,
-		Category: safe.Category,
+		BodySite: safe.BodySite,
 		Language: safe.Language,
-		Note: safe.Note,
+		OnsetAge: safe.OnsetAge,
+		Participant: safe.Participant,
+		ImplicitRules: safe.ImplicitRules,
+		OnsetDateTime: safe.OnsetDateTime,
+		ResourceType: safe.ResourceType,
+		AbatementAge: safe.AbatementAge,
 		AbatementString: safe.AbatementString,
-		OnsetRange: safe.OnsetRange,
+		Code: safe.Code,
+		ID: safe.ID,
+		OnsetString: safe.OnsetString,
+		Category: safe.Category,
+		Text: safe.Text,
+		ModifierExtension: safe.ModifierExtension,
+		Note: safe.Note,
+		VerificationStatus: safe.VerificationStatus,
+		Severity: safe.Severity,
 		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {

@@ -14,6 +14,7 @@ import (
 )
 
 type Resolver struct {
+	Graph  string
 	GripDb gripql.Client
 	Schema *ast.Schema
 }
@@ -139,7 +140,7 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 	q = q.Render(render)
 	fmt.Println("QUERY AFTER RENDER: ", q)
 
-	result, err := r.GripDb.Traversal(context.Background(), &gripql.GraphQuery{Graph: "CALIPER", Query: q.Statements})
+	result, err := r.GripDb.Traversal(context.Background(), &gripql.GraphQuery{Graph: r.Graph, Query: q.Statements})
 	if err != nil {
 		return nil, fmt.Errorf("Traversal Error: %s", err)
 	}

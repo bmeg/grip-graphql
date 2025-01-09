@@ -160,7 +160,8 @@ func applyJsonFilter(filter map[string]any) (*gripql.HasExpression, error) {
 		field := ""
 		topFilter, ok := filter[topLevelOp].(map[string]any)
 		if !ok {
-			return nil, fmt.Errorf("Top level filter %s not of type map[string]any", filter[topLevelOp])
+			// If here then format is correct but logical operator is not supported
+			return nil, fmt.Errorf("invalid logical operator '%s'", topLevelOp)
 		}
 
 		for key := range topFilter {

@@ -7,18 +7,18 @@ import (
 )
 
 type SafeRelatedArtifact struct {
-	Citation *string `json:"citation,omitempty"`
-	ID *string `json:"id,omitempty"`
-	Display *string `json:"display,omitempty"`
 	Extension []*Extension `json:"extension,omitempty"`
-	ResourceReference TypedObject `json:"resourceReference"`
+	PublicationDate *string `json:"publicationDate,omitempty"`
 	PublicationStatus *string `json:"publicationStatus,omitempty"`
 	Type *string `json:"type,omitempty"`
+	Citation *string `json:"citation,omitempty"`
 	Document *Attachment `json:"document,omitempty"`
-	PublicationDate *string `json:"publicationDate,omitempty"`
-	Label *string `json:"label,omitempty"`
 	Resource *string `json:"resource,omitempty"`
 	ResourceType *string `json:"resourceType,omitempty"`
+	ID *string `json:"id,omitempty"`
+	ResourceReference TypedObject `json:"resourceReference"`
+	Display *string `json:"display,omitempty"`
+	Label *string `json:"label,omitempty"`
 	Classifier []*CodeableConcept `json:"classifier,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
@@ -30,17 +30,17 @@ func (o *RelatedArtifact) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = RelatedArtifact{
-		Citation: safe.Citation,
-		ID: safe.ID,
-		Display: safe.Display,
 		Extension: safe.Extension,
+		PublicationDate: safe.PublicationDate,
 		PublicationStatus: safe.PublicationStatus,
 		Type: safe.Type,
+		Citation: safe.Citation,
 		Document: safe.Document,
-		PublicationDate: safe.PublicationDate,
-		Label: safe.Label,
 		Resource: safe.Resource,
 		ResourceType: safe.ResourceType,
+		ID: safe.ID,
+		Display: safe.Display,
+		Label: safe.Label,
 		Classifier: safe.Classifier,
 		AuthResourcePath: safe.AuthResourcePath,
 	}

@@ -7,16 +7,16 @@ import (
 )
 
 type SafeSignature struct {
-	TargetFormat *string `json:"targetFormat,omitempty"`
-	Type []*Coding `json:"type,omitempty"`
-	When *string `json:"when,omitempty"`
-	Who TypedObject `json:"who"`
-	Extension []*Extension `json:"extension,omitempty"`
-	ID *string `json:"id,omitempty"`
-	ResourceType *string `json:"resourceType,omitempty"`
 	Data *string `json:"data,omitempty"`
 	OnBehalfOf TypedObject `json:"onBehalfOf"`
+	When *string `json:"when,omitempty"`
 	SigFormat *string `json:"sigFormat,omitempty"`
+	TargetFormat *string `json:"targetFormat,omitempty"`
+	Who TypedObject `json:"who"`
+	ID *string `json:"id,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	Type []*Coding `json:"type,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -27,21 +27,21 @@ func (o *Signature) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = Signature{
-		TargetFormat: safe.TargetFormat,
-		Type: safe.Type,
+		Data: safe.Data,
 		When: safe.When,
-		Extension: safe.Extension,
+		SigFormat: safe.SigFormat,
+		TargetFormat: safe.TargetFormat,
 		ID: safe.ID,
 		ResourceType: safe.ResourceType,
-		Data: safe.Data,
-		SigFormat: safe.SigFormat,
+		Type: safe.Type,
+		Extension: safe.Extension,
 		AuthResourcePath: safe.AuthResourcePath,
-	}
-	if err := unmarshalUnion(b, "who", safe.Who.Typename, &o.Who); err != nil {
-		return fmt.Errorf("failed to unmarshal Who: %w", err)
 	}
 	if err := unmarshalUnion(b, "onBehalfOf", safe.OnBehalfOf.Typename, &o.OnBehalfOf); err != nil {
 		return fmt.Errorf("failed to unmarshal OnBehalfOf: %w", err)
+	}
+	if err := unmarshalUnion(b, "who", safe.Who.Typename, &o.Who); err != nil {
+		return fmt.Errorf("failed to unmarshal Who: %w", err)
 	}
 
 	return nil

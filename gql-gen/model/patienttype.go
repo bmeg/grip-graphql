@@ -7,32 +7,32 @@ import (
 )
 
 type SafePatientType struct {
-	Telecom []*ContactPoint `json:"telecom,omitempty"`
-	DeceasedBoolean *string `json:"deceasedBoolean,omitempty"`
-	Communication []*PatientCommunication `json:"communication,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
-	Name []*HumanName `json:"name,omitempty"`
-	BirthDate *string `json:"birthDate,omitempty"`
-	DeceasedDateTime *string `json:"deceasedDateTime,omitempty"`
 	Language *string `json:"language,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	GeneralPractitioner TypedObject `json:"generalPractitioner"`
+	DeceasedBoolean *bool `json:"deceasedBoolean,omitempty"`
 	Identifier []*Identifier `json:"identifier,omitempty"`
-	ManagingOrganization *OrganizationType `json:"managingOrganization"`
-	ID *string `json:"id,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	Photo []*Attachment `json:"photo,omitempty"`
-	Active *string `json:"active,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
 	Address []*Address `json:"address,omitempty"`
+	Communication []*PatientCommunication `json:"communication,omitempty"`
 	Gender *string `json:"gender,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	MultipleBirthBoolean *string `json:"multipleBirthBoolean,omitempty"`
-	Contact []*PatientContact `json:"contact,omitempty"`
+	Name []*HumanName `json:"name,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
 	MaritalStatus *CodeableConcept `json:"maritalStatus,omitempty"`
 	ResourceType *string `json:"resourceType,omitempty"`
-	MultipleBirthInteger *string `json:"multipleBirthInteger,omitempty"`
+	Active *bool `json:"active,omitempty"`
+	Telecom []*ContactPoint `json:"telecom,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	Contact []*PatientContact `json:"contact,omitempty"`
+	ID *string `json:"id,omitempty"`
+	Photo []*Attachment `json:"photo,omitempty"`
+	MultipleBirthInteger *int `json:"multipleBirthInteger,omitempty"`
+	BirthDate *string `json:"birthDate,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	MultipleBirthBoolean *bool `json:"multipleBirthBoolean,omitempty"`
+	GeneralPractitioner TypedObject `json:"generalPractitioner"`
+	DeceasedDateTime *string `json:"deceasedDateTime,omitempty"`
+	ManagingOrganization *OrganizationType `json:"managingOrganization"`
+	Meta *Meta `json:"meta,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -43,37 +43,37 @@ func (o *PatientType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = PatientType{
-		Telecom: safe.Telecom,
-		DeceasedBoolean: safe.DeceasedBoolean,
-		Communication: safe.Communication,
-		Extension: safe.Extension,
-		Name: safe.Name,
-		BirthDate: safe.BirthDate,
-		DeceasedDateTime: safe.DeceasedDateTime,
 		Language: safe.Language,
-		Text: safe.Text,
+		DeceasedBoolean: safe.DeceasedBoolean,
 		Identifier: safe.Identifier,
-		ManagingOrganization: safe.ManagingOrganization,
-		ID: safe.ID,
-		ModifierExtension: safe.ModifierExtension,
-		ImplicitRules: safe.ImplicitRules,
-		Photo: safe.Photo,
-		Active: safe.Active,
 		Address: safe.Address,
+		Communication: safe.Communication,
 		Gender: safe.Gender,
-		Meta: safe.Meta,
-		MultipleBirthBoolean: safe.MultipleBirthBoolean,
-		Contact: safe.Contact,
+		Name: safe.Name,
+		Extension: safe.Extension,
+		ImplicitRules: safe.ImplicitRules,
+		Text: safe.Text,
 		MaritalStatus: safe.MaritalStatus,
 		ResourceType: safe.ResourceType,
+		Active: safe.Active,
+		Telecom: safe.Telecom,
+		Contact: safe.Contact,
+		ID: safe.ID,
+		Photo: safe.Photo,
 		MultipleBirthInteger: safe.MultipleBirthInteger,
+		BirthDate: safe.BirthDate,
+		ModifierExtension: safe.ModifierExtension,
+		MultipleBirthBoolean: safe.MultipleBirthBoolean,
+		DeceasedDateTime: safe.DeceasedDateTime,
+		ManagingOrganization: safe.ManagingOrganization,
+		Meta: safe.Meta,
 		AuthResourcePath: safe.AuthResourcePath,
-	}
-	if err := unmarshalUnion(b, "generalPractitioner", safe.GeneralPractitioner.Typename, &o.GeneralPractitioner); err != nil {
-		return fmt.Errorf("failed to unmarshal GeneralPractitioner: %w", err)
 	}
 	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
 		return fmt.Errorf("failed to unmarshal Contained: %w", err)
+	}
+	if err := unmarshalUnion(b, "generalPractitioner", safe.GeneralPractitioner.Typename, &o.GeneralPractitioner); err != nil {
+		return fmt.Errorf("failed to unmarshal GeneralPractitioner: %w", err)
 	}
 
 	return nil

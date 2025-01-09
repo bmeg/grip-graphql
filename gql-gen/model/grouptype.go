@@ -7,26 +7,26 @@ import (
 )
 
 type SafeGroupType struct {
-	Text *Narrative `json:"text,omitempty"`
-	Membership *string `json:"membership,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	Characteristic []*GroupCharacteristic `json:"characteristic,omitempty"`
-	ManagingEntity TypedObject `json:"managingEntity"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	Member []*GroupMember `json:"member,omitempty"`
-	Quantity *string `json:"quantity,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	Name *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
 	ID *string `json:"id,omitempty"`
+	Membership *string `json:"membership,omitempty"`
+	Quantity *int `json:"quantity,omitempty"`
+	ManagingEntity TypedObject `json:"managingEntity"`
+	Language *string `json:"language,omitempty"`
+	Characteristic []*GroupCharacteristic `json:"characteristic,omitempty"`
+	Active *bool `json:"active,omitempty"`
 	ImplicitRules *string `json:"implicitRules,omitempty"`
 	Extension []*Extension `json:"extension,omitempty"`
-	Language *string `json:"language,omitempty"`
+	Member []*GroupMember `json:"member,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
 	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	Code *CodeableConcept `json:"code,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
 	Type *string `json:"type,omitempty"`
-	Active *string `json:"active,omitempty"`
-	Name *string `json:"name,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
+	Code *CodeableConcept `json:"code,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -37,31 +37,31 @@ func (o *GroupType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = GroupType{
-		Text: safe.Text,
-		Membership: safe.Membership,
-		Meta: safe.Meta,
-		Characteristic: safe.Characteristic,
-		ResourceType: safe.ResourceType,
-		Member: safe.Member,
-		Quantity: safe.Quantity,
+		Name: safe.Name,
 		Description: safe.Description,
-		Identifier: safe.Identifier,
 		ID: safe.ID,
+		Membership: safe.Membership,
+		Quantity: safe.Quantity,
+		Language: safe.Language,
+		Characteristic: safe.Characteristic,
+		Active: safe.Active,
 		ImplicitRules: safe.ImplicitRules,
 		Extension: safe.Extension,
-		Language: safe.Language,
+		Member: safe.Member,
+		ResourceType: safe.ResourceType,
 		ModifierExtension: safe.ModifierExtension,
-		Code: safe.Code,
+		Text: safe.Text,
 		Type: safe.Type,
-		Active: safe.Active,
-		Name: safe.Name,
+		Identifier: safe.Identifier,
+		Meta: safe.Meta,
+		Code: safe.Code,
 		AuthResourcePath: safe.AuthResourcePath,
-	}
-	if err := unmarshalUnion(b, "managingEntity", safe.ManagingEntity.Typename, &o.ManagingEntity); err != nil {
-		return fmt.Errorf("failed to unmarshal ManagingEntity: %w", err)
 	}
 	if err := unmarshalUnion(b, "contained", safe.Contained.Typename, &o.Contained); err != nil {
 		return fmt.Errorf("failed to unmarshal Contained: %w", err)
+	}
+	if err := unmarshalUnion(b, "managingEntity", safe.ManagingEntity.Typename, &o.ManagingEntity); err != nil {
+		return fmt.Errorf("failed to unmarshal ManagingEntity: %w", err)
 	}
 
 	return nil

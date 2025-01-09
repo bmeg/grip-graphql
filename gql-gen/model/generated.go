@@ -262,25 +262,25 @@ type UsageContextValueReferenceUnion interface {
 
 type Address struct {
 	PostalCode       *string      `json:"postalCode,omitempty"`
-	Type             *string      `json:"type,omitempty"`
 	Country          *string      `json:"country,omitempty"`
-	ID               *string      `json:"id,omitempty"`
-	Line             *string      `json:"line,omitempty"`
-	Text             *string      `json:"text,omitempty"`
-	City             *string      `json:"city,omitempty"`
-	Extension        []*Extension `json:"extension,omitempty"`
-	Period           *Period      `json:"period,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
-	State            *string      `json:"state,omitempty"`
+	Type             *string      `json:"type,omitempty"`
+	Period           *Period      `json:"period,omitempty"`
 	Use              *string      `json:"use,omitempty"`
 	District         *string      `json:"district,omitempty"`
+	Extension        []*Extension `json:"extension,omitempty"`
+	Line             *string      `json:"line,omitempty"`
+	City             *string      `json:"city,omitempty"`
+	ID               *string      `json:"id,omitempty"`
+	State            *string      `json:"state,omitempty"`
+	Text             *string      `json:"text,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type Age struct {
 	System           *string      `json:"system,omitempty"`
 	Unit             *string      `json:"unit,omitempty"`
-	Value            *string      `json:"value,omitempty"`
+	Value            *float64     `json:"value,omitempty"`
 	Code             *string      `json:"code,omitempty"`
 	Comparator       *string      `json:"comparator,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
@@ -301,106 +301,106 @@ type Annotation struct {
 }
 
 type Attachment struct {
-	ContentType      *string      `json:"contentType,omitempty"`
 	URL              *string      `json:"url,omitempty"`
-	Height           *string      `json:"height,omitempty"`
-	Width            *string      `json:"width,omitempty"`
-	Hash             *string      `json:"hash,omitempty"`
-	ID               *string      `json:"id,omitempty"`
-	Duration         *string      `json:"duration,omitempty"`
-	Title            *string      `json:"title,omitempty"`
-	Pages            *string      `json:"pages,omitempty"`
-	Creation         *string      `json:"creation,omitempty"`
+	Duration         *float64     `json:"duration,omitempty"`
+	Size             *int         `json:"size,omitempty"`
+	Height           *int         `json:"height,omitempty"`
+	Width            *int         `json:"width,omitempty"`
 	Data             *string      `json:"data,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
-	Language         *string      `json:"language,omitempty"`
+	Frames           *int         `json:"frames,omitempty"`
+	ContentType      *string      `json:"contentType,omitempty"`
+	Pages            *int         `json:"pages,omitempty"`
+	ID               *string      `json:"id,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
-	Frames           *string      `json:"frames,omitempty"`
-	Size             *string      `json:"size,omitempty"`
+	Hash             *string      `json:"hash,omitempty"`
+	Language         *string      `json:"language,omitempty"`
+	Title            *string      `json:"title,omitempty"`
+	Creation         *string      `json:"creation,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type Availability struct {
-	AvailableTime    []*AvailabilityAvailableTime    `json:"availableTime,omitempty"`
 	Extension        []*Extension                    `json:"extension,omitempty"`
 	ID               *string                         `json:"id,omitempty"`
 	NotAvailableTime []*AvailabilityNotAvailableTime `json:"notAvailableTime,omitempty"`
 	ResourceType     *string                         `json:"resourceType,omitempty"`
+	AvailableTime    []*AvailabilityAvailableTime    `json:"availableTime,omitempty"`
 	AuthResourcePath *string                         `json:"auth_resource_path,omitempty"`
 }
 
 type AvailabilityAvailableTime struct {
-	AllDay             *string      `json:"allDay,omitempty"`
-	AvailableEndTime   *string      `json:"availableEndTime,omitempty"`
 	AvailableStartTime *string      `json:"availableStartTime,omitempty"`
 	DaysOfWeek         *string      `json:"daysOfWeek,omitempty"`
 	Extension          []*Extension `json:"extension,omitempty"`
 	ID                 *string      `json:"id,omitempty"`
 	ResourceType       *string      `json:"resourceType,omitempty"`
+	AllDay             *bool        `json:"allDay,omitempty"`
+	AvailableEndTime   *string      `json:"availableEndTime,omitempty"`
 	AuthResourcePath   *string      `json:"auth_resource_path,omitempty"`
 }
 
 type AvailabilityNotAvailableTime struct {
-	Description      *string      `json:"description,omitempty"`
-	During           *Period      `json:"during,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
+	Description      *string      `json:"description,omitempty"`
+	During           *Period      `json:"during,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type BodyStructureIncludedStructure struct {
+	Extension               []*Extension                                             `json:"extension,omitempty"`
+	ID                      *string                                                  `json:"id,omitempty"`
 	Laterality              *CodeableConcept                                         `json:"laterality,omitempty"`
 	ModifierExtension       []*Extension                                             `json:"modifierExtension,omitempty"`
 	Qualifier               []*CodeableConcept                                       `json:"qualifier,omitempty"`
 	ResourceType            *string                                                  `json:"resourceType,omitempty"`
 	Structure               *CodeableConcept                                         `json:"structure,omitempty"`
 	BodyLandmarkOrientation []*BodyStructureIncludedStructureBodyLandmarkOrientation `json:"bodyLandmarkOrientation,omitempty"`
-	Extension               []*Extension                                             `json:"extension,omitempty"`
-	ID                      *string                                                  `json:"id,omitempty"`
 	AuthResourcePath        *string                                                  `json:"auth_resource_path,omitempty"`
 }
 
 type BodyStructureIncludedStructureBodyLandmarkOrientation struct {
+	ID                   *string                                                                      `json:"id,omitempty"`
+	LandmarkDescription  []*CodeableConcept                                                           `json:"landmarkDescription,omitempty"`
+	ModifierExtension    []*Extension                                                                 `json:"modifierExtension,omitempty"`
 	ResourceType         *string                                                                      `json:"resourceType,omitempty"`
 	SurfaceOrientation   []*CodeableConcept                                                           `json:"surfaceOrientation,omitempty"`
 	ClockFacePosition    []*CodeableConcept                                                           `json:"clockFacePosition,omitempty"`
 	DistanceFromLandmark []*BodyStructureIncludedStructureBodyLandmarkOrientationDistanceFromLandmark `json:"distanceFromLandmark,omitempty"`
 	Extension            []*Extension                                                                 `json:"extension,omitempty"`
-	ID                   *string                                                                      `json:"id,omitempty"`
-	LandmarkDescription  []*CodeableConcept                                                           `json:"landmarkDescription,omitempty"`
-	ModifierExtension    []*Extension                                                                 `json:"modifierExtension,omitempty"`
 	AuthResourcePath     *string                                                                      `json:"auth_resource_path,omitempty"`
 }
 
 type BodyStructureIncludedStructureBodyLandmarkOrientationDistanceFromLandmark struct {
-	ID                *string              `json:"id,omitempty"`
-	ModifierExtension []*Extension         `json:"modifierExtension,omitempty"`
-	ResourceType      *string              `json:"resourceType,omitempty"`
 	Value             []*Quantity          `json:"value,omitempty"`
 	Device            []*CodeableReference `json:"device,omitempty"`
 	Extension         []*Extension         `json:"extension,omitempty"`
+	ID                *string              `json:"id,omitempty"`
+	ModifierExtension []*Extension         `json:"modifierExtension,omitempty"`
+	ResourceType      *string              `json:"resourceType,omitempty"`
 	AuthResourcePath  *string              `json:"auth_resource_path,omitempty"`
 }
 
 type BodyStructureType struct {
-	Active            *string                           `json:"active,omitempty"`
-	Description       *string                           `json:"description,omitempty"`
-	ImplicitRules     *string                           `json:"implicitRules,omitempty"`
-	Contained         []ResourceUnion                   `json:"contained,omitempty"`
-	ModifierExtension []*Extension                      `json:"modifierExtension,omitempty"`
-	ResourceType      *string                           `json:"resourceType,omitempty"`
-	Image             []*Attachment                     `json:"image,omitempty"`
-	Extension         []*Extension                      `json:"extension,omitempty"`
-	ID                *string                           `json:"id,omitempty"`
 	Language          *string                           `json:"language,omitempty"`
-	Patient           *PatientType                      `json:"patient"`
-	ExcludedStructure []*BodyStructureIncludedStructure `json:"excludedStructure,omitempty"`
-	Identifier        []*Identifier                     `json:"identifier,omitempty"`
-	Text              *Narrative                        `json:"text,omitempty"`
-	IncludedStructure []*BodyStructureIncludedStructure `json:"includedStructure,omitempty"`
-	Meta              *Meta                             `json:"meta,omitempty"`
+	ModifierExtension []*Extension                      `json:"modifierExtension,omitempty"`
+	Description       *string                           `json:"description,omitempty"`
+	ID                *string                           `json:"id,omitempty"`
 	Morphology        *CodeableConcept                  `json:"morphology,omitempty"`
+	Patient           *PatientType                      `json:"patient"`
+	Extension         []*Extension                      `json:"extension,omitempty"`
+	Contained         []ResourceUnion                   `json:"contained,omitempty"`
+	IncludedStructure []*BodyStructureIncludedStructure `json:"includedStructure,omitempty"`
+	Image             []*Attachment                     `json:"image,omitempty"`
+	ResourceType      *string                           `json:"resourceType,omitempty"`
+	Text              *Narrative                        `json:"text,omitempty"`
+	ImplicitRules     *string                           `json:"implicitRules,omitempty"`
+	Meta              *Meta                             `json:"meta,omitempty"`
+	Active            *bool                             `json:"active,omitempty"`
+	Identifier        []*Identifier                     `json:"identifier,omitempty"`
+	ExcludedStructure []*BodyStructureIncludedStructure `json:"excludedStructure,omitempty"`
 	AuthResourcePath  *string                           `json:"auth_resource_path,omitempty"`
 }
 
@@ -424,71 +424,71 @@ type CodeableReference struct {
 }
 
 type Coding struct {
+	Extension        []*Extension `json:"extension,omitempty"`
+	ID               *string      `json:"id,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
 	System           *string      `json:"system,omitempty"`
-	UserSelected     *string      `json:"userSelected,omitempty"`
+	UserSelected     *bool        `json:"userSelected,omitempty"`
 	Version          *string      `json:"version,omitempty"`
 	Code             *string      `json:"code,omitempty"`
 	Display          *string      `json:"display,omitempty"`
-	Extension        []*Extension `json:"extension,omitempty"`
-	ID               *string      `json:"id,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type ConditionParticipant struct {
-	ID                *string                        `json:"id,omitempty"`
-	ModifierExtension []*Extension                   `json:"modifierExtension,omitempty"`
-	ResourceType      *string                        `json:"resourceType,omitempty"`
 	Actor             ConditionParticipantActorUnion `json:"actor"`
 	Extension         []*Extension                   `json:"extension,omitempty"`
 	Function          *CodeableConcept               `json:"function,omitempty"`
+	ID                *string                        `json:"id,omitempty"`
+	ModifierExtension []*Extension                   `json:"modifierExtension,omitempty"`
+	ResourceType      *string                        `json:"resourceType,omitempty"`
 	AuthResourcePath  *string                        `json:"auth_resource_path,omitempty"`
 }
 
 type ConditionStage struct {
+	Summary           *CodeableConcept              `json:"summary,omitempty"`
+	Type              *CodeableConcept              `json:"type,omitempty"`
+	Assessment        ConditionStageAssessmentUnion `json:"assessment"`
 	Extension         []*Extension                  `json:"extension,omitempty"`
 	ID                *string                       `json:"id,omitempty"`
 	ModifierExtension []*Extension                  `json:"modifierExtension,omitempty"`
 	ResourceType      *string                       `json:"resourceType,omitempty"`
-	Summary           *CodeableConcept              `json:"summary,omitempty"`
-	Type              *CodeableConcept              `json:"type,omitempty"`
-	Assessment        ConditionStageAssessmentUnion `json:"assessment"`
 	AuthResourcePath  *string                       `json:"auth_resource_path,omitempty"`
 }
 
 type ConditionType struct {
-	Contained          []ResourceUnion         `json:"contained,omitempty"`
-	Meta               *Meta                   `json:"meta,omitempty"`
-	Participant        []*ConditionParticipant `json:"participant,omitempty"`
-	BodySite           []*CodeableConcept      `json:"bodySite,omitempty"`
-	ModifierExtension  []*Extension            `json:"modifierExtension,omitempty"`
-	AbatementDateTime  *string                 `json:"abatementDateTime,omitempty"`
-	Severity           *CodeableConcept        `json:"severity,omitempty"`
-	Code               *CodeableConcept        `json:"code,omitempty"`
-	RecordedDate       *string                 `json:"recordedDate,omitempty"`
-	Text               *Narrative              `json:"text,omitempty"`
-	ResourceType       *string                 `json:"resourceType,omitempty"`
-	Stage              []*ConditionStage       `json:"stage,omitempty"`
-	Extension          []*Extension            `json:"extension,omitempty"`
-	OnsetPeriod        *Period                 `json:"onsetPeriod,omitempty"`
-	Subject            ConditionSubjectUnion   `json:"subject"`
-	OnsetDateTime      *string                 `json:"onsetDateTime,omitempty"`
-	ImplicitRules      *string                 `json:"implicitRules,omitempty"`
-	Evidence           []*CodeableReference    `json:"evidence,omitempty"`
 	ClinicalStatus     *CodeableConcept        `json:"clinicalStatus,omitempty"`
-	OnsetAge           *Age                    `json:"onsetAge,omitempty"`
-	ID                 *string                 `json:"id,omitempty"`
-	OnsetString        *string                 `json:"onsetString,omitempty"`
+	Meta               *Meta                   `json:"meta,omitempty"`
+	OnsetRange         *Range                  `json:"onsetRange,omitempty"`
+	Identifier         []*Identifier           `json:"identifier,omitempty"`
+	Stage              []*ConditionStage       `json:"stage,omitempty"`
+	RecordedDate       *string                 `json:"recordedDate,omitempty"`
+	AbatementDateTime  *string                 `json:"abatementDateTime,omitempty"`
+	OnsetPeriod        *Period                 `json:"onsetPeriod,omitempty"`
+	Extension          []*Extension            `json:"extension,omitempty"`
+	Evidence           []*CodeableReference    `json:"evidence,omitempty"`
 	AbatementRange     *Range                  `json:"abatementRange,omitempty"`
 	AbatementPeriod    *Period                 `json:"abatementPeriod,omitempty"`
-	AbatementAge       *Age                    `json:"abatementAge,omitempty"`
-	Identifier         []*Identifier           `json:"identifier,omitempty"`
-	VerificationStatus *CodeableConcept        `json:"verificationStatus,omitempty"`
-	Category           []*CodeableConcept      `json:"category,omitempty"`
+	BodySite           []*CodeableConcept      `json:"bodySite,omitempty"`
 	Language           *string                 `json:"language,omitempty"`
-	Note               []*Annotation           `json:"note,omitempty"`
+	OnsetAge           *Age                    `json:"onsetAge,omitempty"`
+	Participant        []*ConditionParticipant `json:"participant,omitempty"`
+	ImplicitRules      *string                 `json:"implicitRules,omitempty"`
+	Contained          []ResourceUnion         `json:"contained,omitempty"`
+	OnsetDateTime      *string                 `json:"onsetDateTime,omitempty"`
+	ResourceType       *string                 `json:"resourceType,omitempty"`
+	AbatementAge       *Age                    `json:"abatementAge,omitempty"`
 	AbatementString    *string                 `json:"abatementString,omitempty"`
-	OnsetRange         *Range                  `json:"onsetRange,omitempty"`
+	Code               *CodeableConcept        `json:"code,omitempty"`
+	Subject            ConditionSubjectUnion   `json:"subject"`
+	ID                 *string                 `json:"id,omitempty"`
+	OnsetString        *string                 `json:"onsetString,omitempty"`
+	Category           []*CodeableConcept      `json:"category,omitempty"`
+	Text               *Narrative              `json:"text,omitempty"`
+	ModifierExtension  []*Extension            `json:"modifierExtension,omitempty"`
+	Note               []*Annotation           `json:"note,omitempty"`
+	VerificationStatus *CodeableConcept        `json:"verificationStatus,omitempty"`
+	Severity           *CodeableConcept        `json:"severity,omitempty"`
 	AuthResourcePath   *string                 `json:"auth_resource_path,omitempty"`
 }
 
@@ -506,43 +506,43 @@ type ContactDetail struct {
 }
 
 type ContactPoint struct {
+	Rank             *int         `json:"rank,omitempty"`
+	ResourceType     *string      `json:"resourceType,omitempty"`
+	System           *string      `json:"system,omitempty"`
+	Use              *string      `json:"use,omitempty"`
 	Value            *string      `json:"value,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
 	Period           *Period      `json:"period,omitempty"`
-	Rank             *string      `json:"rank,omitempty"`
-	ResourceType     *string      `json:"resourceType,omitempty"`
-	System           *string      `json:"system,omitempty"`
-	Use              *string      `json:"use,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type Count struct {
+	Unit             *string      `json:"unit,omitempty"`
+	Value            *float64     `json:"value,omitempty"`
 	Code             *string      `json:"code,omitempty"`
 	Comparator       *string      `json:"comparator,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
 	System           *string      `json:"system,omitempty"`
-	Unit             *string      `json:"unit,omitempty"`
-	Value            *string      `json:"value,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type DataRequirement struct {
-	Limit                  *string                       `json:"limit,omitempty"`
+	ID                     *string                       `json:"id,omitempty"`
+	Limit                  *int                          `json:"limit,omitempty"`
+	MustSupport            *string                       `json:"mustSupport,omitempty"`
+	CodeFilter             []*DataRequirementCodeFilter  `json:"codeFilter,omitempty"`
+	Extension              []*Extension                  `json:"extension,omitempty"`
 	Sort                   []*DataRequirementSort        `json:"sort,omitempty"`
 	SubjectCodeableConcept *CodeableConcept              `json:"subjectCodeableConcept,omitempty"`
 	SubjectReference       *GroupType                    `json:"subjectReference"`
-	ID                     *string                       `json:"id,omitempty"`
-	DateFilter             []*DataRequirementDateFilter  `json:"dateFilter,omitempty"`
-	Extension              []*Extension                  `json:"extension,omitempty"`
-	ResourceType           *string                       `json:"resourceType,omitempty"`
-	CodeFilter             []*DataRequirementCodeFilter  `json:"codeFilter,omitempty"`
-	MustSupport            *string                       `json:"mustSupport,omitempty"`
 	Profile                *string                       `json:"profile,omitempty"`
-	ValueFilter            []*DataRequirementValueFilter `json:"valueFilter,omitempty"`
 	Type                   *string                       `json:"type,omitempty"`
+	ValueFilter            []*DataRequirementValueFilter `json:"valueFilter,omitempty"`
+	DateFilter             []*DataRequirementDateFilter  `json:"dateFilter,omitempty"`
+	ResourceType           *string                       `json:"resourceType,omitempty"`
 	AuthResourcePath       *string                       `json:"auth_resource_path,omitempty"`
 }
 
@@ -558,36 +558,36 @@ type DataRequirementCodeFilter struct {
 }
 
 type DataRequirementDateFilter struct {
-	ValueDuration    *Duration    `json:"valueDuration,omitempty"`
-	ValuePeriod      *Period      `json:"valuePeriod,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
 	Path             *string      `json:"path,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
 	SearchParam      *string      `json:"searchParam,omitempty"`
 	ValueDateTime    *string      `json:"valueDateTime,omitempty"`
+	ValueDuration    *Duration    `json:"valueDuration,omitempty"`
+	ValuePeriod      *Period      `json:"valuePeriod,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type DataRequirementSort struct {
-	ResourceType     *string      `json:"resourceType,omitempty"`
 	Direction        *string      `json:"direction,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
 	Path             *string      `json:"path,omitempty"`
+	ResourceType     *string      `json:"resourceType,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type DataRequirementValueFilter struct {
-	Extension        []*Extension `json:"extension,omitempty"`
-	SearchParam      *string      `json:"searchParam,omitempty"`
-	ValueDuration    *Duration    `json:"valueDuration,omitempty"`
-	ValuePeriod      *Period      `json:"valuePeriod,omitempty"`
-	Path             *string      `json:"path,omitempty"`
-	ValueDateTime    *string      `json:"valueDateTime,omitempty"`
 	Comparator       *string      `json:"comparator,omitempty"`
 	ID               *string      `json:"id,omitempty"`
+	Extension        []*Extension `json:"extension,omitempty"`
+	Path             *string      `json:"path,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
+	SearchParam      *string      `json:"searchParam,omitempty"`
+	ValuePeriod      *Period      `json:"valuePeriod,omitempty"`
+	ValueDuration    *Duration    `json:"valueDuration,omitempty"`
+	ValueDateTime    *string      `json:"valueDateTime,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
@@ -602,61 +602,61 @@ type DiagnosticReportMedia struct {
 }
 
 type DiagnosticReportSupportingInfo struct {
+	ResourceType      *string                                      `json:"resourceType,omitempty"`
 	Type              *CodeableConcept                             `json:"type,omitempty"`
 	Extension         []*Extension                                 `json:"extension,omitempty"`
 	ID                *string                                      `json:"id,omitempty"`
 	ModifierExtension []*Extension                                 `json:"modifierExtension,omitempty"`
 	Reference         DiagnosticReportSupportingInfoReferenceUnion `json:"reference"`
-	ResourceType      *string                                      `json:"resourceType,omitempty"`
 	AuthResourcePath  *string                                      `json:"auth_resource_path,omitempty"`
 }
 
 type DiagnosticReportType struct {
-	Extension          []*Extension                            `json:"extension,omitempty"`
-	BasedOn            DiagnosticReportBasedOnUnion            `json:"basedOn"`
-	Performer          DiagnosticReportPerformerUnion          `json:"performer"`
-	ResultsInterpreter DiagnosticReportResultsInterpreterUnion `json:"resultsInterpreter"`
-	ImplicitRules      *string                                 `json:"implicitRules,omitempty"`
-	Issued             *string                                 `json:"issued,omitempty"`
-	Identifier         []*Identifier                           `json:"identifier,omitempty"`
-	Language           *string                                 `json:"language,omitempty"`
-	Media              []*DiagnosticReportMedia                `json:"media,omitempty"`
-	Result             *ObservationType                        `json:"result"`
-	ModifierExtension  []*Extension                            `json:"modifierExtension,omitempty"`
-	ID                 *string                                 `json:"id,omitempty"`
-	Status             *string                                 `json:"status,omitempty"`
-	SupportingInfo     []*DiagnosticReportSupportingInfo       `json:"supportingInfo,omitempty"`
-	PresentedForm      []*Attachment                           `json:"presentedForm,omitempty"`
-	Text               *Narrative                              `json:"text,omitempty"`
-	Specimen           *SpecimenType                           `json:"specimen"`
-	Code               *CodeableConcept                        `json:"code,omitempty"`
-	Contained          []ResourceUnion                         `json:"contained,omitempty"`
-	Subject            DiagnosticReportSubjectUnion            `json:"subject"`
-	Note               []*Annotation                           `json:"note,omitempty"`
-	Study              DiagnosticReportStudyUnion              `json:"study"`
-	ResourceType       *string                                 `json:"resourceType,omitempty"`
-	Meta               *Meta                                   `json:"meta,omitempty"`
-	EffectivePeriod    *Period                                 `json:"effectivePeriod,omitempty"`
-	Category           []*CodeableConcept                      `json:"category,omitempty"`
-	EffectiveDateTime  *string                                 `json:"effectiveDateTime,omitempty"`
 	ConclusionCode     []*CodeableConcept                      `json:"conclusionCode,omitempty"`
+	PresentedForm      []*Attachment                           `json:"presentedForm,omitempty"`
+	ResultsInterpreter DiagnosticReportResultsInterpreterUnion `json:"resultsInterpreter"`
+	Meta               *Meta                                   `json:"meta,omitempty"`
+	Extension          []*Extension                            `json:"extension,omitempty"`
+	ResourceType       *string                                 `json:"resourceType,omitempty"`
+	ID                 *string                                 `json:"id,omitempty"`
+	Specimen           *SpecimenType                           `json:"specimen"`
+	Issued             *string                                 `json:"issued,omitempty"`
+	EffectiveDateTime  *string                                 `json:"effectiveDateTime,omitempty"`
+	Performer          DiagnosticReportPerformerUnion          `json:"performer"`
+	Result             *ObservationType                        `json:"result"`
+	Subject            DiagnosticReportSubjectUnion            `json:"subject"`
+	Contained          []ResourceUnion                         `json:"contained,omitempty"`
+	ImplicitRules      *string                                 `json:"implicitRules,omitempty"`
+	Status             *string                                 `json:"status,omitempty"`
+	Language           *string                                 `json:"language,omitempty"`
+	Text               *Narrative                              `json:"text,omitempty"`
+	BasedOn            DiagnosticReportBasedOnUnion            `json:"basedOn"`
 	Conclusion         *string                                 `json:"conclusion,omitempty"`
+	Study              DiagnosticReportStudyUnion              `json:"study"`
+	EffectivePeriod    *Period                                 `json:"effectivePeriod,omitempty"`
+	Identifier         []*Identifier                           `json:"identifier,omitempty"`
+	Code               *CodeableConcept                        `json:"code,omitempty"`
+	SupportingInfo     []*DiagnosticReportSupportingInfo       `json:"supportingInfo,omitempty"`
+	Media              []*DiagnosticReportMedia                `json:"media,omitempty"`
+	Note               []*Annotation                           `json:"note,omitempty"`
+	Category           []*CodeableConcept                      `json:"category,omitempty"`
+	ModifierExtension  []*Extension                            `json:"modifierExtension,omitempty"`
 	AuthResourcePath   *string                                 `json:"auth_resource_path,omitempty"`
 }
 
-func (DiagnosticReportType) IsResearchStudyResultUnion() {}
-
-func (DiagnosticReportType) IsConditionStageAssessmentUnion() {}
-
 func (DiagnosticReportType) IsProcedureReportUnion() {}
 
+func (DiagnosticReportType) IsResearchStudyResultUnion() {}
+
 func (DiagnosticReportType) IsDiagnosticReportSupportingInfoReferenceUnion() {}
+
+func (DiagnosticReportType) IsConditionStageAssessmentUnion() {}
 
 func (DiagnosticReportType) IsResourceUnion() {}
 
 type Distance struct {
 	Unit             *string      `json:"unit,omitempty"`
-	Value            *string      `json:"value,omitempty"`
+	Value            *float64     `json:"value,omitempty"`
 	Code             *string      `json:"code,omitempty"`
 	Comparator       *string      `json:"comparator,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
@@ -667,79 +667,79 @@ type Distance struct {
 }
 
 type DocumentReferenceAttester struct {
-	Time              *string                             `json:"time,omitempty"`
-	Extension         []*Extension                        `json:"extension,omitempty"`
 	ID                *string                             `json:"id,omitempty"`
 	Mode              *CodeableConcept                    `json:"mode,omitempty"`
 	ModifierExtension []*Extension                        `json:"modifierExtension,omitempty"`
 	Party             DocumentReferenceAttesterPartyUnion `json:"party"`
 	ResourceType      *string                             `json:"resourceType,omitempty"`
+	Time              *string                             `json:"time,omitempty"`
+	Extension         []*Extension                        `json:"extension,omitempty"`
 	AuthResourcePath  *string                             `json:"auth_resource_path,omitempty"`
 }
 
 type DocumentReferenceContent struct {
-	ModifierExtension []*Extension                       `json:"modifierExtension,omitempty"`
-	Profile           []*DocumentReferenceContentProfile `json:"profile,omitempty"`
-	ResourceType      *string                            `json:"resourceType,omitempty"`
 	Attachment        *Attachment                        `json:"attachment,omitempty"`
 	Extension         []*Extension                       `json:"extension,omitempty"`
 	ID                *string                            `json:"id,omitempty"`
+	ModifierExtension []*Extension                       `json:"modifierExtension,omitempty"`
+	Profile           []*DocumentReferenceContentProfile `json:"profile,omitempty"`
+	ResourceType      *string                            `json:"resourceType,omitempty"`
 	AuthResourcePath  *string                            `json:"auth_resource_path,omitempty"`
 }
 
 type DocumentReferenceContentProfile struct {
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	ResourceType      *string      `json:"resourceType,omitempty"`
+	ValueCanonical    *string      `json:"valueCanonical,omitempty"`
 	ValueCoding       *Coding      `json:"valueCoding,omitempty"`
 	ValueURI          *string      `json:"valueUri,omitempty"`
 	Extension         []*Extension `json:"extension,omitempty"`
 	ID                *string      `json:"id,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	ResourceType      *string      `json:"resourceType,omitempty"`
-	ValueCanonical    *string      `json:"valueCanonical,omitempty"`
 	AuthResourcePath  *string      `json:"auth_resource_path,omitempty"`
 }
 
 type DocumentReferenceRelatesTo struct {
+	Extension         []*Extension           `json:"extension,omitempty"`
+	ID                *string                `json:"id,omitempty"`
 	ModifierExtension []*Extension           `json:"modifierExtension,omitempty"`
 	ResourceType      *string                `json:"resourceType,omitempty"`
 	Target            *DocumentReferenceType `json:"target"`
 	Code              *CodeableConcept       `json:"code,omitempty"`
-	Extension         []*Extension           `json:"extension,omitempty"`
-	ID                *string                `json:"id,omitempty"`
 	AuthResourcePath  *string                `json:"auth_resource_path,omitempty"`
 }
 
 type DocumentReferenceType struct {
-	DocStatus         *string                       `json:"docStatus,omitempty"`
 	ModifierExtension []*Extension                  `json:"modifierExtension,omitempty"`
-	Event             []*CodeableReference          `json:"event,omitempty"`
-	BodySite          []*CodeableReference          `json:"bodySite,omitempty"`
-	Extension         []*Extension                  `json:"extension,omitempty"`
-	Content           []*DocumentReferenceContent   `json:"content,omitempty"`
-	Custodian         *OrganizationType             `json:"custodian"`
 	SecurityLabel     []*CodeableConcept            `json:"securityLabel,omitempty"`
-	BasedOn           DocumentReferenceBasedOnUnion `json:"basedOn"`
-	Language          *string                       `json:"language,omitempty"`
-	FacilityType      *CodeableConcept              `json:"facilityType,omitempty"`
-	Meta              *Meta                         `json:"meta,omitempty"`
 	Category          []*CodeableConcept            `json:"category,omitempty"`
-	Subject           ResourceUnion                 `json:"subject"`
-	PracticeSetting   *CodeableConcept              `json:"practiceSetting,omitempty"`
-	Text              *Narrative                    `json:"text,omitempty"`
-	ImplicitRules     *string                       `json:"implicitRules,omitempty"`
-	Description       *string                       `json:"description,omitempty"`
-	RelatesTo         []*DocumentReferenceRelatesTo `json:"relatesTo,omitempty"`
-	Attester          []*DocumentReferenceAttester  `json:"attester,omitempty"`
-	ResourceType      *string                       `json:"resourceType,omitempty"`
-	Period            *Period                       `json:"period,omitempty"`
-	Status            *string                       `json:"status,omitempty"`
-	ID                *string                       `json:"id,omitempty"`
-	Modality          []*CodeableConcept            `json:"modality,omitempty"`
-	Version           *string                       `json:"version,omitempty"`
-	Type              *CodeableConcept              `json:"type,omitempty"`
-	Author            DocumentReferenceAuthorUnion  `json:"author"`
 	Date              *string                       `json:"date,omitempty"`
+	FacilityType      *CodeableConcept              `json:"facilityType,omitempty"`
+	Attester          []*DocumentReferenceAttester  `json:"attester,omitempty"`
+	Event             []*CodeableReference          `json:"event,omitempty"`
+	DocStatus         *string                       `json:"docStatus,omitempty"`
+	Extension         []*Extension                  `json:"extension,omitempty"`
+	Text              *Narrative                    `json:"text,omitempty"`
+	Period            *Period                       `json:"period,omitempty"`
+	BasedOn           DocumentReferenceBasedOnUnion `json:"basedOn"`
+	Content           []*DocumentReferenceContent   `json:"content,omitempty"`
+	Language          *string                       `json:"language,omitempty"`
+	RelatesTo         []*DocumentReferenceRelatesTo `json:"relatesTo,omitempty"`
 	Contained         []ResourceUnion               `json:"contained,omitempty"`
+	Custodian         *OrganizationType             `json:"custodian"`
+	ImplicitRules     *string                       `json:"implicitRules,omitempty"`
+	Modality          []*CodeableConcept            `json:"modality,omitempty"`
+	BodySite          []*CodeableReference          `json:"bodySite,omitempty"`
+	Meta              *Meta                         `json:"meta,omitempty"`
+	Status            *string                       `json:"status,omitempty"`
+	Author            DocumentReferenceAuthorUnion  `json:"author"`
+	Type              *CodeableConcept              `json:"type,omitempty"`
+	ID                *string                       `json:"id,omitempty"`
+	Version           *string                       `json:"version,omitempty"`
+	Description       *string                       `json:"description,omitempty"`
+	ResourceType      *string                       `json:"resourceType,omitempty"`
+	Subject           ResourceUnion                 `json:"subject"`
 	Identifier        []*Identifier                 `json:"identifier,omitempty"`
+	PracticeSetting   *CodeableConcept              `json:"practiceSetting,omitempty"`
 	AuthResourcePath  *string                       `json:"auth_resource_path,omitempty"`
 }
 
@@ -750,87 +750,86 @@ func (DocumentReferenceType) IsObservationDerivedFromUnion() {}
 func (DocumentReferenceType) IsResourceUnion() {}
 
 type Dosage struct {
-	ID                       *string              `json:"id,omitempty"`
-	AdditionalInstruction    []*CodeableConcept   `json:"additionalInstruction,omitempty"`
-	Sequence                 *string              `json:"sequence,omitempty"`
-	Timing                   *Timing              `json:"timing,omitempty"`
-	MaxDosePerPeriod         []*Ratio             `json:"maxDosePerPeriod,omitempty"`
-	Site                     *CodeableConcept     `json:"site,omitempty"`
-	PatientInstruction       *string              `json:"patientInstruction,omitempty"`
-	MaxDosePerAdministration *Quantity            `json:"maxDosePerAdministration,omitempty"`
-	AsNeeded                 *string              `json:"asNeeded,omitempty"`
-	AsNeededFor              []*CodeableConcept   `json:"asNeededFor,omitempty"`
-	ResourceType             *string              `json:"resourceType,omitempty"`
-	ModifierExtension        []*Extension         `json:"modifierExtension,omitempty"`
 	MaxDosePerLifetime       *Quantity            `json:"maxDosePerLifetime,omitempty"`
 	DoseAndRate              []*DosageDoseAndRate `json:"doseAndRate,omitempty"`
-	Extension                []*Extension         `json:"extension,omitempty"`
-	Route                    *CodeableConcept     `json:"route,omitempty"`
-	Method                   *CodeableConcept     `json:"method,omitempty"`
 	Text                     *string              `json:"text,omitempty"`
+	Route                    *CodeableConcept     `json:"route,omitempty"`
+	AsNeededFor              []*CodeableConcept   `json:"asNeededFor,omitempty"`
+	PatientInstruction       *string              `json:"patientInstruction,omitempty"`
+	Sequence                 *int                 `json:"sequence,omitempty"`
+	Site                     *CodeableConcept     `json:"site,omitempty"`
+	ID                       *string              `json:"id,omitempty"`
+	ResourceType             *string              `json:"resourceType,omitempty"`
+	ModifierExtension        []*Extension         `json:"modifierExtension,omitempty"`
+	MaxDosePerPeriod         []*Ratio             `json:"maxDosePerPeriod,omitempty"`
+	AdditionalInstruction    []*CodeableConcept   `json:"additionalInstruction,omitempty"`
+	AsNeeded                 *bool                `json:"asNeeded,omitempty"`
+	MaxDosePerAdministration *Quantity            `json:"maxDosePerAdministration,omitempty"`
+	Extension                []*Extension         `json:"extension,omitempty"`
+	Method                   *CodeableConcept     `json:"method,omitempty"`
+	Timing                   *Timing              `json:"timing,omitempty"`
 	AuthResourcePath         *string              `json:"auth_resource_path,omitempty"`
 }
 
 type DosageDoseAndRate struct {
 	RateRange        *Range           `json:"rateRange,omitempty"`
 	RateRatio        *Ratio           `json:"rateRatio,omitempty"`
-	DoseQuantity     *Quantity        `json:"doseQuantity,omitempty"`
-	Extension        []*Extension     `json:"extension,omitempty"`
 	ID               *string          `json:"id,omitempty"`
-	RateQuantity     *Quantity        `json:"rateQuantity,omitempty"`
+	Extension        []*Extension     `json:"extension,omitempty"`
+	DoseRange        *Range           `json:"doseRange,omitempty"`
 	ResourceType     *string          `json:"resourceType,omitempty"`
 	Type             *CodeableConcept `json:"type,omitempty"`
-	DoseRange        *Range           `json:"doseRange,omitempty"`
+	RateQuantity     *Quantity        `json:"rateQuantity,omitempty"`
+	DoseQuantity     *Quantity        `json:"doseQuantity,omitempty"`
 	AuthResourcePath *string          `json:"auth_resource_path,omitempty"`
 }
 
 type Duration struct {
-	Comparator       *string      `json:"comparator,omitempty"`
-	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
 	System           *string      `json:"system,omitempty"`
 	Unit             *string      `json:"unit,omitempty"`
-	Value            *string      `json:"value,omitempty"`
+	Value            *float64     `json:"value,omitempty"`
 	Code             *string      `json:"code,omitempty"`
+	Comparator       *string      `json:"comparator,omitempty"`
+	Extension        []*Extension `json:"extension,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type Encounter struct {
-	Admission          *EncounterAdmission     `json:"admission,omitempty"`
-	DietPreference     []*CodeableConcept      `json:"dietPreference,omitempty"`
-	Priority           *CodeableConcept        `json:"priority,omitempty"`
-	SubjectStatus      *CodeableConcept        `json:"subjectStatus,omitempty"`
-	Location           []*EncounterLocation    `json:"location,omitempty"`
-	Extension          []*Extension            `json:"extension,omitempty"`
-	PlannedEndDate     *string                 `json:"plannedEndDate,omitempty"`
-	Status             *string                 `json:"status,omitempty"`
 	ServiceType        []*CodeableReference    `json:"serviceType,omitempty"`
-	Length             *Duration               `json:"length,omitempty"`
 	Contained          []ResourceUnion         `json:"contained,omitempty"`
-	Language           *string                 `json:"language,omitempty"`
-	ResourceType       *string                 `json:"resourceType,omitempty"`
-	Text               *Narrative              `json:"text,omitempty"`
-	ActualPeriod       *Period                 `json:"actualPeriod,omitempty"`
 	ID                 *string                 `json:"id,omitempty"`
 	Type               []*CodeableConcept      `json:"type,omitempty"`
-	VirtualService     []*VirtualServiceDetail `json:"virtualService,omitempty"`
-	ImplicitRules      *string                 `json:"implicitRules,omitempty"`
-	Participant        []*EncounterParticipant `json:"participant,omitempty"`
-	ModifierExtension  []*Extension            `json:"modifierExtension,omitempty"`
-	Reason             []*EncounterReason      `json:"reason,omitempty"`
-	SpecialCourtesy    []*CodeableConcept      `json:"specialCourtesy,omitempty"`
 	Identifier         []*Identifier           `json:"identifier,omitempty"`
-	PlannedStartDate   *string                 `json:"plannedStartDate,omitempty"`
+	ResourceType       *string                 `json:"resourceType,omitempty"`
+	Extension          []*Extension            `json:"extension,omitempty"`
 	Class              []*CodeableConcept      `json:"class,omitempty"`
+	VirtualService     []*VirtualServiceDetail `json:"virtualService,omitempty"`
+	Language           *string                 `json:"language,omitempty"`
+	Priority           *CodeableConcept        `json:"priority,omitempty"`
+	SubjectStatus      *CodeableConcept        `json:"subjectStatus,omitempty"`
+	Text               *Narrative              `json:"text,omitempty"`
+	ImplicitRules      *string                 `json:"implicitRules,omitempty"`
+	Location           []*EncounterLocation    `json:"location,omitempty"`
+	DietPreference     []*CodeableConcept      `json:"dietPreference,omitempty"`
+	ActualPeriod       *Period                 `json:"actualPeriod,omitempty"`
+	Meta               *Meta                   `json:"meta,omitempty"`
+	Participant        []*EncounterParticipant `json:"participant,omitempty"`
+	Reason             []*EncounterReason      `json:"reason,omitempty"`
 	SpecialArrangement []*CodeableConcept      `json:"specialArrangement,omitempty"`
 	Diagnosis          []*EncounterDiagnosis   `json:"diagnosis,omitempty"`
-	Meta               *Meta                   `json:"meta,omitempty"`
+	Length             *Duration               `json:"length,omitempty"`
+	Status             *string                 `json:"status,omitempty"`
+	Admission          *EncounterAdmission     `json:"admission,omitempty"`
+	ModifierExtension  []*Extension            `json:"modifierExtension,omitempty"`
+	PlannedEndDate     *string                 `json:"plannedEndDate,omitempty"`
+	PlannedStartDate   *string                 `json:"plannedStartDate,omitempty"`
+	SpecialCourtesy    []*CodeableConcept      `json:"specialCourtesy,omitempty"`
 	AuthResourcePath   *string                 `json:"auth_resource_path,omitempty"`
 }
 
 type EncounterAdmission struct {
-	DischargeDisposition   *CodeableConcept `json:"dischargeDisposition,omitempty"`
 	Extension              []*Extension     `json:"extension,omitempty"`
 	ID                     *string          `json:"id,omitempty"`
 	ModifierExtension      []*Extension     `json:"modifierExtension,omitempty"`
@@ -838,133 +837,134 @@ type EncounterAdmission struct {
 	ReAdmission            *CodeableConcept `json:"reAdmission,omitempty"`
 	ResourceType           *string          `json:"resourceType,omitempty"`
 	AdmitSource            *CodeableConcept `json:"admitSource,omitempty"`
+	DischargeDisposition   *CodeableConcept `json:"dischargeDisposition,omitempty"`
 	AuthResourcePath       *string          `json:"auth_resource_path,omitempty"`
 }
 
 type EncounterDiagnosis struct {
-	Condition         []*CodeableReference `json:"condition,omitempty"`
 	Extension         []*Extension         `json:"extension,omitempty"`
 	ID                *string              `json:"id,omitempty"`
 	ModifierExtension []*Extension         `json:"modifierExtension,omitempty"`
 	ResourceType      *string              `json:"resourceType,omitempty"`
 	Use               []*CodeableConcept   `json:"use,omitempty"`
+	Condition         []*CodeableReference `json:"condition,omitempty"`
 	AuthResourcePath  *string              `json:"auth_resource_path,omitempty"`
 }
 
 type EncounterLocation struct {
+	Period            *Period          `json:"period,omitempty"`
+	ResourceType      *string          `json:"resourceType,omitempty"`
+	Status            *string          `json:"status,omitempty"`
 	Extension         []*Extension     `json:"extension,omitempty"`
 	Form              *CodeableConcept `json:"form,omitempty"`
 	ID                *string          `json:"id,omitempty"`
 	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	Period            *Period          `json:"period,omitempty"`
-	ResourceType      *string          `json:"resourceType,omitempty"`
-	Status            *string          `json:"status,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type EncounterParticipant struct {
+	ResourceType      *string            `json:"resourceType,omitempty"`
 	Type              []*CodeableConcept `json:"type,omitempty"`
 	Extension         []*Extension       `json:"extension,omitempty"`
 	ID                *string            `json:"id,omitempty"`
 	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
 	Period            *Period            `json:"period,omitempty"`
-	ResourceType      *string            `json:"resourceType,omitempty"`
 	AuthResourcePath  *string            `json:"auth_resource_path,omitempty"`
 }
 
 type EncounterReason struct {
+	Use               []*CodeableConcept   `json:"use,omitempty"`
 	Value             []*CodeableReference `json:"value,omitempty"`
 	Extension         []*Extension         `json:"extension,omitempty"`
 	ID                *string              `json:"id,omitempty"`
 	ModifierExtension []*Extension         `json:"modifierExtension,omitempty"`
 	ResourceType      *string              `json:"resourceType,omitempty"`
-	Use               []*CodeableConcept   `json:"use,omitempty"`
 	AuthResourcePath  *string              `json:"auth_resource_path,omitempty"`
 }
 
 type Expression struct {
+	Name             *string      `json:"name,omitempty"`
+	Reference        *string      `json:"reference,omitempty"`
+	ResourceType     *string      `json:"resourceType,omitempty"`
 	Description      *string      `json:"description,omitempty"`
 	Expression       *string      `json:"expression,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
 	Language         *string      `json:"language,omitempty"`
-	Name             *string      `json:"name,omitempty"`
-	Reference        *string      `json:"reference,omitempty"`
-	ResourceType     *string      `json:"resourceType,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type ExtendedContactDetail struct {
-	Telecom          []*ContactPoint   `json:"telecom,omitempty"`
+	ID               *string           `json:"id,omitempty"`
+	Name             []*HumanName      `json:"name,omitempty"`
 	Organization     *OrganizationType `json:"organization"`
 	Period           *Period           `json:"period,omitempty"`
-	Purpose          *CodeableConcept  `json:"purpose,omitempty"`
-	Name             []*HumanName      `json:"name,omitempty"`
-	Extension        []*Extension      `json:"extension,omitempty"`
-	ID               *string           `json:"id,omitempty"`
 	ResourceType     *string           `json:"resourceType,omitempty"`
+	Telecom          []*ContactPoint   `json:"telecom,omitempty"`
 	Address          *Address          `json:"address,omitempty"`
+	Extension        []*Extension      `json:"extension,omitempty"`
+	Purpose          *CodeableConcept  `json:"purpose,omitempty"`
 	AuthResourcePath *string           `json:"auth_resource_path,omitempty"`
 }
 
 type Extension struct {
-	ID                         *string                `json:"id,omitempty"`
-	ValueParameterDefinition   *ParameterDefinition   `json:"valueParameterDefinition,omitempty"`
-	ValueMoney                 *Money                 `json:"valueMoney,omitempty"`
-	ValueInteger64             *string                `json:"valueInteger64,omitempty"`
-	ValueContactPoint          *ContactPoint          `json:"valueContactPoint,omitempty"`
-	ValueSampledData           *SampledData           `json:"valueSampledData,omitempty"`
-	ValueAnnotation            *Annotation            `json:"valueAnnotation,omitempty"`
-	ValueExtendedContactDetail *ExtendedContactDetail `json:"valueExtendedContactDetail,omitempty"`
-	ValueRatio                 *Ratio                 `json:"valueRatio,omitempty"`
-	ValueCount                 *Count                 `json:"valueCount,omitempty"`
-	ValuePeriod                *Period                `json:"valuePeriod,omitempty"`
 	ValueCanonical             *string                `json:"valueCanonical,omitempty"`
-	ValueID                    *string                `json:"valueId,omitempty"`
-	ValueDataRequirement       *DataRequirement       `json:"valueDataRequirement,omitempty"`
-	ValuePositiveInt           *string                `json:"valuePositiveInt,omitempty"`
-	ValueContactDetail         *ContactDetail         `json:"valueContactDetail,omitempty"`
-	ValueAvailability          *Availability          `json:"valueAvailability,omitempty"`
-	ValueDosage                *Dosage                `json:"valueDosage,omitempty"`
-	ValueRelatedArtifact       *RelatedArtifact       `json:"valueRelatedArtifact,omitempty"`
-	ValueDuration              *Duration              `json:"valueDuration,omitempty"`
+	ValueTriggerDefinition     *TriggerDefinition     `json:"valueTriggerDefinition,omitempty"`
 	ValueAge                   *Age                   `json:"valueAge,omitempty"`
-	ValueIdentifier            *Identifier            `json:"valueIdentifier,omitempty"`
-	ValueMeta                  *Meta                  `json:"valueMeta,omitempty"`
-	ValueCode                  *string                `json:"valueCode,omitempty"`
-	ValueDistance              *Distance              `json:"valueDistance,omitempty"`
-	ValueCoding                *Coding                `json:"valueCoding,omitempty"`
-	ValueCodeableConcept       *CodeableConcept       `json:"valueCodeableConcept,omitempty"`
-	ValueQuantity              *Quantity              `json:"valueQuantity,omitempty"`
-	ResourceType               *string                `json:"resourceType,omitempty"`
-	ValueMarkdown              *string                `json:"valueMarkdown,omitempty"`
-	ValueUsageContext          *UsageContext          `json:"valueUsageContext,omitempty"`
-	ValueAddress               *Address               `json:"valueAddress,omitempty"`
-	ValueURI                   *string                `json:"valueUri,omitempty"`
-	ValueInstant               *string                `json:"valueInstant,omitempty"`
-	ValueExpression            *Expression            `json:"valueExpression,omitempty"`
-	ValueInteger               *string                `json:"valueInteger,omitempty"`
-	ValueRange                 *Range                 `json:"valueRange,omitempty"`
-	ValueBoolean               *string                `json:"valueBoolean,omitempty"`
-	ValueDecimal               *string                `json:"valueDecimal,omitempty"`
-	ValueAttachment            *Attachment            `json:"valueAttachment,omitempty"`
-	ValueUnsignedInt           *string                `json:"valueUnsignedInt,omitempty"`
-	ValueSignature             *Signature             `json:"valueSignature,omitempty"`
+	ValueContactPoint          *ContactPoint          `json:"valueContactPoint,omitempty"`
 	ValueCodeableReference     *CodeableReference     `json:"valueCodeableReference,omitempty"`
 	URL                        *string                `json:"url,omitempty"`
-	ValueBase64Binary          *string                `json:"valueBase64Binary,omitempty"`
-	ValueTime                  *string                `json:"valueTime,omitempty"`
-	ValueRatioRange            *RatioRange            `json:"valueRatioRange,omitempty"`
-	ValueURL                   *string                `json:"valueUrl,omitempty"`
-	Extension                  []*Extension           `json:"extension,omitempty"`
-	ValueString                *string                `json:"valueString,omitempty"`
-	ValueUUID                  *string                `json:"valueUuid,omitempty"`
-	ValueHumanName             *HumanName             `json:"valueHumanName,omitempty"`
-	ValueDate                  *string                `json:"valueDate,omitempty"`
-	ValueTiming                *Timing                `json:"valueTiming,omitempty"`
+	ValueAnnotation            *Annotation            `json:"valueAnnotation,omitempty"`
+	ValuePositiveInt           *int                   `json:"valuePositiveInt,omitempty"`
+	ValueCode                  *string                `json:"valueCode,omitempty"`
+	ValueQuantity              *Quantity              `json:"valueQuantity,omitempty"`
+	ValueAvailability          *Availability          `json:"valueAvailability,omitempty"`
 	ValueDateTime              *string                `json:"valueDateTime,omitempty"`
+	ValueSampledData           *SampledData           `json:"valueSampledData,omitempty"`
+	ValueIdentifier            *Identifier            `json:"valueIdentifier,omitempty"`
+	ValueString                *string                `json:"valueString,omitempty"`
+	ValuePeriod                *Period                `json:"valuePeriod,omitempty"`
+	ValueRatioRange            *RatioRange            `json:"valueRatioRange,omitempty"`
+	ValueInstant               *string                `json:"valueInstant,omitempty"`
+	ValueExtendedContactDetail *ExtendedContactDetail `json:"valueExtendedContactDetail,omitempty"`
+	ValueURL                   *string                `json:"valueUrl,omitempty"`
+	ValueID                    *string                `json:"valueId,omitempty"`
+	ValueURI                   *string                `json:"valueUri,omitempty"`
+	ValueDuration              *Duration              `json:"valueDuration,omitempty"`
+	ValueTime                  *string                `json:"valueTime,omitempty"`
+	ValueHumanName             *HumanName             `json:"valueHumanName,omitempty"`
+	ValueDecimal               *float64               `json:"valueDecimal,omitempty"`
+	ID                         *string                `json:"id,omitempty"`
+	ValueRange                 *Range                 `json:"valueRange,omitempty"`
+	ValueCodeableConcept       *CodeableConcept       `json:"valueCodeableConcept,omitempty"`
+	ValueInteger               *int                   `json:"valueInteger,omitempty"`
+	ValueMarkdown              *string                `json:"valueMarkdown,omitempty"`
+	ValueMeta                  *Meta                  `json:"valueMeta,omitempty"`
+	ValueUUID                  *string                `json:"valueUuid,omitempty"`
+	ValueDistance              *Distance              `json:"valueDistance,omitempty"`
+	ValueDataRequirement       *DataRequirement       `json:"valueDataRequirement,omitempty"`
 	ValueOid                   *string                `json:"valueOid,omitempty"`
-	ValueTriggerDefinition     *TriggerDefinition     `json:"valueTriggerDefinition,omitempty"`
+	ValueUsageContext          *UsageContext          `json:"valueUsageContext,omitempty"`
+	ValueAddress               *Address               `json:"valueAddress,omitempty"`
+	ValueCount                 *Count                 `json:"valueCount,omitempty"`
+	ValueMoney                 *Money                 `json:"valueMoney,omitempty"`
+	ValueInteger64             *int                   `json:"valueInteger64,omitempty"`
+	ValueAttachment            *Attachment            `json:"valueAttachment,omitempty"`
+	ValueExpression            *Expression            `json:"valueExpression,omitempty"`
+	ValueDosage                *Dosage                `json:"valueDosage,omitempty"`
+	ValueRatio                 *Ratio                 `json:"valueRatio,omitempty"`
+	ValueUnsignedInt           *int                   `json:"valueUnsignedInt,omitempty"`
+	ValueBoolean               *bool                  `json:"valueBoolean,omitempty"`
+	ValueBase64Binary          *string                `json:"valueBase64Binary,omitempty"`
+	ValueRelatedArtifact       *RelatedArtifact       `json:"valueRelatedArtifact,omitempty"`
+	Extension                  []*Extension           `json:"extension,omitempty"`
+	ValueDate                  *string                `json:"valueDate,omitempty"`
+	ResourceType               *string                `json:"resourceType,omitempty"`
+	ValueSignature             *Signature             `json:"valueSignature,omitempty"`
+	ValueCoding                *Coding                `json:"valueCoding,omitempty"`
+	ValueTiming                *Timing                `json:"valueTiming,omitempty"`
+	ValueContactDetail         *ContactDetail         `json:"valueContactDetail,omitempty"`
+	ValueParameterDefinition   *ParameterDefinition   `json:"valueParameterDefinition,omitempty"`
 	AuthResourcePath           *string                `json:"auth_resource_path,omitempty"`
 }
 
@@ -976,312 +976,312 @@ type FHIRPrimitiveExtension struct {
 }
 
 type FamilyMemberHistoryCondition struct {
-	OnsetAge           *Age             `json:"onsetAge,omitempty"`
+	Code               *CodeableConcept `json:"code,omitempty"`
 	OnsetString        *string          `json:"onsetString,omitempty"`
-	OnsetPeriod        *Period          `json:"onsetPeriod,omitempty"`
-	ContributedToDeath *string          `json:"contributedToDeath,omitempty"`
+	Outcome            *CodeableConcept `json:"outcome,omitempty"`
 	ID                 *string          `json:"id,omitempty"`
 	ModifierExtension  []*Extension     `json:"modifierExtension,omitempty"`
-	Outcome            *CodeableConcept `json:"outcome,omitempty"`
+	OnsetAge           *Age             `json:"onsetAge,omitempty"`
+	OnsetRange         *Range           `json:"onsetRange,omitempty"`
+	OnsetPeriod        *Period          `json:"onsetPeriod,omitempty"`
+	ContributedToDeath *bool            `json:"contributedToDeath,omitempty"`
+	ResourceType       *string          `json:"resourceType,omitempty"`
 	Extension          []*Extension     `json:"extension,omitempty"`
 	Note               []*Annotation    `json:"note,omitempty"`
-	OnsetRange         *Range           `json:"onsetRange,omitempty"`
-	ResourceType       *string          `json:"resourceType,omitempty"`
-	Code               *CodeableConcept `json:"code,omitempty"`
 	AuthResourcePath   *string          `json:"auth_resource_path,omitempty"`
 }
 
 type FamilyMemberHistoryParticipant struct {
-	Actor             FamilyMemberHistoryParticipantActorUnion `json:"actor"`
-	Extension         []*Extension                             `json:"extension,omitempty"`
 	Function          *CodeableConcept                         `json:"function,omitempty"`
 	ID                *string                                  `json:"id,omitempty"`
 	ModifierExtension []*Extension                             `json:"modifierExtension,omitempty"`
 	ResourceType      *string                                  `json:"resourceType,omitempty"`
+	Actor             FamilyMemberHistoryParticipantActorUnion `json:"actor"`
+	Extension         []*Extension                             `json:"extension,omitempty"`
 	AuthResourcePath  *string                                  `json:"auth_resource_path,omitempty"`
 }
 
 type FamilyMemberHistoryProcedure struct {
-	Extension          []*Extension     `json:"extension,omitempty"`
-	ModifierExtension  []*Extension     `json:"modifierExtension,omitempty"`
-	Outcome            *CodeableConcept `json:"outcome,omitempty"`
-	PerformedAge       *Age             `json:"performedAge,omitempty"`
-	PerformedString    *string          `json:"performedString,omitempty"`
-	PerformedDateTime  *string          `json:"performedDateTime,omitempty"`
-	PerformedPeriod    *Period          `json:"performedPeriod,omitempty"`
-	ResourceType       *string          `json:"resourceType,omitempty"`
-	Code               *CodeableConcept `json:"code,omitempty"`
 	ID                 *string          `json:"id,omitempty"`
-	Note               []*Annotation    `json:"note,omitempty"`
 	PerformedRange     *Range           `json:"performedRange,omitempty"`
-	ContributedToDeath *string          `json:"contributedToDeath,omitempty"`
+	Outcome            *CodeableConcept `json:"outcome,omitempty"`
+	PerformedDateTime  *string          `json:"performedDateTime,omitempty"`
+	ResourceType       *string          `json:"resourceType,omitempty"`
+	ContributedToDeath *bool            `json:"contributedToDeath,omitempty"`
+	Extension          []*Extension     `json:"extension,omitempty"`
+	PerformedAge       *Age             `json:"performedAge,omitempty"`
+	PerformedPeriod    *Period          `json:"performedPeriod,omitempty"`
+	ModifierExtension  []*Extension     `json:"modifierExtension,omitempty"`
+	PerformedString    *string          `json:"performedString,omitempty"`
+	Code               *CodeableConcept `json:"code,omitempty"`
+	Note               []*Annotation    `json:"note,omitempty"`
 	AuthResourcePath   *string          `json:"auth_resource_path,omitempty"`
 }
 
 type FamilyMemberHistoryType struct {
-	DeceasedAge           *Age                              `json:"deceasedAge,omitempty"`
-	ModifierExtension     []*Extension                      `json:"modifierExtension,omitempty"`
-	Condition             []*FamilyMemberHistoryCondition   `json:"condition,omitempty"`
-	Extension             []*Extension                      `json:"extension,omitempty"`
-	BornDate              *string                           `json:"bornDate,omitempty"`
-	AgeString             *string                           `json:"ageString,omitempty"`
-	InstantiatesCanonical *string                           `json:"instantiatesCanonical,omitempty"`
-	Procedure             []*FamilyMemberHistoryProcedure   `json:"procedure,omitempty"`
-	BornString            *string                           `json:"bornString,omitempty"`
-	EstimatedAge          *string                           `json:"estimatedAge,omitempty"`
-	ImplicitRules         *string                           `json:"implicitRules,omitempty"`
-	DataAbsentReason      *CodeableConcept                  `json:"dataAbsentReason,omitempty"`
-	DeceasedBoolean       *string                           `json:"deceasedBoolean,omitempty"`
-	BornPeriod            *Period                           `json:"bornPeriod,omitempty"`
-	Reason                []*CodeableReference              `json:"reason,omitempty"`
-	DeceasedRange         *Range                            `json:"deceasedRange,omitempty"`
-	Identifier            []*Identifier                     `json:"identifier,omitempty"`
-	ID                    *string                           `json:"id,omitempty"`
-	ResourceType          *string                           `json:"resourceType,omitempty"`
-	Relationship          *CodeableConcept                  `json:"relationship,omitempty"`
 	Date                  *string                           `json:"date,omitempty"`
-	Language              *string                           `json:"language,omitempty"`
-	Sex                   *CodeableConcept                  `json:"sex,omitempty"`
-	Patient               *PatientType                      `json:"patient"`
-	Contained             []ResourceUnion                   `json:"contained,omitempty"`
-	InstantiatesURI       *string                           `json:"instantiatesUri,omitempty"`
-	DeceasedDate          *string                           `json:"deceasedDate,omitempty"`
+	ID                    *string                           `json:"id,omitempty"`
+	Procedure             []*FamilyMemberHistoryProcedure   `json:"procedure,omitempty"`
+	EstimatedAge          *bool                             `json:"estimatedAge,omitempty"`
 	AgeAge                *Age                              `json:"ageAge,omitempty"`
-	DeceasedString        *string                           `json:"deceasedString,omitempty"`
+	BornPeriod            *Period                           `json:"bornPeriod,omitempty"`
+	Language              *string                           `json:"language,omitempty"`
+	Condition             []*FamilyMemberHistoryCondition   `json:"condition,omitempty"`
+	Sex                   *CodeableConcept                  `json:"sex,omitempty"`
+	DataAbsentReason      *CodeableConcept                  `json:"dataAbsentReason,omitempty"`
+	DeceasedRange         *Range                            `json:"deceasedRange,omitempty"`
 	AgeRange              *Range                            `json:"ageRange,omitempty"`
-	Meta                  *Meta                             `json:"meta,omitempty"`
-	Note                  []*Annotation                     `json:"note,omitempty"`
-	Text                  *Narrative                        `json:"text,omitempty"`
-	Status                *string                           `json:"status,omitempty"`
+	DeceasedBoolean       *bool                             `json:"deceasedBoolean,omitempty"`
+	DeceasedAge           *Age                              `json:"deceasedAge,omitempty"`
 	Participant           []*FamilyMemberHistoryParticipant `json:"participant,omitempty"`
+	Text                  *Narrative                        `json:"text,omitempty"`
+	ModifierExtension     []*Extension                      `json:"modifierExtension,omitempty"`
+	BornDate              *string                           `json:"bornDate,omitempty"`
+	Extension             []*Extension                      `json:"extension,omitempty"`
+	Patient               *PatientType                      `json:"patient"`
+	Status                *string                           `json:"status,omitempty"`
+	Note                  []*Annotation                     `json:"note,omitempty"`
+	ImplicitRules         *string                           `json:"implicitRules,omitempty"`
+	DeceasedString        *string                           `json:"deceasedString,omitempty"`
+	Relationship          *CodeableConcept                  `json:"relationship,omitempty"`
+	Identifier            []*Identifier                     `json:"identifier,omitempty"`
+	Contained             []ResourceUnion                   `json:"contained,omitempty"`
 	Name                  *string                           `json:"name,omitempty"`
+	BornString            *string                           `json:"bornString,omitempty"`
+	Reason                []*CodeableReference              `json:"reason,omitempty"`
+	ResourceType          *string                           `json:"resourceType,omitempty"`
+	InstantiatesURI       *string                           `json:"instantiatesUri,omitempty"`
+	AgeString             *string                           `json:"ageString,omitempty"`
+	DeceasedDate          *string                           `json:"deceasedDate,omitempty"`
+	Meta                  *Meta                             `json:"meta,omitempty"`
+	InstantiatesCanonical *string                           `json:"instantiatesCanonical,omitempty"`
 	AuthResourcePath      *string                           `json:"auth_resource_path,omitempty"`
 }
 
 func (FamilyMemberHistoryType) IsResourceUnion() {}
 
 type GroupCharacteristic struct {
-	ResourceType         *string          `json:"resourceType,omitempty"`
-	ValueRange           *Range           `json:"valueRange,omitempty"`
-	Period               *Period          `json:"period,omitempty"`
-	ValueBoolean         *string          `json:"valueBoolean,omitempty"`
+	ValueBoolean         *bool            `json:"valueBoolean,omitempty"`
 	ValueCodeableConcept *CodeableConcept `json:"valueCodeableConcept,omitempty"`
-	Extension            []*Extension     `json:"extension,omitempty"`
+	ValueRange           *Range           `json:"valueRange,omitempty"`
+	Exclude              *bool            `json:"exclude,omitempty"`
 	ID                   *string          `json:"id,omitempty"`
-	Code                 *CodeableConcept `json:"code,omitempty"`
-	Exclude              *string          `json:"exclude,omitempty"`
 	ModifierExtension    []*Extension     `json:"modifierExtension,omitempty"`
+	ResourceType         *string          `json:"resourceType,omitempty"`
 	ValueQuantity        *Quantity        `json:"valueQuantity,omitempty"`
+	Code                 *CodeableConcept `json:"code,omitempty"`
+	Extension            []*Extension     `json:"extension,omitempty"`
+	Period               *Period          `json:"period,omitempty"`
 	AuthResourcePath     *string          `json:"auth_resource_path,omitempty"`
 }
 
 type GroupMember struct {
+	ResourceType      *string                `json:"resourceType,omitempty"`
 	Entity            GroupMemberEntityUnion `json:"entity"`
 	Extension         []*Extension           `json:"extension,omitempty"`
 	ID                *string                `json:"id,omitempty"`
-	Inactive          *string                `json:"inactive,omitempty"`
+	Inactive          *bool                  `json:"inactive,omitempty"`
 	ModifierExtension []*Extension           `json:"modifierExtension,omitempty"`
 	Period            *Period                `json:"period,omitempty"`
-	ResourceType      *string                `json:"resourceType,omitempty"`
 	AuthResourcePath  *string                `json:"auth_resource_path,omitempty"`
 }
 
 type GroupType struct {
-	Text              *Narrative               `json:"text,omitempty"`
-	Membership        *string                  `json:"membership,omitempty"`
-	Meta              *Meta                    `json:"meta,omitempty"`
-	Characteristic    []*GroupCharacteristic   `json:"characteristic,omitempty"`
-	ManagingEntity    GroupManagingEntityUnion `json:"managingEntity"`
-	ResourceType      *string                  `json:"resourceType,omitempty"`
-	Member            []*GroupMember           `json:"member,omitempty"`
-	Quantity          *string                  `json:"quantity,omitempty"`
+	Contained         []ResourceUnion          `json:"contained,omitempty"`
+	Name              *string                  `json:"name,omitempty"`
 	Description       *string                  `json:"description,omitempty"`
-	Identifier        []*Identifier            `json:"identifier,omitempty"`
 	ID                *string                  `json:"id,omitempty"`
+	Membership        *string                  `json:"membership,omitempty"`
+	Quantity          *int                     `json:"quantity,omitempty"`
+	ManagingEntity    GroupManagingEntityUnion `json:"managingEntity"`
+	Language          *string                  `json:"language,omitempty"`
+	Characteristic    []*GroupCharacteristic   `json:"characteristic,omitempty"`
+	Active            *bool                    `json:"active,omitempty"`
 	ImplicitRules     *string                  `json:"implicitRules,omitempty"`
 	Extension         []*Extension             `json:"extension,omitempty"`
-	Language          *string                  `json:"language,omitempty"`
+	Member            []*GroupMember           `json:"member,omitempty"`
+	ResourceType      *string                  `json:"resourceType,omitempty"`
 	ModifierExtension []*Extension             `json:"modifierExtension,omitempty"`
-	Code              *CodeableConcept         `json:"code,omitempty"`
-	Contained         []ResourceUnion          `json:"contained,omitempty"`
+	Text              *Narrative               `json:"text,omitempty"`
 	Type              *string                  `json:"type,omitempty"`
-	Active            *string                  `json:"active,omitempty"`
-	Name              *string                  `json:"name,omitempty"`
+	Identifier        []*Identifier            `json:"identifier,omitempty"`
+	Meta              *Meta                    `json:"meta,omitempty"`
+	Code              *CodeableConcept         `json:"code,omitempty"`
 	AuthResourcePath  *string                  `json:"auth_resource_path,omitempty"`
 }
 
-func (GroupType) IsConditionSubjectUnion() {}
+func (GroupType) IsMedicationRequestSubjectUnion() {}
 
-func (GroupType) IsResearchStudyRecruitmentEligibilityUnion() {}
-
-func (GroupType) IsUsageContextValueReferenceUnion() {}
-
-func (GroupType) IsTaskRestrictionRecipientUnion() {}
-
-func (GroupType) IsProcedureSubjectUnion() {}
+func (GroupType) IsDiagnosticReportSubjectUnion() {}
 
 func (GroupType) IsProcedureFocusUnion() {}
 
+func (GroupType) IsProcedureSubjectUnion() {}
+
 func (GroupType) IsResearchSubjectSubjectUnion() {}
+
+func (GroupType) IsSpecimenSubjectUnion() {}
+
+func (GroupType) IsUsageContextValueReferenceUnion() {}
 
 func (GroupType) IsObservationSpecimenUnion() {}
 
 func (GroupType) IsObservationSubjectUnion() {}
 
-func (GroupType) IsSpecimenSubjectUnion() {}
-
-func (GroupType) IsMedicationAdministrationSubjectUnion() {}
-
 func (GroupType) IsImagingStudySubjectUnion() {}
-
-func (GroupType) IsDiagnosticReportSubjectUnion() {}
 
 func (GroupType) IsGroupMemberEntityUnion() {}
 
+func (GroupType) IsMedicationAdministrationSubjectUnion() {}
+
 func (GroupType) IsMedicationStatementSubjectUnion() {}
 
-func (GroupType) IsMedicationRequestSubjectUnion() {}
+func (GroupType) IsResearchStudyRecruitmentEligibilityUnion() {}
+
+func (GroupType) IsConditionSubjectUnion() {}
+
+func (GroupType) IsTaskRestrictionRecipientUnion() {}
 
 func (GroupType) IsResourceUnion() {}
 
 type HumanName struct {
-	ResourceType     *string      `json:"resourceType,omitempty"`
-	Given            *string      `json:"given,omitempty"`
-	Use              *string      `json:"use,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
-	ID               *string      `json:"id,omitempty"`
-	Prefix           *string      `json:"prefix,omitempty"`
-	Text             *string      `json:"text,omitempty"`
-	Suffix           *string      `json:"suffix,omitempty"`
 	Family           *string      `json:"family,omitempty"`
+	Prefix           *string      `json:"prefix,omitempty"`
+	Suffix           *string      `json:"suffix,omitempty"`
+	ID               *string      `json:"id,omitempty"`
+	Text             *string      `json:"text,omitempty"`
+	Given            *string      `json:"given,omitempty"`
 	Period           *Period      `json:"period,omitempty"`
+	ResourceType     *string      `json:"resourceType,omitempty"`
+	Use              *string      `json:"use,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type Identifier struct {
-	ResourceType     *string           `json:"resourceType,omitempty"`
-	Type             *CodeableConcept  `json:"type,omitempty"`
-	Value            *string           `json:"value,omitempty"`
-	Assigner         *OrganizationType `json:"assigner"`
-	Extension        []*Extension      `json:"extension,omitempty"`
-	Period           *Period           `json:"period,omitempty"`
 	ID               *string           `json:"id,omitempty"`
+	Extension        []*Extension      `json:"extension,omitempty"`
+	ResourceType     *string           `json:"resourceType,omitempty"`
 	System           *string           `json:"system,omitempty"`
+	Value            *string           `json:"value,omitempty"`
+	Period           *Period           `json:"period,omitempty"`
+	Type             *CodeableConcept  `json:"type,omitempty"`
 	Use              *string           `json:"use,omitempty"`
+	Assigner         *OrganizationType `json:"assigner"`
 	AuthResourcePath *string           `json:"auth_resource_path,omitempty"`
 }
 
 type ImagingStudySeries struct {
-	Description       *string                        `json:"description,omitempty"`
 	Extension         []*Extension                   `json:"extension,omitempty"`
-	ResourceType      *string                        `json:"resourceType,omitempty"`
-	NumberOfInstances *string                        `json:"numberOfInstances,omitempty"`
-	UID               *string                        `json:"uid,omitempty"`
-	ModifierExtension []*Extension                   `json:"modifierExtension,omitempty"`
-	Laterality        *CodeableConcept               `json:"laterality,omitempty"`
-	Number            *string                        `json:"number,omitempty"`
-	Modality          *CodeableConcept               `json:"modality,omitempty"`
-	Started           *string                        `json:"started,omitempty"`
-	Specimen          *SpecimenType                  `json:"specimen"`
-	Instance          []*ImagingStudySeriesInstance  `json:"instance,omitempty"`
 	ID                *string                        `json:"id,omitempty"`
-	BodySite          *CodeableReference             `json:"bodySite,omitempty"`
+	Modality          *CodeableConcept               `json:"modality,omitempty"`
+	ResourceType      *string                        `json:"resourceType,omitempty"`
+	Laterality        *CodeableConcept               `json:"laterality,omitempty"`
+	Started           *string                        `json:"started,omitempty"`
+	Instance          []*ImagingStudySeriesInstance  `json:"instance,omitempty"`
+	UID               *string                        `json:"uid,omitempty"`
+	Number            *int                           `json:"number,omitempty"`
 	Performer         []*ImagingStudySeriesPerformer `json:"performer,omitempty"`
+	BodySite          *CodeableReference             `json:"bodySite,omitempty"`
+	Specimen          *SpecimenType                  `json:"specimen"`
+	NumberOfInstances *int                           `json:"numberOfInstances,omitempty"`
+	Description       *string                        `json:"description,omitempty"`
+	ModifierExtension []*Extension                   `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string                        `json:"auth_resource_path,omitempty"`
 }
 
 type ImagingStudySeriesInstance struct {
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	Number            *int         `json:"number,omitempty"`
+	ResourceType      *string      `json:"resourceType,omitempty"`
 	SopClass          *Coding      `json:"sopClass,omitempty"`
 	Title             *string      `json:"title,omitempty"`
 	UID               *string      `json:"uid,omitempty"`
 	Extension         []*Extension `json:"extension,omitempty"`
 	ID                *string      `json:"id,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	Number            *string      `json:"number,omitempty"`
-	ResourceType      *string      `json:"resourceType,omitempty"`
 	AuthResourcePath  *string      `json:"auth_resource_path,omitempty"`
 }
 
 type ImagingStudySeriesPerformer struct {
-	Extension         []*Extension                          `json:"extension,omitempty"`
-	Function          *CodeableConcept                      `json:"function,omitempty"`
 	ID                *string                               `json:"id,omitempty"`
 	ModifierExtension []*Extension                          `json:"modifierExtension,omitempty"`
 	ResourceType      *string                               `json:"resourceType,omitempty"`
 	Actor             ImagingStudySeriesPerformerActorUnion `json:"actor"`
+	Extension         []*Extension                          `json:"extension,omitempty"`
+	Function          *CodeableConcept                      `json:"function,omitempty"`
 	AuthResourcePath  *string                               `json:"auth_resource_path,omitempty"`
 }
 
 type ImagingStudyType struct {
-	ResourceType      *string                   `json:"resourceType,omitempty"`
-	BasedOn           ImagingStudyBasedOnUnion  `json:"basedOn"`
-	Subject           ImagingStudySubjectUnion  `json:"subject"`
-	Note              []*Annotation             `json:"note,omitempty"`
-	Procedure         []*CodeableReference      `json:"procedure,omitempty"`
-	Text              *Narrative                `json:"text,omitempty"`
-	Status            *string                   `json:"status,omitempty"`
-	NumberOfSeries    *string                   `json:"numberOfSeries,omitempty"`
-	Description       *string                   `json:"description,omitempty"`
-	Meta              *Meta                     `json:"meta,omitempty"`
-	Language          *string                   `json:"language,omitempty"`
-	Extension         []*Extension              `json:"extension,omitempty"`
-	Referrer          ImagingStudyReferrerUnion `json:"referrer"`
-	NumberOfInstances *string                   `json:"numberOfInstances,omitempty"`
-	Reason            []*CodeableReference      `json:"reason,omitempty"`
-	Series            []*ImagingStudySeries     `json:"series,omitempty"`
-	Identifier        []*Identifier             `json:"identifier,omitempty"`
-	Modality          []*CodeableConcept        `json:"modality,omitempty"`
 	PartOf            *ProcedureType            `json:"partOf"`
-	ImplicitRules     *string                   `json:"implicitRules,omitempty"`
-	Started           *string                   `json:"started,omitempty"`
-	ModifierExtension []*Extension              `json:"modifierExtension,omitempty"`
-	ID                *string                   `json:"id,omitempty"`
+	Text              *Narrative                `json:"text,omitempty"`
+	Procedure         []*CodeableReference      `json:"procedure,omitempty"`
+	BasedOn           ImagingStudyBasedOnUnion  `json:"basedOn"`
+	Extension         []*Extension              `json:"extension,omitempty"`
+	NumberOfInstances *int                      `json:"numberOfInstances,omitempty"`
+	Referrer          ImagingStudyReferrerUnion `json:"referrer"`
+	Series            []*ImagingStudySeries     `json:"series,omitempty"`
+	Meta              *Meta                     `json:"meta,omitempty"`
 	Contained         []ResourceUnion           `json:"contained,omitempty"`
+	Description       *string                   `json:"description,omitempty"`
+	Started           *string                   `json:"started,omitempty"`
+	Status            *string                   `json:"status,omitempty"`
+	Modality          []*CodeableConcept        `json:"modality,omitempty"`
+	Identifier        []*Identifier             `json:"identifier,omitempty"`
+	Language          *string                   `json:"language,omitempty"`
+	Note              []*Annotation             `json:"note,omitempty"`
+	ModifierExtension []*Extension              `json:"modifierExtension,omitempty"`
+	Reason            []*CodeableReference      `json:"reason,omitempty"`
+	ResourceType      *string                   `json:"resourceType,omitempty"`
+	ImplicitRules     *string                   `json:"implicitRules,omitempty"`
+	Subject           ImagingStudySubjectUnion  `json:"subject"`
+	ID                *string                   `json:"id,omitempty"`
+	NumberOfSeries    *int                      `json:"numberOfSeries,omitempty"`
 	AuthResourcePath  *string                   `json:"auth_resource_path,omitempty"`
 }
+
+func (ImagingStudyType) IsDiagnosticReportStudyUnion() {}
 
 func (ImagingStudyType) IsObservationDerivedFromUnion() {}
 
 func (ImagingStudyType) IsObservationPartOfUnion() {}
 
-func (ImagingStudyType) IsDiagnosticReportStudyUnion() {}
-
 func (ImagingStudyType) IsResourceUnion() {}
 
 type Immunization struct {
-	Performer           []*ImmunizationPerformer          `json:"performer,omitempty"`
-	Status              *string                           `json:"status,omitempty"`
 	ExpirationDate      *string                           `json:"expirationDate,omitempty"`
+	Status              *string                           `json:"status,omitempty"`
+	Identifier          []*Identifier                     `json:"identifier,omitempty"`
+	ResourceType        *string                           `json:"resourceType,omitempty"`
+	Contained           []ResourceUnion                   `json:"contained,omitempty"`
+	Language            *string                           `json:"language,omitempty"`
+	Performer           []*ImmunizationPerformer          `json:"performer,omitempty"`
+	IsSubpotent         *bool                             `json:"isSubpotent,omitempty"`
+	Meta                *Meta                             `json:"meta,omitempty"`
+	AdministeredProduct *CodeableReference                `json:"administeredProduct,omitempty"`
+	InformationSource   *CodeableReference                `json:"informationSource,omitempty"`
+	DoseQuantity        *Quantity                         `json:"doseQuantity,omitempty"`
+	LotNumber           *string                           `json:"lotNumber,omitempty"`
+	ImplicitRules       *string                           `json:"implicitRules,omitempty"`
 	Extension           []*Extension                      `json:"extension,omitempty"`
 	Reaction            []*ImmunizationReaction           `json:"reaction,omitempty"`
-	Identifier          []*Identifier                     `json:"identifier,omitempty"`
-	IsSubpotent         *string                           `json:"isSubpotent,omitempty"`
-	Site                *CodeableConcept                  `json:"site,omitempty"`
-	AdministeredProduct *CodeableReference                `json:"administeredProduct,omitempty"`
 	Manufacturer        *CodeableReference                `json:"manufacturer,omitempty"`
-	OccurrenceString    *string                           `json:"occurrenceString,omitempty"`
-	ImplicitRules       *string                           `json:"implicitRules,omitempty"`
+	Route               *CodeableConcept                  `json:"route,omitempty"`
 	Reason              []*CodeableReference              `json:"reason,omitempty"`
-	DoseQuantity        *Quantity                         `json:"doseQuantity,omitempty"`
+	Site                *CodeableConcept                  `json:"site,omitempty"`
+	SubpotentReason     []*CodeableConcept                `json:"subpotentReason,omitempty"`
+	StatusReason        *CodeableConcept                  `json:"statusReason,omitempty"`
 	ProtocolApplied     []*ImmunizationProtocolApplied    `json:"protocolApplied,omitempty"`
 	ModifierExtension   []*Extension                      `json:"modifierExtension,omitempty"`
-	StatusReason        *CodeableConcept                  `json:"statusReason,omitempty"`
-	Meta                *Meta                             `json:"meta,omitempty"`
-	Contained           []ResourceUnion                   `json:"contained,omitempty"`
-	LotNumber           *string                           `json:"lotNumber,omitempty"`
 	VaccineCode         *CodeableConcept                  `json:"vaccineCode,omitempty"`
-	ID                  *string                           `json:"id,omitempty"`
-	Language            *string                           `json:"language,omitempty"`
-	PrimarySource       *string                           `json:"primarySource,omitempty"`
-	ResourceType        *string                           `json:"resourceType,omitempty"`
-	SubpotentReason     []*CodeableConcept                `json:"subpotentReason,omitempty"`
-	OccurrenceDateTime  *string                           `json:"occurrenceDateTime,omitempty"`
+	OccurrenceString    *string                           `json:"occurrenceString,omitempty"`
 	ProgramEligibility  []*ImmunizationProgramEligibility `json:"programEligibility,omitempty"`
-	InformationSource   *CodeableReference                `json:"informationSource,omitempty"`
-	Note                []*Annotation                     `json:"note,omitempty"`
-	Route               *CodeableConcept                  `json:"route,omitempty"`
-	FundingSource       *CodeableConcept                  `json:"fundingSource,omitempty"`
+	ID                  *string                           `json:"id,omitempty"`
 	Text                *Narrative                        `json:"text,omitempty"`
+	FundingSource       *CodeableConcept                  `json:"fundingSource,omitempty"`
+	PrimarySource       *bool                             `json:"primarySource,omitempty"`
+	Note                []*Annotation                     `json:"note,omitempty"`
+	OccurrenceDateTime  *string                           `json:"occurrenceDateTime,omitempty"`
 	AuthResourcePath    *string                           `json:"auth_resource_path,omitempty"`
 }
 
@@ -1295,132 +1295,132 @@ type ImmunizationPerformer struct {
 }
 
 type ImmunizationProgramEligibility struct {
+	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
 	Program           *CodeableConcept `json:"program,omitempty"`
 	ProgramStatus     *CodeableConcept `json:"programStatus,omitempty"`
 	ResourceType      *string          `json:"resourceType,omitempty"`
 	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
-	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type ImmunizationProtocolApplied struct {
+	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
+	ResourceType      *string            `json:"resourceType,omitempty"`
 	Series            *string            `json:"series,omitempty"`
 	SeriesDoses       *string            `json:"seriesDoses,omitempty"`
 	TargetDisease     []*CodeableConcept `json:"targetDisease,omitempty"`
 	DoseNumber        *string            `json:"doseNumber,omitempty"`
 	Extension         []*Extension       `json:"extension,omitempty"`
 	ID                *string            `json:"id,omitempty"`
-	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
-	ResourceType      *string            `json:"resourceType,omitempty"`
 	AuthResourcePath  *string            `json:"auth_resource_path,omitempty"`
 }
 
 type ImmunizationReaction struct {
-	Reported          *string            `json:"reported,omitempty"`
+	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
+	Reported          *bool              `json:"reported,omitempty"`
 	ResourceType      *string            `json:"resourceType,omitempty"`
 	Date              *string            `json:"date,omitempty"`
 	Extension         []*Extension       `json:"extension,omitempty"`
 	ID                *string            `json:"id,omitempty"`
 	Manifestation     *CodeableReference `json:"manifestation,omitempty"`
-	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string            `json:"auth_resource_path,omitempty"`
 }
 
 type Location struct {
-	Form              *CodeableConcept         `json:"form,omitempty"`
-	Name              *string                  `json:"name,omitempty"`
 	OperationalStatus *Coding                  `json:"operationalStatus,omitempty"`
-	Status            *string                  `json:"status,omitempty"`
 	HoursOfOperation  []*Availability          `json:"hoursOfOperation,omitempty"`
-	Description       *string                  `json:"description,omitempty"`
-	Position          *LocationPosition        `json:"position,omitempty"`
-	Type              []*CodeableConcept       `json:"type,omitempty"`
-	ModifierExtension []*Extension             `json:"modifierExtension,omitempty"`
-	Alias             *string                  `json:"alias,omitempty"`
-	Address           *Address                 `json:"address,omitempty"`
-	Extension         []*Extension             `json:"extension,omitempty"`
-	Meta              *Meta                    `json:"meta,omitempty"`
-	Characteristic    []*CodeableConcept       `json:"characteristic,omitempty"`
-	ResourceType      *string                  `json:"resourceType,omitempty"`
-	Language          *string                  `json:"language,omitempty"`
-	VirtualService    []*VirtualServiceDetail  `json:"virtualService,omitempty"`
 	Contained         []ResourceUnion          `json:"contained,omitempty"`
-	Contact           []*ExtendedContactDetail `json:"contact,omitempty"`
-	ImplicitRules     *string                  `json:"implicitRules,omitempty"`
-	ID                *string                  `json:"id,omitempty"`
-	Mode              *string                  `json:"mode,omitempty"`
+	Form              *CodeableConcept         `json:"form,omitempty"`
 	Text              *Narrative               `json:"text,omitempty"`
 	Identifier        []*Identifier            `json:"identifier,omitempty"`
+	ID                *string                  `json:"id,omitempty"`
+	Description       *string                  `json:"description,omitempty"`
+	Mode              *string                  `json:"mode,omitempty"`
+	VirtualService    []*VirtualServiceDetail  `json:"virtualService,omitempty"`
+	Characteristic    []*CodeableConcept       `json:"characteristic,omitempty"`
+	Meta              *Meta                    `json:"meta,omitempty"`
+	Type              []*CodeableConcept       `json:"type,omitempty"`
+	Name              *string                  `json:"name,omitempty"`
+	Extension         []*Extension             `json:"extension,omitempty"`
+	ResourceType      *string                  `json:"resourceType,omitempty"`
+	ModifierExtension []*Extension             `json:"modifierExtension,omitempty"`
+	Address           *Address                 `json:"address,omitempty"`
+	ImplicitRules     *string                  `json:"implicitRules,omitempty"`
+	Contact           []*ExtendedContactDetail `json:"contact,omitempty"`
+	Alias             *string                  `json:"alias,omitempty"`
+	Language          *string                  `json:"language,omitempty"`
+	Position          *LocationPosition        `json:"position,omitempty"`
+	Status            *string                  `json:"status,omitempty"`
 	AuthResourcePath  *string                  `json:"auth_resource_path,omitempty"`
 }
 
 type LocationPosition struct {
-	Altitude          *string      `json:"altitude,omitempty"`
 	Extension         []*Extension `json:"extension,omitempty"`
 	ID                *string      `json:"id,omitempty"`
-	Latitude          *string      `json:"latitude,omitempty"`
-	Longitude         *string      `json:"longitude,omitempty"`
+	Latitude          *float64     `json:"latitude,omitempty"`
+	Longitude         *float64     `json:"longitude,omitempty"`
 	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	ResourceType      *string      `json:"resourceType,omitempty"`
+	Altitude          *float64     `json:"altitude,omitempty"`
 	AuthResourcePath  *string      `json:"auth_resource_path,omitempty"`
 }
 
 type MedicationAdministrationDosage struct {
 	Extension         []*Extension     `json:"extension,omitempty"`
+	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
+	Route             *CodeableConcept `json:"route,omitempty"`
+	Site              *CodeableConcept `json:"site,omitempty"`
+	Dose              *Quantity        `json:"dose,omitempty"`
 	ID                *string          `json:"id,omitempty"`
 	RateQuantity      *Quantity        `json:"rateQuantity,omitempty"`
-	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
 	ResourceType      *string          `json:"resourceType,omitempty"`
-	Site              *CodeableConcept `json:"site,omitempty"`
-	Route             *CodeableConcept `json:"route,omitempty"`
-	Text              *string          `json:"text,omitempty"`
-	Dose              *Quantity        `json:"dose,omitempty"`
 	Method            *CodeableConcept `json:"method,omitempty"`
 	RateRatio         *Ratio           `json:"rateRatio,omitempty"`
+	Text              *string          `json:"text,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type MedicationAdministrationPerformer struct {
+	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
+	ResourceType      *string            `json:"resourceType,omitempty"`
 	Actor             *CodeableReference `json:"actor,omitempty"`
 	Extension         []*Extension       `json:"extension,omitempty"`
 	Function          *CodeableConcept   `json:"function,omitempty"`
 	ID                *string            `json:"id,omitempty"`
-	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
-	ResourceType      *string            `json:"resourceType,omitempty"`
 	AuthResourcePath  *string            `json:"auth_resource_path,omitempty"`
 }
 
 type MedicationAdministrationType struct {
-	PartOf                MedicationAdministrationPartOfUnion  `json:"partOf"`
-	Reason                []*CodeableReference                 `json:"reason,omitempty"`
+	SubPotentReason       []*CodeableConcept                   `json:"subPotentReason,omitempty"`
 	Status                *string                              `json:"status,omitempty"`
-	Dosage                *MedicationAdministrationDosage      `json:"dosage,omitempty"`
-	Text                  *Narrative                           `json:"text,omitempty"`
-	Extension             []*Extension                         `json:"extension,omitempty"`
+	Note                  []*Annotation                        `json:"note,omitempty"`
 	Language              *string                              `json:"language,omitempty"`
 	OccurenceDateTime     *string                              `json:"occurenceDateTime,omitempty"`
+	ModifierExtension     []*Extension                         `json:"modifierExtension,omitempty"`
+	ResourceType          *string                              `json:"resourceType,omitempty"`
+	Medication            *CodeableReference                   `json:"medication,omitempty"`
+	Recorded              *string                              `json:"recorded,omitempty"`
+	IsSubPotent           *bool                                `json:"isSubPotent,omitempty"`
+	Text                  *Narrative                           `json:"text,omitempty"`
+	OccurenceTiming       *Timing                              `json:"occurenceTiming,omitempty"`
+	StatusReason          []*CodeableConcept                   `json:"statusReason,omitempty"`
+	Reason                []*CodeableReference                 `json:"reason,omitempty"`
+	SupportingInformation ResourceUnion                        `json:"supportingInformation"`
+	Category              []*CodeableConcept                   `json:"category,omitempty"`
+	Subject               MedicationAdministrationSubjectUnion `json:"subject"`
+	Performer             []*MedicationAdministrationPerformer `json:"performer,omitempty"`
+	Request               *MedicationRequestType               `json:"request"`
 	Contained             []ResourceUnion                      `json:"contained,omitempty"`
+	Dosage                *MedicationAdministrationDosage      `json:"dosage,omitempty"`
+	Identifier            []*Identifier                        `json:"identifier,omitempty"`
+	ImplicitRules         *string                              `json:"implicitRules,omitempty"`
+	OccurencePeriod       *Period                              `json:"occurencePeriod,omitempty"`
+	Meta                  *Meta                                `json:"meta,omitempty"`
+	PartOf                MedicationAdministrationPartOfUnion  `json:"partOf"`
+	Extension             []*Extension                         `json:"extension,omitempty"`
 	ID                    *string                              `json:"id,omitempty"`
 	Device                []*CodeableReference                 `json:"device,omitempty"`
-	Recorded              *string                              `json:"recorded,omitempty"`
-	Request               *MedicationRequestType               `json:"request"`
-	SupportingInformation ResourceUnion                        `json:"supportingInformation"`
-	Identifier            []*Identifier                        `json:"identifier,omitempty"`
-	Subject               MedicationAdministrationSubjectUnion `json:"subject"`
-	OccurencePeriod       *Period                              `json:"occurencePeriod,omitempty"`
-	IsSubPotent           *string                              `json:"isSubPotent,omitempty"`
-	Medication            *CodeableReference                   `json:"medication,omitempty"`
-	SubPotentReason       []*CodeableConcept                   `json:"subPotentReason,omitempty"`
-	Category              []*CodeableConcept                   `json:"category,omitempty"`
-	Meta                  *Meta                                `json:"meta,omitempty"`
-	ModifierExtension     []*Extension                         `json:"modifierExtension,omitempty"`
-	OccurenceTiming       *Timing                              `json:"occurenceTiming,omitempty"`
-	ResourceType          *string                              `json:"resourceType,omitempty"`
-	Performer             []*MedicationAdministrationPerformer `json:"performer,omitempty"`
-	ImplicitRules         *string                              `json:"implicitRules,omitempty"`
-	StatusReason          []*CodeableConcept                   `json:"statusReason,omitempty"`
-	Note                  []*Annotation                        `json:"note,omitempty"`
 	AuthResourcePath      *string                              `json:"auth_resource_path,omitempty"`
 }
 
@@ -1433,157 +1433,157 @@ func (MedicationAdministrationType) IsMedicationAdministrationPartOfUnion() {}
 func (MedicationAdministrationType) IsResourceUnion() {}
 
 type MedicationBatch struct {
+	LotNumber         *string      `json:"lotNumber,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	ResourceType      *string      `json:"resourceType,omitempty"`
 	ExpirationDate    *string      `json:"expirationDate,omitempty"`
 	Extension         []*Extension `json:"extension,omitempty"`
 	ID                *string      `json:"id,omitempty"`
-	LotNumber         *string      `json:"lotNumber,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string      `json:"auth_resource_path,omitempty"`
 }
 
 type MedicationIngredient struct {
-	ID                      *string            `json:"id,omitempty"`
-	IsActive                *string            `json:"isActive,omitempty"`
-	ResourceType            *string            `json:"resourceType,omitempty"`
 	StrengthRatio           *Ratio             `json:"strengthRatio,omitempty"`
 	Extension               []*Extension       `json:"extension,omitempty"`
-	StrengthCodeableConcept *CodeableConcept   `json:"strengthCodeableConcept,omitempty"`
+	ID                      *string            `json:"id,omitempty"`
 	Item                    *CodeableReference `json:"item,omitempty"`
-	ModifierExtension       []*Extension       `json:"modifierExtension,omitempty"`
 	StrengthQuantity        *Quantity          `json:"strengthQuantity,omitempty"`
+	IsActive                *bool              `json:"isActive,omitempty"`
+	ModifierExtension       []*Extension       `json:"modifierExtension,omitempty"`
+	ResourceType            *string            `json:"resourceType,omitempty"`
+	StrengthCodeableConcept *CodeableConcept   `json:"strengthCodeableConcept,omitempty"`
 	AuthResourcePath        *string            `json:"auth_resource_path,omitempty"`
 }
 
 type MedicationRequestDispenseRequest struct {
-	Quantity               *Quantity                                    `json:"quantity,omitempty"`
+	ID                     *string                                      `json:"id,omitempty"`
+	NumberOfRepeatsAllowed *int                                         `json:"numberOfRepeatsAllowed,omitempty"`
+	Extension              []*Extension                                 `json:"extension,omitempty"`
+	ValidityPeriod         *Period                                      `json:"validityPeriod,omitempty"`
 	DispenseInterval       *Duration                                    `json:"dispenseInterval,omitempty"`
 	DoseAdministrationAid  *CodeableConcept                             `json:"doseAdministrationAid,omitempty"`
-	ModifierExtension      []*Extension                                 `json:"modifierExtension,omitempty"`
-	NumberOfRepeatsAllowed *string                                      `json:"numberOfRepeatsAllowed,omitempty"`
-	ValidityPeriod         *Period                                      `json:"validityPeriod,omitempty"`
+	ExpectedSupplyDuration *Duration                                    `json:"expectedSupplyDuration,omitempty"`
+	Quantity               *Quantity                                    `json:"quantity,omitempty"`
+	ResourceType           *string                                      `json:"resourceType,omitempty"`
 	Dispenser              *OrganizationType                            `json:"dispenser"`
 	DispenserInstruction   []*Annotation                                `json:"dispenserInstruction,omitempty"`
-	ExpectedSupplyDuration *Duration                                    `json:"expectedSupplyDuration,omitempty"`
-	Extension              []*Extension                                 `json:"extension,omitempty"`
-	ID                     *string                                      `json:"id,omitempty"`
 	InitialFill            *MedicationRequestDispenseRequestInitialFill `json:"initialFill,omitempty"`
-	ResourceType           *string                                      `json:"resourceType,omitempty"`
+	ModifierExtension      []*Extension                                 `json:"modifierExtension,omitempty"`
 	AuthResourcePath       *string                                      `json:"auth_resource_path,omitempty"`
 }
 
 type MedicationRequestDispenseRequestInitialFill struct {
-	Extension         []*Extension `json:"extension,omitempty"`
-	ID                *string      `json:"id,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	Quantity          *Quantity    `json:"quantity,omitempty"`
 	ResourceType      *string      `json:"resourceType,omitempty"`
 	Duration          *Duration    `json:"duration,omitempty"`
+	Extension         []*Extension `json:"extension,omitempty"`
+	ID                *string      `json:"id,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string      `json:"auth_resource_path,omitempty"`
 }
 
 type MedicationRequestSubstitution struct {
+	Reason                 *CodeableConcept `json:"reason,omitempty"`
+	ResourceType           *string          `json:"resourceType,omitempty"`
+	AllowedBoolean         *bool            `json:"allowedBoolean,omitempty"`
+	AllowedCodeableConcept *CodeableConcept `json:"allowedCodeableConcept,omitempty"`
 	Extension              []*Extension     `json:"extension,omitempty"`
 	ID                     *string          `json:"id,omitempty"`
 	ModifierExtension      []*Extension     `json:"modifierExtension,omitempty"`
-	Reason                 *CodeableConcept `json:"reason,omitempty"`
-	ResourceType           *string          `json:"resourceType,omitempty"`
-	AllowedBoolean         *string          `json:"allowedBoolean,omitempty"`
-	AllowedCodeableConcept *CodeableConcept `json:"allowedCodeableConcept,omitempty"`
 	AuthResourcePath       *string          `json:"auth_resource_path,omitempty"`
 }
 
 type MedicationRequestType struct {
-	Medication                *CodeableReference                      `json:"medication,omitempty"`
-	Meta                      *Meta                                   `json:"meta,omitempty"`
-	Device                    []*CodeableReference                    `json:"device,omitempty"`
-	StatusReason              *CodeableConcept                        `json:"statusReason,omitempty"`
-	ResourceType              *string                                 `json:"resourceType,omitempty"`
-	DispenseRequest           *MedicationRequestDispenseRequest       `json:"dispenseRequest,omitempty"`
-	Status                    *string                                 `json:"status,omitempty"`
-	PriorPrescription         *MedicationRequestType                  `json:"priorPrescription"`
-	StatusChanged             *string                                 `json:"statusChanged,omitempty"`
-	Substitution              *MedicationRequestSubstitution          `json:"substitution,omitempty"`
-	Requester                 MedicationRequestRequesterUnion         `json:"requester"`
-	ID                        *string                                 `json:"id,omitempty"`
-	AuthoredOn                *string                                 `json:"authoredOn,omitempty"`
-	Language                  *string                                 `json:"language,omitempty"`
-	Intent                    *string                                 `json:"intent,omitempty"`
-	SupportingInformation     ResourceUnion                           `json:"supportingInformation"`
-	RenderedDosageInstruction *string                                 `json:"renderedDosageInstruction,omitempty"`
-	DoNotPerform              *string                                 `json:"doNotPerform,omitempty"`
-	Reason                    []*CodeableReference                    `json:"reason,omitempty"`
-	PerformerType             *CodeableConcept                        `json:"performerType,omitempty"`
-	ImplicitRules             *string                                 `json:"implicitRules,omitempty"`
-	Priority                  *string                                 `json:"priority,omitempty"`
-	Contained                 []ResourceUnion                         `json:"contained,omitempty"`
-	InformationSource         MedicationRequestInformationSourceUnion `json:"informationSource"`
-	BasedOn                   MedicationRequestBasedOnUnion           `json:"basedOn"`
 	Subject                   MedicationRequestSubjectUnion           `json:"subject"`
 	Recorder                  MedicationRequestRecorderUnion          `json:"recorder"`
+	SupportingInformation     ResourceUnion                           `json:"supportingInformation"`
+	StatusReason              *CodeableConcept                        `json:"statusReason,omitempty"`
+	Substitution              *MedicationRequestSubstitution          `json:"substitution,omitempty"`
+	ID                        *string                                 `json:"id,omitempty"`
+	Meta                      *Meta                                   `json:"meta,omitempty"`
+	Intent                    *string                                 `json:"intent,omitempty"`
+	Requester                 MedicationRequestRequesterUnion         `json:"requester"`
 	ModifierExtension         []*Extension                            `json:"modifierExtension,omitempty"`
-	Text                      *Narrative                              `json:"text,omitempty"`
+	ImplicitRules             *string                                 `json:"implicitRules,omitempty"`
 	DosageInstruction         []*Dosage                               `json:"dosageInstruction,omitempty"`
-	Identifier                []*Identifier                           `json:"identifier,omitempty"`
-	Note                      []*Annotation                           `json:"note,omitempty"`
-	CourseOfTherapyType       *CodeableConcept                        `json:"courseOfTherapyType,omitempty"`
+	Priority                  *string                                 `json:"priority,omitempty"`
+	PriorPrescription         *MedicationRequestType                  `json:"priorPrescription"`
+	InformationSource         MedicationRequestInformationSourceUnion `json:"informationSource"`
+	Device                    []*CodeableReference                    `json:"device,omitempty"`
+	DoNotPerform              *bool                                   `json:"doNotPerform,omitempty"`
 	EffectiveDosePeriod       *Period                                 `json:"effectiveDosePeriod,omitempty"`
-	Category                  []*CodeableConcept                      `json:"category,omitempty"`
-	Reported                  *string                                 `json:"reported,omitempty"`
+	Contained                 []ResourceUnion                         `json:"contained,omitempty"`
+	PerformerType             *CodeableConcept                        `json:"performerType,omitempty"`
+	Reported                  *bool                                   `json:"reported,omitempty"`
+	ResourceType              *string                                 `json:"resourceType,omitempty"`
 	GroupIdentifier           *Identifier                             `json:"groupIdentifier,omitempty"`
+	StatusChanged             *string                                 `json:"statusChanged,omitempty"`
+	RenderedDosageInstruction *string                                 `json:"renderedDosageInstruction,omitempty"`
+	Note                      []*Annotation                           `json:"note,omitempty"`
+	Reason                    []*CodeableReference                    `json:"reason,omitempty"`
+	Category                  []*CodeableConcept                      `json:"category,omitempty"`
 	Performer                 MedicationRequestPerformerUnion         `json:"performer"`
+	DispenseRequest           *MedicationRequestDispenseRequest       `json:"dispenseRequest,omitempty"`
+	Language                  *string                                 `json:"language,omitempty"`
+	Medication                *CodeableReference                      `json:"medication,omitempty"`
+	AuthoredOn                *string                                 `json:"authoredOn,omitempty"`
+	Status                    *string                                 `json:"status,omitempty"`
 	Extension                 []*Extension                            `json:"extension,omitempty"`
+	Identifier                []*Identifier                           `json:"identifier,omitempty"`
+	Text                      *Narrative                              `json:"text,omitempty"`
+	CourseOfTherapyType       *CodeableConcept                        `json:"courseOfTherapyType,omitempty"`
+	BasedOn                   MedicationRequestBasedOnUnion           `json:"basedOn"`
 	AuthResourcePath          *string                                 `json:"auth_resource_path,omitempty"`
 }
 
-func (MedicationRequestType) IsObservationBasedOnUnion() {}
+func (MedicationRequestType) IsMedicationRequestBasedOnUnion() {}
 
 func (MedicationRequestType) IsDiagnosticReportBasedOnUnion() {}
 
-func (MedicationRequestType) IsDocumentReferenceBasedOnUnion() {}
+func (MedicationRequestType) IsObservationBasedOnUnion() {}
 
-func (MedicationRequestType) IsMedicationRequestBasedOnUnion() {}
+func (MedicationRequestType) IsDocumentReferenceBasedOnUnion() {}
 
 func (MedicationRequestType) IsResourceUnion() {}
 
 type MedicationStatementAdherence struct {
-	Code              *CodeableConcept `json:"code,omitempty"`
-	Extension         []*Extension     `json:"extension,omitempty"`
-	ID                *string          `json:"id,omitempty"`
 	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
 	Reason            *CodeableConcept `json:"reason,omitempty"`
 	ResourceType      *string          `json:"resourceType,omitempty"`
+	Code              *CodeableConcept `json:"code,omitempty"`
+	Extension         []*Extension     `json:"extension,omitempty"`
+	ID                *string          `json:"id,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type MedicationStatementType struct {
-	DateAsserted               *string                                            `json:"dateAsserted,omitempty"`
-	Meta                       *Meta                                              `json:"meta,omitempty"`
-	RelatedClinicalInformation MedicationStatementRelatedClinicalInformationUnion `json:"relatedClinicalInformation"`
-	Subject                    MedicationStatementSubjectUnion                    `json:"subject"`
-	EffectivePeriod            *Period                                            `json:"effectivePeriod,omitempty"`
-	PartOf                     MedicationStatementPartOfUnion                     `json:"partOf"`
-	Extension                  []*Extension                                       `json:"extension,omitempty"`
-	Contained                  []ResourceUnion                                    `json:"contained,omitempty"`
-	Dosage                     []*Dosage                                          `json:"dosage,omitempty"`
-	InformationSource          MedicationStatementInformationSourceUnion          `json:"informationSource"`
-	Note                       []*Annotation                                      `json:"note,omitempty"`
-	EffectiveTiming            *Timing                                            `json:"effectiveTiming,omitempty"`
-	Reason                     []*CodeableReference                               `json:"reason,omitempty"`
-	Text                       *Narrative                                         `json:"text,omitempty"`
-	ImplicitRules              *string                                            `json:"implicitRules,omitempty"`
-	Adherence                  *MedicationStatementAdherence                      `json:"adherence,omitempty"`
-	Identifier                 []*Identifier                                      `json:"identifier,omitempty"`
-	EffectiveDateTime          *string                                            `json:"effectiveDateTime,omitempty"`
 	Status                     *string                                            `json:"status,omitempty"`
-	ID                         *string                                            `json:"id,omitempty"`
+	EffectivePeriod            *Period                                            `json:"effectivePeriod,omitempty"`
+	RelatedClinicalInformation MedicationStatementRelatedClinicalInformationUnion `json:"relatedClinicalInformation"`
+	Note                       []*Annotation                                      `json:"note,omitempty"`
 	ModifierExtension          []*Extension                                       `json:"modifierExtension,omitempty"`
-	DerivedFrom                ResourceUnion                                      `json:"derivedFrom"`
-	RenderedDosageInstruction  *string                                            `json:"renderedDosageInstruction,omitempty"`
-	ResourceType               *string                                            `json:"resourceType,omitempty"`
-	Language                   *string                                            `json:"language,omitempty"`
-	Category                   []*CodeableConcept                                 `json:"category,omitempty"`
 	Medication                 *CodeableReference                                 `json:"medication,omitempty"`
+	Extension                  []*Extension                                       `json:"extension,omitempty"`
+	ResourceType               *string                                            `json:"resourceType,omitempty"`
+	ID                         *string                                            `json:"id,omitempty"`
+	EffectiveTiming            *Timing                                            `json:"effectiveTiming,omitempty"`
+	Adherence                  *MedicationStatementAdherence                      `json:"adherence,omitempty"`
+	RenderedDosageInstruction  *string                                            `json:"renderedDosageInstruction,omitempty"`
+	Identifier                 []*Identifier                                      `json:"identifier,omitempty"`
+	Text                       *Narrative                                         `json:"text,omitempty"`
+	PartOf                     MedicationStatementPartOfUnion                     `json:"partOf"`
+	EffectiveDateTime          *string                                            `json:"effectiveDateTime,omitempty"`
+	Meta                       *Meta                                              `json:"meta,omitempty"`
+	Category                   []*CodeableConcept                                 `json:"category,omitempty"`
+	Subject                    MedicationStatementSubjectUnion                    `json:"subject"`
+	InformationSource          MedicationStatementInformationSourceUnion          `json:"informationSource"`
+	DerivedFrom                ResourceUnion                                      `json:"derivedFrom"`
+	Dosage                     []*Dosage                                          `json:"dosage,omitempty"`
+	Language                   *string                                            `json:"language,omitempty"`
+	Contained                  []ResourceUnion                                    `json:"contained,omitempty"`
+	Reason                     []*CodeableReference                               `json:"reason,omitempty"`
+	ImplicitRules              *string                                            `json:"implicitRules,omitempty"`
+	DateAsserted               *string                                            `json:"dateAsserted,omitempty"`
 	AuthResourcePath           *string                                            `json:"auth_resource_path,omitempty"`
 }
 
@@ -1594,168 +1594,166 @@ func (MedicationStatementType) IsMedicationStatementPartOfUnion() {}
 func (MedicationStatementType) IsResourceUnion() {}
 
 type MedicationType struct {
-	DoseForm                     *CodeableConcept        `json:"doseForm,omitempty"`
-	Text                         *Narrative              `json:"text,omitempty"`
-	Identifier                   []*Identifier           `json:"identifier,omitempty"`
-	ResourceType                 *string                 `json:"resourceType,omitempty"`
-	Extension                    []*Extension            `json:"extension,omitempty"`
-	Ingredient                   []*MedicationIngredient `json:"ingredient,omitempty"`
-	Contained                    []ResourceUnion         `json:"contained,omitempty"`
-	TotalVolume                  *Quantity               `json:"totalVolume,omitempty"`
-	Code                         *CodeableConcept        `json:"code,omitempty"`
-	Language                     *string                 `json:"language,omitempty"`
-	MarketingAuthorizationHolder *OrganizationType       `json:"marketingAuthorizationHolder"`
-	Meta                         *Meta                   `json:"meta,omitempty"`
 	ModifierExtension            []*Extension            `json:"modifierExtension,omitempty"`
+	Code                         *CodeableConcept        `json:"code,omitempty"`
+	ImplicitRules                *string                 `json:"implicitRules,omitempty"`
+	Meta                         *Meta                   `json:"meta,omitempty"`
+	ResourceType                 *string                 `json:"resourceType,omitempty"`
+	TotalVolume                  *Quantity               `json:"totalVolume,omitempty"`
+	ID                           *string                 `json:"id,omitempty"`
+	Ingredient                   []*MedicationIngredient `json:"ingredient,omitempty"`
 	Status                       *string                 `json:"status,omitempty"`
 	Batch                        *MedicationBatch        `json:"batch,omitempty"`
-	ID                           *string                 `json:"id,omitempty"`
-	ImplicitRules                *string                 `json:"implicitRules,omitempty"`
+	MarketingAuthorizationHolder *OrganizationType       `json:"marketingAuthorizationHolder"`
+	Extension                    []*Extension            `json:"extension,omitempty"`
+	Identifier                   []*Identifier           `json:"identifier,omitempty"`
+	DoseForm                     *CodeableConcept        `json:"doseForm,omitempty"`
+	Language                     *string                 `json:"language,omitempty"`
+	Text                         *Narrative              `json:"text,omitempty"`
+	Contained                    []ResourceUnion         `json:"contained,omitempty"`
 	AuthResourcePath             *string                 `json:"auth_resource_path,omitempty"`
 }
+
+func (MedicationType) IsDiagnosticReportSubjectUnion() {}
 
 func (MedicationType) IsResearchSubjectSubjectUnion() {}
 
 func (MedicationType) IsObservationSubjectUnion() {}
 
-func (MedicationType) IsDiagnosticReportSubjectUnion() {}
-
 func (MedicationType) IsResourceUnion() {}
 
 type Meta struct {
-	ResourceType     *string      `json:"resourceType,omitempty"`
-	Extension        []*Extension `json:"extension,omitempty"`
-	Profile          *string      `json:"profile,omitempty"`
-	Tag              []*Coding    `json:"tag,omitempty"`
-	ID               *string      `json:"id,omitempty"`
 	LastUpdated      *string      `json:"lastUpdated,omitempty"`
-	Security         []*Coding    `json:"security,omitempty"`
-	Source           *string      `json:"source,omitempty"`
+	Profile          *string      `json:"profile,omitempty"`
+	ID               *string      `json:"id,omitempty"`
 	VersionID        *string      `json:"versionId,omitempty"`
+	Extension        []*Extension `json:"extension,omitempty"`
+	ResourceType     *string      `json:"resourceType,omitempty"`
+	Source           *string      `json:"source,omitempty"`
+	Tag              []*Coding    `json:"tag,omitempty"`
+	Security         []*Coding    `json:"security,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type Money struct {
-	Currency         *string      `json:"currency,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
-	Value            *string      `json:"value,omitempty"`
+	Value            *float64     `json:"value,omitempty"`
+	Currency         *string      `json:"currency,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type Narrative struct {
+	Div              *string      `json:"div,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
 	Status           *string      `json:"status,omitempty"`
-	Div              *string      `json:"div,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type ObservationComponent struct {
-	ValueCodeableConcept *CodeableConcept             `json:"valueCodeableConcept,omitempty"`
-	ValueQuantity        *Quantity                    `json:"valueQuantity,omitempty"`
-	ValueRange           *Range                       `json:"valueRange,omitempty"`
-	Interpretation       []*CodeableConcept           `json:"interpretation,omitempty"`
-	ValueBoolean         *string                      `json:"valueBoolean,omitempty"`
-	ValueDateTime        *string                      `json:"valueDateTime,omitempty"`
-	ValueInteger         *string                      `json:"valueInteger,omitempty"`
-	ValuePeriod          *Period                      `json:"valuePeriod,omitempty"`
-	ValueSampledData     *SampledData                 `json:"valueSampledData,omitempty"`
-	ValueTime            *string                      `json:"valueTime,omitempty"`
-	Extension            []*Extension                 `json:"extension,omitempty"`
-	ValueRatio           *Ratio                       `json:"valueRatio,omitempty"`
-	ModifierExtension    []*Extension                 `json:"modifierExtension,omitempty"`
-	ResourceType         *string                      `json:"resourceType,omitempty"`
-	ValueString          *string                      `json:"valueString,omitempty"`
-	DataAbsentReason     *CodeableConcept             `json:"dataAbsentReason,omitempty"`
 	Code                 *CodeableConcept             `json:"code,omitempty"`
-	ID                   *string                      `json:"id,omitempty"`
 	ReferenceRange       []*ObservationReferenceRange `json:"referenceRange,omitempty"`
+	ValueCodeableConcept *CodeableConcept             `json:"valueCodeableConcept,omitempty"`
 	ValueAttachment      *Attachment                  `json:"valueAttachment,omitempty"`
+	ValueRatio           *Ratio                       `json:"valueRatio,omitempty"`
+	ValueTime            *string                      `json:"valueTime,omitempty"`
+	ValueQuantity        *Quantity                    `json:"valueQuantity,omitempty"`
+	Extension            []*Extension                 `json:"extension,omitempty"`
+	ValueDateTime        *string                      `json:"valueDateTime,omitempty"`
+	ModifierExtension    []*Extension                 `json:"modifierExtension,omitempty"`
+	ValueString          *string                      `json:"valueString,omitempty"`
+	ID                   *string                      `json:"id,omitempty"`
+	ValueSampledData     *SampledData                 `json:"valueSampledData,omitempty"`
+	DataAbsentReason     *CodeableConcept             `json:"dataAbsentReason,omitempty"`
+	Interpretation       []*CodeableConcept           `json:"interpretation,omitempty"`
+	ValueBoolean         *bool                        `json:"valueBoolean,omitempty"`
+	ValuePeriod          *Period                      `json:"valuePeriod,omitempty"`
+	ResourceType         *string                      `json:"resourceType,omitempty"`
+	ValueInteger         *int                         `json:"valueInteger,omitempty"`
+	ValueRange           *Range                       `json:"valueRange,omitempty"`
 	AuthResourcePath     *string                      `json:"auth_resource_path,omitempty"`
 }
 
 type ObservationReferenceRange struct {
-	ResourceType      *string            `json:"resourceType,omitempty"`
-	Extension         []*Extension       `json:"extension,omitempty"`
-	High              *Quantity          `json:"high,omitempty"`
-	Age               *Range             `json:"age,omitempty"`
-	NormalValue       *CodeableConcept   `json:"normalValue,omitempty"`
-	AppliesTo         []*CodeableConcept `json:"appliesTo,omitempty"`
-	ID                *string            `json:"id,omitempty"`
-	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
 	Low               *Quantity          `json:"low,omitempty"`
+	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
+	ResourceType      *string            `json:"resourceType,omitempty"`
+	Age               *Range             `json:"age,omitempty"`
+	AppliesTo         []*CodeableConcept `json:"appliesTo,omitempty"`
+	Extension         []*Extension       `json:"extension,omitempty"`
 	Text              *string            `json:"text,omitempty"`
+	NormalValue       *CodeableConcept   `json:"normalValue,omitempty"`
+	ID                *string            `json:"id,omitempty"`
+	High              *Quantity          `json:"high,omitempty"`
 	Type              *CodeableConcept   `json:"type,omitempty"`
 	AuthResourcePath  *string            `json:"auth_resource_path,omitempty"`
 }
 
 type ObservationTriggeredBy struct {
+	Observation       *ObservationType `json:"observation"`
+	Reason            *string          `json:"reason,omitempty"`
+	ResourceType      *string          `json:"resourceType,omitempty"`
 	Type              *string          `json:"type,omitempty"`
 	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
 	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	Observation       *ObservationType `json:"observation"`
-	Reason            *string          `json:"reason,omitempty"`
-	ResourceType      *string          `json:"resourceType,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type ObservationType struct {
-	Meta                  *Meta                        `json:"meta,omitempty"`
-	Identifier            []*Identifier                `json:"identifier,omitempty"`
-	PartOf                ObservationPartOfUnion       `json:"partOf"`
+	Note                  []*Annotation                `json:"note,omitempty"`
+	Focus                 ResourceUnion                `json:"focus"`
+	BasedOn               ObservationBasedOnUnion      `json:"basedOn"`
+	EffectivePeriod       *Period                      `json:"effectivePeriod,omitempty"`
+	ValueRange            *Range                       `json:"valueRange,omitempty"`
+	ResourceType          *string                      `json:"resourceType,omitempty"`
 	ValueString           *string                      `json:"valueString,omitempty"`
 	Extension             []*Extension                 `json:"extension,omitempty"`
-	ValueQuantity         *Quantity                    `json:"valueQuantity,omitempty"`
-	Issued                *string                      `json:"issued,omitempty"`
-	DerivedFrom           ObservationDerivedFromUnion  `json:"derivedFrom"`
-	EffectiveTiming       *Timing                      `json:"effectiveTiming,omitempty"`
-	Focus                 ResourceUnion                `json:"focus"`
-	ValueBoolean          *string                      `json:"valueBoolean,omitempty"`
 	Status                *string                      `json:"status,omitempty"`
-	EffectivePeriod       *Period                      `json:"effectivePeriod,omitempty"`
-	Method                *CodeableConcept             `json:"method,omitempty"`
-	TriggeredBy           []*ObservationTriggeredBy    `json:"triggeredBy,omitempty"`
-	ImplicitRules         *string                      `json:"implicitRules,omitempty"`
-	Subject               ObservationSubjectUnion      `json:"subject"`
-	DataAbsentReason      *CodeableConcept             `json:"dataAbsentReason,omitempty"`
-	ValueAttachment       *Attachment                  `json:"valueAttachment,omitempty"`
-	ValueInteger          *string                      `json:"valueInteger,omitempty"`
-	Interpretation        []*CodeableConcept           `json:"interpretation,omitempty"`
-	ValueTime             *string                      `json:"valueTime,omitempty"`
-	Contained             []ResourceUnion              `json:"contained,omitempty"`
-	ReferenceRange        []*ObservationReferenceRange `json:"referenceRange,omitempty"`
-	Component             []*ObservationComponent      `json:"component,omitempty"`
-	ID                    *string                      `json:"id,omitempty"`
-	EffectiveInstant      *string                      `json:"effectiveInstant,omitempty"`
-	Language              *string                      `json:"language,omitempty"`
-	ModifierExtension     []*Extension                 `json:"modifierExtension,omitempty"`
-	EffectiveDateTime     *string                      `json:"effectiveDateTime,omitempty"`
-	InstantiatesCanonical *string                      `json:"instantiatesCanonical,omitempty"`
-	HasMember             ObservationHasMemberUnion    `json:"hasMember"`
-	Category              []*CodeableConcept           `json:"category,omitempty"`
-	ValueRatio            *Ratio                       `json:"valueRatio,omitempty"`
-	BasedOn               ObservationBasedOnUnion      `json:"basedOn"`
-	BodyStructure         *BodyStructureType           `json:"bodyStructure"`
-	Performer             ObservationPerformerUnion    `json:"performer"`
-	ResourceType          *string                      `json:"resourceType,omitempty"`
-	ValueRange            *Range                       `json:"valueRange,omitempty"`
 	ValuePeriod           *Period                      `json:"valuePeriod,omitempty"`
-	Code                  *CodeableConcept             `json:"code,omitempty"`
-	Specimen              ObservationSpecimenUnion     `json:"specimen"`
-	Text                  *Narrative                   `json:"text,omitempty"`
 	BodySite              *CodeableConcept             `json:"bodySite,omitempty"`
-	ValueDateTime         *string                      `json:"valueDateTime,omitempty"`
-	ValueCodeableConcept  *CodeableConcept             `json:"valueCodeableConcept,omitempty"`
-	Note                  []*Annotation                `json:"note,omitempty"`
+	HasMember             ObservationHasMemberUnion    `json:"hasMember"`
+	ID                    *string                      `json:"id,omitempty"`
+	Component             []*ObservationComponent      `json:"component,omitempty"`
+	Interpretation        []*CodeableConcept           `json:"interpretation,omitempty"`
+	Text                  *Narrative                   `json:"text,omitempty"`
+	ReferenceRange        []*ObservationReferenceRange `json:"referenceRange,omitempty"`
+	EffectiveInstant      *string                      `json:"effectiveInstant,omitempty"`
+	ModifierExtension     []*Extension                 `json:"modifierExtension,omitempty"`
 	ValueSampledData      *SampledData                 `json:"valueSampledData,omitempty"`
+	Method                *CodeableConcept             `json:"method,omitempty"`
+	Meta                  *Meta                        `json:"meta,omitempty"`
+	DerivedFrom           ObservationDerivedFromUnion  `json:"derivedFrom"`
+	Category              []*CodeableConcept           `json:"category,omitempty"`
+	EffectiveDateTime     *string                      `json:"effectiveDateTime,omitempty"`
+	ValueBoolean          *bool                        `json:"valueBoolean,omitempty"`
+	DataAbsentReason      *CodeableConcept             `json:"dataAbsentReason,omitempty"`
+	Contained             []ResourceUnion              `json:"contained,omitempty"`
+	Specimen              ObservationSpecimenUnion     `json:"specimen"`
+	ValueAttachment       *Attachment                  `json:"valueAttachment,omitempty"`
+	Issued                *string                      `json:"issued,omitempty"`
+	ValueCodeableConcept  *CodeableConcept             `json:"valueCodeableConcept,omitempty"`
+	Language              *string                      `json:"language,omitempty"`
+	ValueTime             *string                      `json:"valueTime,omitempty"`
+	BodyStructure         *BodyStructureType           `json:"bodyStructure"`
+	InstantiatesCanonical *string                      `json:"instantiatesCanonical,omitempty"`
+	EffectiveTiming       *Timing                      `json:"effectiveTiming,omitempty"`
+	Performer             ObservationPerformerUnion    `json:"performer"`
+	Subject               ObservationSubjectUnion      `json:"subject"`
+	ValueInteger          *int                         `json:"valueInteger,omitempty"`
+	PartOf                ObservationPartOfUnion       `json:"partOf"`
+	ImplicitRules         *string                      `json:"implicitRules,omitempty"`
+	ValueQuantity         *Quantity                    `json:"valueQuantity,omitempty"`
+	ValueDateTime         *string                      `json:"valueDateTime,omitempty"`
+	TriggeredBy           []*ObservationTriggeredBy    `json:"triggeredBy,omitempty"`
+	Code                  *CodeableConcept             `json:"code,omitempty"`
+	Identifier            []*Identifier                `json:"identifier,omitempty"`
+	ValueRatio            *Ratio                       `json:"valueRatio,omitempty"`
 	AuthResourcePath      *string                      `json:"auth_resource_path,omitempty"`
 }
-
-func (ObservationType) IsConditionStageAssessmentUnion() {}
 
 func (ObservationType) IsProcedurePartOfUnion() {}
 
@@ -1763,13 +1761,16 @@ func (ObservationType) IsObservationDerivedFromUnion() {}
 
 func (ObservationType) IsObservationHasMemberUnion() {}
 
+func (ObservationType) IsMedicationStatementRelatedClinicalInformationUnion() {}
+
 func (ObservationType) IsDiagnosticReportSupportingInfoReferenceUnion() {}
 
-func (ObservationType) IsMedicationStatementRelatedClinicalInformationUnion() {}
+func (ObservationType) IsConditionStageAssessmentUnion() {}
 
 func (ObservationType) IsResourceUnion() {}
 
 type OrganizationQualification struct {
+	Code              *CodeableConcept  `json:"code,omitempty"`
 	Extension         []*Extension      `json:"extension,omitempty"`
 	ID                *string           `json:"id,omitempty"`
 	Identifier        []*Identifier     `json:"identifier,omitempty"`
@@ -1777,87 +1778,30 @@ type OrganizationQualification struct {
 	ModifierExtension []*Extension      `json:"modifierExtension,omitempty"`
 	Period            *Period           `json:"period,omitempty"`
 	ResourceType      *string           `json:"resourceType,omitempty"`
-	Code              *CodeableConcept  `json:"code,omitempty"`
 	AuthResourcePath  *string           `json:"auth_resource_path,omitempty"`
 }
 
 type OrganizationType struct {
-	Type              []*CodeableConcept           `json:"type,omitempty"`
-	ModifierExtension []*Extension                 `json:"modifierExtension,omitempty"`
-	Alias             *string                      `json:"alias,omitempty"`
-	ResourceType      *string                      `json:"resourceType,omitempty"`
 	ID                *string                      `json:"id,omitempty"`
+	Meta              *Meta                        `json:"meta,omitempty"`
+	Contact           []*ExtendedContactDetail     `json:"contact,omitempty"`
+	Description       *string                      `json:"description,omitempty"`
+	Qualification     []*OrganizationQualification `json:"qualification,omitempty"`
+	PartOf            *OrganizationType            `json:"partOf"`
+	ResourceType      *string                      `json:"resourceType,omitempty"`
+	Type              []*CodeableConcept           `json:"type,omitempty"`
+	Active            *bool                        `json:"active,omitempty"`
+	ImplicitRules     *string                      `json:"implicitRules,omitempty"`
 	Identifier        []*Identifier                `json:"identifier,omitempty"`
 	Text              *Narrative                   `json:"text,omitempty"`
-	Description       *string                      `json:"description,omitempty"`
-	PartOf            *OrganizationType            `json:"partOf"`
-	Active            *string                      `json:"active,omitempty"`
-	Meta              *Meta                        `json:"meta,omitempty"`
-	Qualification     []*OrganizationQualification `json:"qualification,omitempty"`
-	Contact           []*ExtendedContactDetail     `json:"contact,omitempty"`
-	ImplicitRules     *string                      `json:"implicitRules,omitempty"`
-	Extension         []*Extension                 `json:"extension,omitempty"`
-	Name              *string                      `json:"name,omitempty"`
-	Language          *string                      `json:"language,omitempty"`
 	Contained         []ResourceUnion              `json:"contained,omitempty"`
+	Language          *string                      `json:"language,omitempty"`
+	Name              *string                      `json:"name,omitempty"`
+	Alias             *string                      `json:"alias,omitempty"`
+	ModifierExtension []*Extension                 `json:"modifierExtension,omitempty"`
+	Extension         []*Extension                 `json:"extension,omitempty"`
 	AuthResourcePath  *string                      `json:"auth_resource_path,omitempty"`
 }
-
-func (OrganizationType) IsResearchStudySiteUnion() {}
-
-func (OrganizationType) IsTaskOwnerUnion() {}
-
-func (OrganizationType) IsTaskRequesterUnion() {}
-
-func (OrganizationType) IsUsageContextValueReferenceUnion() {}
-
-func (OrganizationType) IsTaskRestrictionRecipientUnion() {}
-
-func (OrganizationType) IsProcedureReportedReferenceUnion() {}
-
-func (OrganizationType) IsProcedureSubjectUnion() {}
-
-func (OrganizationType) IsProcedureFocusUnion() {}
-
-func (OrganizationType) IsSignatureOnBehalfOfUnion() {}
-
-func (OrganizationType) IsSignatureWhoUnion() {}
-
-func (OrganizationType) IsTaskPerformerActorUnion() {}
-
-func (OrganizationType) IsObservationPerformerUnion() {}
-
-func (OrganizationType) IsObservationSubjectUnion() {}
-
-func (OrganizationType) IsConditionParticipantActorUnion() {}
-
-func (OrganizationType) IsFamilyMemberHistoryParticipantActorUnion() {}
-
-func (OrganizationType) IsResearchStudyAssociatedPartyPartyUnion() {}
-
-func (OrganizationType) IsDiagnosticReportPerformerUnion() {}
-
-func (OrganizationType) IsDiagnosticReportResultsInterpreterUnion() {}
-
-func (OrganizationType) IsDiagnosticReportSubjectUnion() {}
-
-func (OrganizationType) IsGroupMemberEntityUnion() {}
-
-func (OrganizationType) IsProcedurePerformerActorUnion() {}
-
-func (OrganizationType) IsAnnotationAuthorReferenceUnion() {}
-
-func (OrganizationType) IsPatientGeneralPractitionerUnion() {}
-
-func (OrganizationType) IsDocumentReferenceAttesterPartyUnion() {}
-
-func (OrganizationType) IsGroupManagingEntityUnion() {}
-
-func (OrganizationType) IsImagingStudySeriesPerformerActorUnion() {}
-
-func (OrganizationType) IsDocumentReferenceAuthorUnion() {}
-
-func (OrganizationType) IsMedicationStatementInformationSourceUnion() {}
 
 func (OrganizationType) IsMedicationRequestInformationSourceUnion() {}
 
@@ -1865,146 +1809,142 @@ func (OrganizationType) IsMedicationRequestPerformerUnion() {}
 
 func (OrganizationType) IsMedicationRequestRequesterUnion() {}
 
+func (OrganizationType) IsDiagnosticReportPerformerUnion() {}
+
+func (OrganizationType) IsDiagnosticReportResultsInterpreterUnion() {}
+
+func (OrganizationType) IsDiagnosticReportSubjectUnion() {}
+
+func (OrganizationType) IsTaskOwnerUnion() {}
+
+func (OrganizationType) IsTaskRequesterUnion() {}
+
+func (OrganizationType) IsProcedureFocusUnion() {}
+
+func (OrganizationType) IsProcedureReportedReferenceUnion() {}
+
+func (OrganizationType) IsProcedureSubjectUnion() {}
+
+func (OrganizationType) IsPatientGeneralPractitionerUnion() {}
+
+func (OrganizationType) IsUsageContextValueReferenceUnion() {}
+
+func (OrganizationType) IsDocumentReferenceAttesterPartyUnion() {}
+
+func (OrganizationType) IsObservationSubjectUnion() {}
+
+func (OrganizationType) IsObservationPerformerUnion() {}
+
+func (OrganizationType) IsDocumentReferenceAuthorUnion() {}
+
+func (OrganizationType) IsGroupManagingEntityUnion() {}
+
+func (OrganizationType) IsGroupMemberEntityUnion() {}
+
+func (OrganizationType) IsImagingStudySeriesPerformerActorUnion() {}
+
+func (OrganizationType) IsResearchStudyAssociatedPartyPartyUnion() {}
+
+func (OrganizationType) IsMedicationStatementInformationSourceUnion() {}
+
+func (OrganizationType) IsResearchStudySiteUnion() {}
+
+func (OrganizationType) IsFamilyMemberHistoryParticipantActorUnion() {}
+
+func (OrganizationType) IsAnnotationAuthorReferenceUnion() {}
+
+func (OrganizationType) IsTaskPerformerActorUnion() {}
+
+func (OrganizationType) IsSignatureOnBehalfOfUnion() {}
+
+func (OrganizationType) IsSignatureWhoUnion() {}
+
+func (OrganizationType) IsTaskRestrictionRecipientUnion() {}
+
+func (OrganizationType) IsConditionParticipantActorUnion() {}
+
+func (OrganizationType) IsProcedurePerformerActorUnion() {}
+
 func (OrganizationType) IsResourceUnion() {}
 
 type ParameterDefinition struct {
-	ID               *string      `json:"id,omitempty"`
-	Use              *string      `json:"use,omitempty"`
-	ResourceType     *string      `json:"resourceType,omitempty"`
-	Type             *string      `json:"type,omitempty"`
 	Max              *string      `json:"max,omitempty"`
-	Min              *string      `json:"min,omitempty"`
-	Name             *string      `json:"name,omitempty"`
+	Use              *string      `json:"use,omitempty"`
+	Documentation    *string      `json:"documentation,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	Profile          *string      `json:"profile,omitempty"`
-	Documentation    *string      `json:"documentation,omitempty"`
+	ID               *string      `json:"id,omitempty"`
+	Min              *int         `json:"min,omitempty"`
+	ResourceType     *string      `json:"resourceType,omitempty"`
+	Type             *string      `json:"type,omitempty"`
+	Name             *string      `json:"name,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type PatientCommunication struct {
+	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
+	Preferred         *bool            `json:"preferred,omitempty"`
 	ResourceType      *string          `json:"resourceType,omitempty"`
 	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
 	Language          *CodeableConcept `json:"language,omitempty"`
-	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	Preferred         *string          `json:"preferred,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type PatientContact struct {
-	Address           *Address           `json:"address,omitempty"`
-	Telecom           []*ContactPoint    `json:"telecom,omitempty"`
-	Name              *HumanName         `json:"name,omitempty"`
-	Extension         []*Extension       `json:"extension,omitempty"`
-	Gender            *string            `json:"gender,omitempty"`
-	ID                *string            `json:"id,omitempty"`
-	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
 	Period            *Period            `json:"period,omitempty"`
+	Gender            *string            `json:"gender,omitempty"`
 	Organization      *OrganizationType  `json:"organization"`
 	Relationship      []*CodeableConcept `json:"relationship,omitempty"`
 	ResourceType      *string            `json:"resourceType,omitempty"`
+	Extension         []*Extension       `json:"extension,omitempty"`
+	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
+	Name              *HumanName         `json:"name,omitempty"`
+	ID                *string            `json:"id,omitempty"`
+	Address           *Address           `json:"address,omitempty"`
+	Telecom           []*ContactPoint    `json:"telecom,omitempty"`
 	AuthResourcePath  *string            `json:"auth_resource_path,omitempty"`
 }
 
 type PatientLink struct {
-	ResourceType      *string               `json:"resourceType,omitempty"`
 	Type              *string               `json:"type,omitempty"`
 	Extension         []*Extension          `json:"extension,omitempty"`
 	ID                *string               `json:"id,omitempty"`
 	ModifierExtension []*Extension          `json:"modifierExtension,omitempty"`
 	Other             PatientLinkOtherUnion `json:"other"`
+	ResourceType      *string               `json:"resourceType,omitempty"`
 	AuthResourcePath  *string               `json:"auth_resource_path,omitempty"`
 }
 
 type PatientType struct {
-	Telecom              []*ContactPoint                 `json:"telecom,omitempty"`
-	DeceasedBoolean      *string                         `json:"deceasedBoolean,omitempty"`
-	Communication        []*PatientCommunication         `json:"communication,omitempty"`
-	Extension            []*Extension                    `json:"extension,omitempty"`
-	Name                 []*HumanName                    `json:"name,omitempty"`
-	BirthDate            *string                         `json:"birthDate,omitempty"`
-	DeceasedDateTime     *string                         `json:"deceasedDateTime,omitempty"`
 	Language             *string                         `json:"language,omitempty"`
-	Text                 *Narrative                      `json:"text,omitempty"`
-	GeneralPractitioner  PatientGeneralPractitionerUnion `json:"generalPractitioner"`
+	DeceasedBoolean      *bool                           `json:"deceasedBoolean,omitempty"`
 	Identifier           []*Identifier                   `json:"identifier,omitempty"`
-	ManagingOrganization *OrganizationType               `json:"managingOrganization"`
-	ID                   *string                         `json:"id,omitempty"`
-	ModifierExtension    []*Extension                    `json:"modifierExtension,omitempty"`
-	ImplicitRules        *string                         `json:"implicitRules,omitempty"`
-	Photo                []*Attachment                   `json:"photo,omitempty"`
-	Active               *string                         `json:"active,omitempty"`
-	Contained            []ResourceUnion                 `json:"contained,omitempty"`
 	Address              []*Address                      `json:"address,omitempty"`
+	Communication        []*PatientCommunication         `json:"communication,omitempty"`
 	Gender               *string                         `json:"gender,omitempty"`
-	Meta                 *Meta                           `json:"meta,omitempty"`
-	MultipleBirthBoolean *string                         `json:"multipleBirthBoolean,omitempty"`
-	Contact              []*PatientContact               `json:"contact,omitempty"`
+	Name                 []*HumanName                    `json:"name,omitempty"`
+	Extension            []*Extension                    `json:"extension,omitempty"`
+	ImplicitRules        *string                         `json:"implicitRules,omitempty"`
+	Text                 *Narrative                      `json:"text,omitempty"`
 	MaritalStatus        *CodeableConcept                `json:"maritalStatus,omitempty"`
 	ResourceType         *string                         `json:"resourceType,omitempty"`
-	MultipleBirthInteger *string                         `json:"multipleBirthInteger,omitempty"`
+	Active               *bool                           `json:"active,omitempty"`
+	Telecom              []*ContactPoint                 `json:"telecom,omitempty"`
+	Contained            []ResourceUnion                 `json:"contained,omitempty"`
+	Contact              []*PatientContact               `json:"contact,omitempty"`
+	ID                   *string                         `json:"id,omitempty"`
+	Photo                []*Attachment                   `json:"photo,omitempty"`
+	MultipleBirthInteger *int                            `json:"multipleBirthInteger,omitempty"`
+	BirthDate            *string                         `json:"birthDate,omitempty"`
+	ModifierExtension    []*Extension                    `json:"modifierExtension,omitempty"`
+	MultipleBirthBoolean *bool                           `json:"multipleBirthBoolean,omitempty"`
+	GeneralPractitioner  PatientGeneralPractitionerUnion `json:"generalPractitioner"`
+	DeceasedDateTime     *string                         `json:"deceasedDateTime,omitempty"`
+	ManagingOrganization *OrganizationType               `json:"managingOrganization"`
+	Meta                 *Meta                           `json:"meta,omitempty"`
 	AuthResourcePath     *string                         `json:"auth_resource_path,omitempty"`
 }
-
-func (PatientType) IsConditionSubjectUnion() {}
-
-func (PatientType) IsTaskOwnerUnion() {}
-
-func (PatientType) IsTaskRequesterUnion() {}
-
-func (PatientType) IsTaskRestrictionRecipientUnion() {}
-
-func (PatientType) IsProcedureReportedReferenceUnion() {}
-
-func (PatientType) IsProcedureSubjectUnion() {}
-
-func (PatientType) IsProcedureFocusUnion() {}
-
-func (PatientType) IsProcedureRecorderUnion() {}
-
-func (PatientType) IsSignatureOnBehalfOfUnion() {}
-
-func (PatientType) IsSignatureWhoUnion() {}
-
-func (PatientType) IsResearchSubjectSubjectUnion() {}
-
-func (PatientType) IsTaskPerformerActorUnion() {}
-
-func (PatientType) IsPatientLinkOtherUnion() {}
-
-func (PatientType) IsObservationPerformerUnion() {}
-
-func (PatientType) IsObservationSubjectUnion() {}
-
-func (PatientType) IsSpecimenSubjectUnion() {}
-
-func (PatientType) IsMedicationAdministrationSubjectUnion() {}
-
-func (PatientType) IsConditionParticipantActorUnion() {}
-
-func (PatientType) IsFamilyMemberHistoryParticipantActorUnion() {}
-
-func (PatientType) IsImagingStudySubjectUnion() {}
-
-func (PatientType) IsDiagnosticReportSubjectUnion() {}
-
-func (PatientType) IsGroupMemberEntityUnion() {}
-
-func (PatientType) IsProcedurePerformerActorUnion() {}
-
-func (PatientType) IsAnnotationAuthorReferenceUnion() {}
-
-func (PatientType) IsSpecimenCollectionCollectorUnion() {}
-
-func (PatientType) IsDocumentReferenceAttesterPartyUnion() {}
-
-func (PatientType) IsImagingStudySeriesPerformerActorUnion() {}
-
-func (PatientType) IsDocumentReferenceAuthorUnion() {}
-
-func (PatientType) IsMedicationStatementInformationSourceUnion() {}
-
-func (PatientType) IsMedicationStatementSubjectUnion() {}
 
 func (PatientType) IsMedicationRequestSubjectUnion() {}
 
@@ -2013,6 +1953,66 @@ func (PatientType) IsMedicationRequestInformationSourceUnion() {}
 func (PatientType) IsMedicationRequestPerformerUnion() {}
 
 func (PatientType) IsMedicationRequestRequesterUnion() {}
+
+func (PatientType) IsDiagnosticReportSubjectUnion() {}
+
+func (PatientType) IsTaskOwnerUnion() {}
+
+func (PatientType) IsTaskRequesterUnion() {}
+
+func (PatientType) IsProcedureFocusUnion() {}
+
+func (PatientType) IsProcedureRecorderUnion() {}
+
+func (PatientType) IsProcedureReportedReferenceUnion() {}
+
+func (PatientType) IsProcedureSubjectUnion() {}
+
+func (PatientType) IsResearchSubjectSubjectUnion() {}
+
+func (PatientType) IsSpecimenSubjectUnion() {}
+
+func (PatientType) IsPatientLinkOtherUnion() {}
+
+func (PatientType) IsDocumentReferenceAttesterPartyUnion() {}
+
+func (PatientType) IsObservationSubjectUnion() {}
+
+func (PatientType) IsObservationPerformerUnion() {}
+
+func (PatientType) IsImagingStudySubjectUnion() {}
+
+func (PatientType) IsDocumentReferenceAuthorUnion() {}
+
+func (PatientType) IsGroupMemberEntityUnion() {}
+
+func (PatientType) IsImagingStudySeriesPerformerActorUnion() {}
+
+func (PatientType) IsMedicationAdministrationSubjectUnion() {}
+
+func (PatientType) IsMedicationStatementInformationSourceUnion() {}
+
+func (PatientType) IsMedicationStatementSubjectUnion() {}
+
+func (PatientType) IsSpecimenCollectionCollectorUnion() {}
+
+func (PatientType) IsFamilyMemberHistoryParticipantActorUnion() {}
+
+func (PatientType) IsAnnotationAuthorReferenceUnion() {}
+
+func (PatientType) IsTaskPerformerActorUnion() {}
+
+func (PatientType) IsConditionSubjectUnion() {}
+
+func (PatientType) IsSignatureOnBehalfOfUnion() {}
+
+func (PatientType) IsSignatureWhoUnion() {}
+
+func (PatientType) IsTaskRestrictionRecipientUnion() {}
+
+func (PatientType) IsConditionParticipantActorUnion() {}
+
+func (PatientType) IsProcedurePerformerActorUnion() {}
 
 func (PatientType) IsResourceUnion() {}
 
@@ -2030,98 +2030,46 @@ type PractitionerCommunication struct {
 	ID                *string          `json:"id,omitempty"`
 	Language          *CodeableConcept `json:"language,omitempty"`
 	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	Preferred         *string          `json:"preferred,omitempty"`
+	Preferred         *bool            `json:"preferred,omitempty"`
 	ResourceType      *string          `json:"resourceType,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type PractitionerQualification struct {
-	Issuer            *OrganizationType `json:"issuer"`
-	ModifierExtension []*Extension      `json:"modifierExtension,omitempty"`
 	Period            *Period           `json:"period,omitempty"`
 	ResourceType      *string           `json:"resourceType,omitempty"`
 	Code              *CodeableConcept  `json:"code,omitempty"`
 	Extension         []*Extension      `json:"extension,omitempty"`
 	ID                *string           `json:"id,omitempty"`
 	Identifier        []*Identifier     `json:"identifier,omitempty"`
+	Issuer            *OrganizationType `json:"issuer"`
+	ModifierExtension []*Extension      `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string           `json:"auth_resource_path,omitempty"`
 }
 
 type PractitionerRoleType struct {
-	Specialty         []*CodeableConcept       `json:"specialty,omitempty"`
-	ID                *string                  `json:"id,omitempty"`
-	Meta              *Meta                    `json:"meta,omitempty"`
 	Identifier        []*Identifier            `json:"identifier,omitempty"`
-	Extension         []*Extension             `json:"extension,omitempty"`
-	Organization      *OrganizationType        `json:"organization"`
-	Practitioner      *PractitionerType        `json:"practitioner"`
-	Availability      []*Availability          `json:"availability,omitempty"`
-	ImplicitRules     *string                  `json:"implicitRules,omitempty"`
-	ResourceType      *string                  `json:"resourceType,omitempty"`
-	Text              *Narrative               `json:"text,omitempty"`
-	ModifierExtension []*Extension             `json:"modifierExtension,omitempty"`
 	Characteristic    []*CodeableConcept       `json:"characteristic,omitempty"`
-	Active            *string                  `json:"active,omitempty"`
-	Code              []*CodeableConcept       `json:"code,omitempty"`
-	Communication     []*CodeableConcept       `json:"communication,omitempty"`
-	Period            *Period                  `json:"period,omitempty"`
-	Contact           []*ExtendedContactDetail `json:"contact,omitempty"`
+	Specialty         []*CodeableConcept       `json:"specialty,omitempty"`
+	Practitioner      *PractitionerType        `json:"practitioner"`
+	Meta              *Meta                    `json:"meta,omitempty"`
 	Contained         []ResourceUnion          `json:"contained,omitempty"`
+	ImplicitRules     *string                  `json:"implicitRules,omitempty"`
+	Organization      *OrganizationType        `json:"organization"`
 	Language          *string                  `json:"language,omitempty"`
+	Period            *Period                  `json:"period,omitempty"`
+	Availability      []*Availability          `json:"availability,omitempty"`
+	Text              *Narrative               `json:"text,omitempty"`
+	ID                *string                  `json:"id,omitempty"`
+	Active            *bool                    `json:"active,omitempty"`
+	Contact           []*ExtendedContactDetail `json:"contact,omitempty"`
+	ResourceType      *string                  `json:"resourceType,omitempty"`
+	Code              []*CodeableConcept       `json:"code,omitempty"`
+	Extension         []*Extension             `json:"extension,omitempty"`
+	Communication     []*CodeableConcept       `json:"communication,omitempty"`
+	ModifierExtension []*Extension             `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string                  `json:"auth_resource_path,omitempty"`
 }
-
-func (PractitionerRoleType) IsTaskOwnerUnion() {}
-
-func (PractitionerRoleType) IsTaskRequesterUnion() {}
-
-func (PractitionerRoleType) IsTaskRestrictionRecipientUnion() {}
-
-func (PractitionerRoleType) IsProcedureReportedReferenceUnion() {}
-
-func (PractitionerRoleType) IsProcedureFocusUnion() {}
-
-func (PractitionerRoleType) IsProcedureRecorderUnion() {}
-
-func (PractitionerRoleType) IsSignatureOnBehalfOfUnion() {}
-
-func (PractitionerRoleType) IsSignatureWhoUnion() {}
-
-func (PractitionerRoleType) IsTaskPerformerActorUnion() {}
-
-func (PractitionerRoleType) IsObservationPerformerUnion() {}
-
-func (PractitionerRoleType) IsConditionParticipantActorUnion() {}
-
-func (PractitionerRoleType) IsFamilyMemberHistoryParticipantActorUnion() {}
-
-func (PractitionerRoleType) IsResearchStudyAssociatedPartyPartyUnion() {}
-
-func (PractitionerRoleType) IsImagingStudyReferrerUnion() {}
-
-func (PractitionerRoleType) IsDiagnosticReportPerformerUnion() {}
-
-func (PractitionerRoleType) IsDiagnosticReportResultsInterpreterUnion() {}
-
-func (PractitionerRoleType) IsGroupMemberEntityUnion() {}
-
-func (PractitionerRoleType) IsProcedurePerformerActorUnion() {}
-
-func (PractitionerRoleType) IsAnnotationAuthorReferenceUnion() {}
-
-func (PractitionerRoleType) IsSpecimenCollectionCollectorUnion() {}
-
-func (PractitionerRoleType) IsPatientGeneralPractitionerUnion() {}
-
-func (PractitionerRoleType) IsDocumentReferenceAttesterPartyUnion() {}
-
-func (PractitionerRoleType) IsGroupManagingEntityUnion() {}
-
-func (PractitionerRoleType) IsImagingStudySeriesPerformerActorUnion() {}
-
-func (PractitionerRoleType) IsDocumentReferenceAuthorUnion() {}
-
-func (PractitionerRoleType) IsMedicationStatementInformationSourceUnion() {}
 
 func (PractitionerRoleType) IsMedicationRequestInformationSourceUnion() {}
 
@@ -2131,90 +2079,84 @@ func (PractitionerRoleType) IsMedicationRequestRecorderUnion() {}
 
 func (PractitionerRoleType) IsMedicationRequestRequesterUnion() {}
 
+func (PractitionerRoleType) IsDiagnosticReportPerformerUnion() {}
+
+func (PractitionerRoleType) IsDiagnosticReportResultsInterpreterUnion() {}
+
+func (PractitionerRoleType) IsTaskOwnerUnion() {}
+
+func (PractitionerRoleType) IsTaskRequesterUnion() {}
+
+func (PractitionerRoleType) IsProcedureFocusUnion() {}
+
+func (PractitionerRoleType) IsProcedureRecorderUnion() {}
+
+func (PractitionerRoleType) IsProcedureReportedReferenceUnion() {}
+
+func (PractitionerRoleType) IsPatientGeneralPractitionerUnion() {}
+
+func (PractitionerRoleType) IsDocumentReferenceAttesterPartyUnion() {}
+
+func (PractitionerRoleType) IsObservationPerformerUnion() {}
+
+func (PractitionerRoleType) IsImagingStudyReferrerUnion() {}
+
+func (PractitionerRoleType) IsDocumentReferenceAuthorUnion() {}
+
+func (PractitionerRoleType) IsGroupManagingEntityUnion() {}
+
+func (PractitionerRoleType) IsGroupMemberEntityUnion() {}
+
+func (PractitionerRoleType) IsImagingStudySeriesPerformerActorUnion() {}
+
+func (PractitionerRoleType) IsResearchStudyAssociatedPartyPartyUnion() {}
+
+func (PractitionerRoleType) IsMedicationStatementInformationSourceUnion() {}
+
+func (PractitionerRoleType) IsSpecimenCollectionCollectorUnion() {}
+
+func (PractitionerRoleType) IsFamilyMemberHistoryParticipantActorUnion() {}
+
+func (PractitionerRoleType) IsAnnotationAuthorReferenceUnion() {}
+
+func (PractitionerRoleType) IsTaskPerformerActorUnion() {}
+
+func (PractitionerRoleType) IsSignatureOnBehalfOfUnion() {}
+
+func (PractitionerRoleType) IsSignatureWhoUnion() {}
+
+func (PractitionerRoleType) IsTaskRestrictionRecipientUnion() {}
+
+func (PractitionerRoleType) IsConditionParticipantActorUnion() {}
+
+func (PractitionerRoleType) IsProcedurePerformerActorUnion() {}
+
 func (PractitionerRoleType) IsResourceUnion() {}
 
 type PractitionerType struct {
-	ImplicitRules     *string                      `json:"implicitRules,omitempty"`
-	Meta              *Meta                        `json:"meta,omitempty"`
-	Gender            *string                      `json:"gender,omitempty"`
-	Qualification     []*PractitionerQualification `json:"qualification,omitempty"`
-	ModifierExtension []*Extension                 `json:"modifierExtension,omitempty"`
-	ID                *string                      `json:"id,omitempty"`
-	Address           []*Address                   `json:"address,omitempty"`
-	DeceasedBoolean   *string                      `json:"deceasedBoolean,omitempty"`
-	Identifier        []*Identifier                `json:"identifier,omitempty"`
-	DeceasedDateTime  *string                      `json:"deceasedDateTime,omitempty"`
 	ResourceType      *string                      `json:"resourceType,omitempty"`
-	Communication     []*PractitionerCommunication `json:"communication,omitempty"`
-	Language          *string                      `json:"language,omitempty"`
-	Name              []*HumanName                 `json:"name,omitempty"`
-	Text              *Narrative                   `json:"text,omitempty"`
-	BirthDate         *string                      `json:"birthDate,omitempty"`
 	Telecom           []*ContactPoint              `json:"telecom,omitempty"`
+	Communication     []*PractitionerCommunication `json:"communication,omitempty"`
+	Address           []*Address                   `json:"address,omitempty"`
+	Meta              *Meta                        `json:"meta,omitempty"`
+	ModifierExtension []*Extension                 `json:"modifierExtension,omitempty"`
+	Language          *string                      `json:"language,omitempty"`
+	Photo             []*Attachment                `json:"photo,omitempty"`
+	Name              []*HumanName                 `json:"name,omitempty"`
+	Gender            *string                      `json:"gender,omitempty"`
+	Active            *bool                        `json:"active,omitempty"`
+	DeceasedBoolean   *bool                        `json:"deceasedBoolean,omitempty"`
+	DeceasedDateTime  *string                      `json:"deceasedDateTime,omitempty"`
 	Contained         []ResourceUnion              `json:"contained,omitempty"`
 	Extension         []*Extension                 `json:"extension,omitempty"`
-	Active            *string                      `json:"active,omitempty"`
-	Photo             []*Attachment                `json:"photo,omitempty"`
+	ImplicitRules     *string                      `json:"implicitRules,omitempty"`
+	ID                *string                      `json:"id,omitempty"`
+	Identifier        []*Identifier                `json:"identifier,omitempty"`
+	Qualification     []*PractitionerQualification `json:"qualification,omitempty"`
+	BirthDate         *string                      `json:"birthDate,omitempty"`
+	Text              *Narrative                   `json:"text,omitempty"`
 	AuthResourcePath  *string                      `json:"auth_resource_path,omitempty"`
 }
-
-func (PractitionerType) IsTaskOwnerUnion() {}
-
-func (PractitionerType) IsTaskRequesterUnion() {}
-
-func (PractitionerType) IsTaskRestrictionRecipientUnion() {}
-
-func (PractitionerType) IsProcedureReportedReferenceUnion() {}
-
-func (PractitionerType) IsProcedureSubjectUnion() {}
-
-func (PractitionerType) IsProcedureFocusUnion() {}
-
-func (PractitionerType) IsProcedureRecorderUnion() {}
-
-func (PractitionerType) IsSignatureOnBehalfOfUnion() {}
-
-func (PractitionerType) IsSignatureWhoUnion() {}
-
-func (PractitionerType) IsTaskPerformerActorUnion() {}
-
-func (PractitionerType) IsObservationPerformerUnion() {}
-
-func (PractitionerType) IsObservationSubjectUnion() {}
-
-func (PractitionerType) IsConditionParticipantActorUnion() {}
-
-func (PractitionerType) IsFamilyMemberHistoryParticipantActorUnion() {}
-
-func (PractitionerType) IsResearchStudyAssociatedPartyPartyUnion() {}
-
-func (PractitionerType) IsImagingStudyReferrerUnion() {}
-
-func (PractitionerType) IsDiagnosticReportPerformerUnion() {}
-
-func (PractitionerType) IsDiagnosticReportResultsInterpreterUnion() {}
-
-func (PractitionerType) IsDiagnosticReportSubjectUnion() {}
-
-func (PractitionerType) IsGroupMemberEntityUnion() {}
-
-func (PractitionerType) IsProcedurePerformerActorUnion() {}
-
-func (PractitionerType) IsAnnotationAuthorReferenceUnion() {}
-
-func (PractitionerType) IsSpecimenCollectionCollectorUnion() {}
-
-func (PractitionerType) IsPatientGeneralPractitionerUnion() {}
-
-func (PractitionerType) IsDocumentReferenceAttesterPartyUnion() {}
-
-func (PractitionerType) IsGroupManagingEntityUnion() {}
-
-func (PractitionerType) IsImagingStudySeriesPerformerActorUnion() {}
-
-func (PractitionerType) IsDocumentReferenceAuthorUnion() {}
-
-func (PractitionerType) IsMedicationStatementInformationSourceUnion() {}
 
 func (PractitionerType) IsMedicationRequestInformationSourceUnion() {}
 
@@ -2224,70 +2166,128 @@ func (PractitionerType) IsMedicationRequestRecorderUnion() {}
 
 func (PractitionerType) IsMedicationRequestRequesterUnion() {}
 
+func (PractitionerType) IsDiagnosticReportPerformerUnion() {}
+
+func (PractitionerType) IsDiagnosticReportResultsInterpreterUnion() {}
+
+func (PractitionerType) IsDiagnosticReportSubjectUnion() {}
+
+func (PractitionerType) IsTaskOwnerUnion() {}
+
+func (PractitionerType) IsTaskRequesterUnion() {}
+
+func (PractitionerType) IsProcedureFocusUnion() {}
+
+func (PractitionerType) IsProcedureRecorderUnion() {}
+
+func (PractitionerType) IsProcedureReportedReferenceUnion() {}
+
+func (PractitionerType) IsProcedureSubjectUnion() {}
+
+func (PractitionerType) IsPatientGeneralPractitionerUnion() {}
+
+func (PractitionerType) IsDocumentReferenceAttesterPartyUnion() {}
+
+func (PractitionerType) IsObservationSubjectUnion() {}
+
+func (PractitionerType) IsObservationPerformerUnion() {}
+
+func (PractitionerType) IsImagingStudyReferrerUnion() {}
+
+func (PractitionerType) IsDocumentReferenceAuthorUnion() {}
+
+func (PractitionerType) IsGroupManagingEntityUnion() {}
+
+func (PractitionerType) IsGroupMemberEntityUnion() {}
+
+func (PractitionerType) IsImagingStudySeriesPerformerActorUnion() {}
+
+func (PractitionerType) IsResearchStudyAssociatedPartyPartyUnion() {}
+
+func (PractitionerType) IsMedicationStatementInformationSourceUnion() {}
+
+func (PractitionerType) IsSpecimenCollectionCollectorUnion() {}
+
+func (PractitionerType) IsFamilyMemberHistoryParticipantActorUnion() {}
+
+func (PractitionerType) IsAnnotationAuthorReferenceUnion() {}
+
+func (PractitionerType) IsTaskPerformerActorUnion() {}
+
+func (PractitionerType) IsSignatureOnBehalfOfUnion() {}
+
+func (PractitionerType) IsSignatureWhoUnion() {}
+
+func (PractitionerType) IsTaskRestrictionRecipientUnion() {}
+
+func (PractitionerType) IsConditionParticipantActorUnion() {}
+
+func (PractitionerType) IsProcedurePerformerActorUnion() {}
+
 func (PractitionerType) IsResourceUnion() {}
 
 type ProcedureFocalDevice struct {
+	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
 	ResourceType      *string          `json:"resourceType,omitempty"`
 	Action            *CodeableConcept `json:"action,omitempty"`
 	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
-	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type ProcedurePerformer struct {
+	ID                *string                      `json:"id,omitempty"`
+	ModifierExtension []*Extension                 `json:"modifierExtension,omitempty"`
 	OnBehalfOf        *OrganizationType            `json:"onBehalfOf"`
 	Period            *Period                      `json:"period,omitempty"`
 	ResourceType      *string                      `json:"resourceType,omitempty"`
 	Actor             ProcedurePerformerActorUnion `json:"actor"`
 	Extension         []*Extension                 `json:"extension,omitempty"`
 	Function          *CodeableConcept             `json:"function,omitempty"`
-	ID                *string                      `json:"id,omitempty"`
-	ModifierExtension []*Extension                 `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string                      `json:"auth_resource_path,omitempty"`
 }
 
 type ProcedureType struct {
-	InstantiatesURI       *string                         `json:"instantiatesUri,omitempty"`
-	ID                    *string                         `json:"id,omitempty"`
-	Language              *string                         `json:"language,omitempty"`
-	PartOf                ProcedurePartOfUnion            `json:"partOf"`
-	OccurrenceRange       *Range                          `json:"occurrenceRange,omitempty"`
-	Note                  []*Annotation                   `json:"note,omitempty"`
-	Category              []*CodeableConcept              `json:"category,omitempty"`
-	OccurrencePeriod      *Period                         `json:"occurrencePeriod,omitempty"`
-	ReportedReference     ProcedureReportedReferenceUnion `json:"reportedReference"`
-	Report                ProcedureReportUnion            `json:"report"`
-	Reason                []*CodeableReference            `json:"reason,omitempty"`
-	Outcome               *CodeableConcept                `json:"outcome,omitempty"`
-	ReportedBoolean       *string                         `json:"reportedBoolean,omitempty"`
-	BodySite              []*CodeableConcept              `json:"bodySite,omitempty"`
-	SupportingInfo        ResourceUnion                   `json:"supportingInfo"`
-	Extension             []*Extension                    `json:"extension,omitempty"`
-	Used                  []*CodeableReference            `json:"used,omitempty"`
-	OccurrenceString      *string                         `json:"occurrenceString,omitempty"`
 	Contained             []ResourceUnion                 `json:"contained,omitempty"`
 	FocalDevice           []*ProcedureFocalDevice         `json:"focalDevice,omitempty"`
-	Identifier            []*Identifier                   `json:"identifier,omitempty"`
-	InstantiatesCanonical *string                         `json:"instantiatesCanonical,omitempty"`
-	FollowUp              []*CodeableConcept              `json:"followUp,omitempty"`
-	OccurrenceAge         *Age                            `json:"occurrenceAge,omitempty"`
-	OccurrenceTiming      *Timing                         `json:"occurrenceTiming,omitempty"`
-	Subject               ProcedureSubjectUnion           `json:"subject"`
-	OccurrenceDateTime    *string                         `json:"occurrenceDateTime,omitempty"`
-	ImplicitRules         *string                         `json:"implicitRules,omitempty"`
-	Recorder              ProcedureRecorderUnion          `json:"recorder"`
-	Status                *string                         `json:"status,omitempty"`
-	Complication          []*CodeableReference            `json:"complication,omitempty"`
-	Meta                  *Meta                           `json:"meta,omitempty"`
-	ResourceType          *string                         `json:"resourceType,omitempty"`
-	StatusReason          *CodeableConcept                `json:"statusReason,omitempty"`
-	Focus                 ProcedureFocusUnion             `json:"focus"`
-	Performer             []*ProcedurePerformer           `json:"performer,omitempty"`
-	Text                  *Narrative                      `json:"text,omitempty"`
-	Code                  *CodeableConcept                `json:"code,omitempty"`
-	ModifierExtension     []*Extension                    `json:"modifierExtension,omitempty"`
 	Recorded              *string                         `json:"recorded,omitempty"`
+	InstantiatesURI       *string                         `json:"instantiatesUri,omitempty"`
+	Code                  *CodeableConcept                `json:"code,omitempty"`
+	Status                *string                         `json:"status,omitempty"`
+	ReportedReference     ProcedureReportedReferenceUnion `json:"reportedReference"`
+	PartOf                ProcedurePartOfUnion            `json:"partOf"`
+	ImplicitRules         *string                         `json:"implicitRules,omitempty"`
+	ModifierExtension     []*Extension                    `json:"modifierExtension,omitempty"`
+	OccurrenceTiming      *Timing                         `json:"occurrenceTiming,omitempty"`
+	StatusReason          *CodeableConcept                `json:"statusReason,omitempty"`
+	ResourceType          *string                         `json:"resourceType,omitempty"`
+	Used                  []*CodeableReference            `json:"used,omitempty"`
+	OccurrenceString      *string                         `json:"occurrenceString,omitempty"`
+	Meta                  *Meta                           `json:"meta,omitempty"`
+	ID                    *string                         `json:"id,omitempty"`
+	Outcome               *CodeableConcept                `json:"outcome,omitempty"`
+	OccurrenceAge         *Age                            `json:"occurrenceAge,omitempty"`
+	OccurrenceRange       *Range                          `json:"occurrenceRange,omitempty"`
+	ReportedBoolean       *bool                           `json:"reportedBoolean,omitempty"`
+	Recorder              ProcedureRecorderUnion          `json:"recorder"`
+	Category              []*CodeableConcept              `json:"category,omitempty"`
+	Subject               ProcedureSubjectUnion           `json:"subject"`
+	Note                  []*Annotation                   `json:"note,omitempty"`
+	Text                  *Narrative                      `json:"text,omitempty"`
+	Identifier            []*Identifier                   `json:"identifier,omitempty"`
+	Extension             []*Extension                    `json:"extension,omitempty"`
+	SupportingInfo        ResourceUnion                   `json:"supportingInfo"`
+	Report                ProcedureReportUnion            `json:"report"`
+	FollowUp              []*CodeableConcept              `json:"followUp,omitempty"`
+	OccurrenceDateTime    *string                         `json:"occurrenceDateTime,omitempty"`
+	Focus                 ProcedureFocusUnion             `json:"focus"`
+	Reason                []*CodeableReference            `json:"reason,omitempty"`
+	Complication          []*CodeableReference            `json:"complication,omitempty"`
+	Performer             []*ProcedurePerformer           `json:"performer,omitempty"`
+	Language              *string                         `json:"language,omitempty"`
+	BodySite              []*CodeableConcept              `json:"bodySite,omitempty"`
+	OccurrencePeriod      *Period                         `json:"occurrencePeriod,omitempty"`
+	InstantiatesCanonical *string                         `json:"instantiatesCanonical,omitempty"`
 	AuthResourcePath      *string                         `json:"auth_resource_path,omitempty"`
 }
 
@@ -2297,23 +2297,23 @@ func (ProcedureType) IsObservationSubjectUnion() {}
 
 func (ProcedureType) IsObservationPartOfUnion() {}
 
-func (ProcedureType) IsDiagnosticReportSupportingInfoReferenceUnion() {}
-
 func (ProcedureType) IsMedicationAdministrationPartOfUnion() {}
 
 func (ProcedureType) IsMedicationStatementPartOfUnion() {}
 
+func (ProcedureType) IsDiagnosticReportSupportingInfoReferenceUnion() {}
+
 func (ProcedureType) IsResourceUnion() {}
 
 type Quantity struct {
+	ResourceType     *string      `json:"resourceType,omitempty"`
 	System           *string      `json:"system,omitempty"`
 	Unit             *string      `json:"unit,omitempty"`
-	Value            *string      `json:"value,omitempty"`
+	Value            *float64     `json:"value,omitempty"`
 	Code             *string      `json:"code,omitempty"`
 	Comparator       *string      `json:"comparator,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
-	ResourceType     *string      `json:"resourceType,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
@@ -2321,94 +2321,94 @@ type Query struct {
 }
 
 type Range struct {
+	ID               *string      `json:"id,omitempty"`
 	Low              *Quantity    `json:"low,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	High             *Quantity    `json:"high,omitempty"`
-	ID               *string      `json:"id,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type Ratio struct {
-	Numerator        *Quantity    `json:"numerator,omitempty"`
-	ResourceType     *string      `json:"resourceType,omitempty"`
 	Denominator      *Quantity    `json:"denominator,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
+	Numerator        *Quantity    `json:"numerator,omitempty"`
+	ResourceType     *string      `json:"resourceType,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type RatioRange struct {
+	HighNumerator    *Quantity    `json:"highNumerator,omitempty"`
+	ID               *string      `json:"id,omitempty"`
 	LowNumerator     *Quantity    `json:"lowNumerator,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
 	Denominator      *Quantity    `json:"denominator,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
-	HighNumerator    *Quantity    `json:"highNumerator,omitempty"`
-	ID               *string      `json:"id,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type Reference struct {
+	ID               *string      `json:"id,omitempty"`
 	Identifier       *Identifier  `json:"identifier,omitempty"`
 	Reference        *string      `json:"reference,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
 	Type             *string      `json:"type,omitempty"`
 	Display          *string      `json:"display,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
-	ID               *string      `json:"id,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type RelatedArtifact struct {
-	Citation          *string            `json:"citation,omitempty"`
-	ID                *string            `json:"id,omitempty"`
-	Display           *string            `json:"display,omitempty"`
 	Extension         []*Extension       `json:"extension,omitempty"`
-	ResourceReference ResourceUnion      `json:"resourceReference"`
+	PublicationDate   *string            `json:"publicationDate,omitempty"`
 	PublicationStatus *string            `json:"publicationStatus,omitempty"`
 	Type              *string            `json:"type,omitempty"`
+	Citation          *string            `json:"citation,omitempty"`
 	Document          *Attachment        `json:"document,omitempty"`
-	PublicationDate   *string            `json:"publicationDate,omitempty"`
-	Label             *string            `json:"label,omitempty"`
 	Resource          *string            `json:"resource,omitempty"`
 	ResourceType      *string            `json:"resourceType,omitempty"`
+	ID                *string            `json:"id,omitempty"`
+	ResourceReference ResourceUnion      `json:"resourceReference"`
+	Display           *string            `json:"display,omitempty"`
+	Label             *string            `json:"label,omitempty"`
 	Classifier        []*CodeableConcept `json:"classifier,omitempty"`
 	AuthResourcePath  *string            `json:"auth_resource_path,omitempty"`
 }
 
 type ResearchStudyAssociatedParty struct {
-	ResourceType      *string                                `json:"resourceType,omitempty"`
-	Classifier        []*CodeableConcept                     `json:"classifier,omitempty"`
-	Name              *string                                `json:"name,omitempty"`
 	Role              *CodeableConcept                       `json:"role,omitempty"`
-	ModifierExtension []*Extension                           `json:"modifierExtension,omitempty"`
-	ID                *string                                `json:"id,omitempty"`
-	Party             ResearchStudyAssociatedPartyPartyUnion `json:"party"`
-	Period            []*Period                              `json:"period,omitempty"`
 	Extension         []*Extension                           `json:"extension,omitempty"`
+	ID                *string                                `json:"id,omitempty"`
+	Name              *string                                `json:"name,omitempty"`
+	Period            []*Period                              `json:"period,omitempty"`
+	Classifier        []*CodeableConcept                     `json:"classifier,omitempty"`
+	ModifierExtension []*Extension                           `json:"modifierExtension,omitempty"`
+	Party             ResearchStudyAssociatedPartyPartyUnion `json:"party"`
+	ResourceType      *string                                `json:"resourceType,omitempty"`
 	AuthResourcePath  *string                                `json:"auth_resource_path,omitempty"`
 }
 
 type ResearchStudyComparisonGroup struct {
-	Description       *string          `json:"description,omitempty"`
-	Extension         []*Extension     `json:"extension,omitempty"`
-	Type              *CodeableConcept `json:"type,omitempty"`
-	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	Name              *string          `json:"name,omitempty"`
-	ResourceType      *string          `json:"resourceType,omitempty"`
 	ID                *string          `json:"id,omitempty"`
 	LinkID            *string          `json:"linkId,omitempty"`
+	Description       *string          `json:"description,omitempty"`
+	Extension         []*Extension     `json:"extension,omitempty"`
 	ObservedGroup     *GroupType       `json:"observedGroup"`
+	ResourceType      *string          `json:"resourceType,omitempty"`
+	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
+	Name              *string          `json:"name,omitempty"`
+	Type              *CodeableConcept `json:"type,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type ResearchStudyLabel struct {
-	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
 	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
 	ResourceType      *string          `json:"resourceType,omitempty"`
 	Type              *CodeableConcept `json:"type,omitempty"`
 	Value             *string          `json:"value,omitempty"`
+	Extension         []*Extension     `json:"extension,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
@@ -2424,233 +2424,233 @@ type ResearchStudyObjective struct {
 }
 
 type ResearchStudyOutcomeMeasure struct {
-	ID                *string            `json:"id,omitempty"`
-	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
 	Name              *string            `json:"name,omitempty"`
 	ResourceType      *string            `json:"resourceType,omitempty"`
 	Type              []*CodeableConcept `json:"type,omitempty"`
 	Description       *string            `json:"description,omitempty"`
 	Extension         []*Extension       `json:"extension,omitempty"`
+	ID                *string            `json:"id,omitempty"`
+	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string            `json:"auth_resource_path,omitempty"`
 }
 
 type ResearchStudyProgressStatus struct {
+	Actual            *bool            `json:"actual,omitempty"`
+	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
 	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
 	Period            *Period          `json:"period,omitempty"`
 	ResourceType      *string          `json:"resourceType,omitempty"`
 	State             *CodeableConcept `json:"state,omitempty"`
-	Actual            *string          `json:"actual,omitempty"`
-	Extension         []*Extension     `json:"extension,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type ResearchStudyRecruitment struct {
-	TargetNumber      *string                                  `json:"targetNumber,omitempty"`
+	ResourceType      *string                                  `json:"resourceType,omitempty"`
+	TargetNumber      *int                                     `json:"targetNumber,omitempty"`
 	ActualGroup       *GroupType                               `json:"actualGroup"`
-	ActualNumber      *string                                  `json:"actualNumber,omitempty"`
+	ActualNumber      *int                                     `json:"actualNumber,omitempty"`
 	Eligibility       ResearchStudyRecruitmentEligibilityUnion `json:"eligibility"`
 	Extension         []*Extension                             `json:"extension,omitempty"`
 	ID                *string                                  `json:"id,omitempty"`
 	ModifierExtension []*Extension                             `json:"modifierExtension,omitempty"`
-	ResourceType      *string                                  `json:"resourceType,omitempty"`
 	AuthResourcePath  *string                                  `json:"auth_resource_path,omitempty"`
 }
 
 type ResearchStudyType struct {
-	Title              *string                         `json:"title,omitempty"`
+	Recruitment        *ResearchStudyRecruitment       `json:"recruitment,omitempty"`
+	Text               *Narrative                      `json:"text,omitempty"`
 	Classifier         []*CodeableConcept              `json:"classifier,omitempty"`
 	AssociatedParty    []*ResearchStudyAssociatedParty `json:"associatedParty,omitempty"`
-	Label              []*ResearchStudyLabel           `json:"label,omitempty"`
-	ImplicitRules      *string                         `json:"implicitRules,omitempty"`
-	Status             *string                         `json:"status,omitempty"`
-	Recruitment        *ResearchStudyRecruitment       `json:"recruitment,omitempty"`
-	Keyword            []*CodeableConcept              `json:"keyword,omitempty"`
-	ResourceType       *string                         `json:"resourceType,omitempty"`
-	Objective          []*ResearchStudyObjective       `json:"objective,omitempty"`
-	Identifier         []*Identifier                   `json:"identifier,omitempty"`
-	Region             []*CodeableConcept              `json:"region,omitempty"`
-	Phase              *CodeableConcept                `json:"phase,omitempty"`
-	PrimaryPurposeType *CodeableConcept                `json:"primaryPurposeType,omitempty"`
 	Site               ResearchStudySiteUnion          `json:"site"`
-	Name               *string                         `json:"name,omitempty"`
-	DescriptionSummary *string                         `json:"descriptionSummary,omitempty"`
-	ComparisonGroup    []*ResearchStudyComparisonGroup `json:"comparisonGroup,omitempty"`
-	Language           *string                         `json:"language,omitempty"`
-	Note               []*Annotation                   `json:"note,omitempty"`
-	Date               *string                         `json:"date,omitempty"`
+	Keyword            []*CodeableConcept              `json:"keyword,omitempty"`
+	StudyDesign        []*CodeableConcept              `json:"studyDesign,omitempty"`
 	Condition          []*CodeableConcept              `json:"condition,omitempty"`
 	Meta               *Meta                           `json:"meta,omitempty"`
-	ModifierExtension  []*Extension                    `json:"modifierExtension,omitempty"`
-	Period             *Period                         `json:"period,omitempty"`
-	PartOf             *ResearchStudyType              `json:"partOf"`
-	Extension          []*Extension                    `json:"extension,omitempty"`
-	Contained          []ResourceUnion                 `json:"contained,omitempty"`
-	StudyDesign        []*CodeableConcept              `json:"studyDesign,omitempty"`
-	Text               *Narrative                      `json:"text,omitempty"`
-	OutcomeMeasure     []*ResearchStudyOutcomeMeasure  `json:"outcomeMeasure,omitempty"`
-	ID                 *string                         `json:"id,omitempty"`
-	WhyStopped         *CodeableConcept                `json:"whyStopped,omitempty"`
-	URL                *string                         `json:"url,omitempty"`
-	Description        *string                         `json:"description,omitempty"`
-	RelatedArtifact    []*RelatedArtifact              `json:"relatedArtifact,omitempty"`
-	Focus              []*CodeableReference            `json:"focus,omitempty"`
-	Result             ResearchStudyResultUnion        `json:"result"`
 	Version            *string                         `json:"version,omitempty"`
+	Status             *string                         `json:"status,omitempty"`
+	Contained          []ResourceUnion                 `json:"contained,omitempty"`
+	Period             *Period                         `json:"period,omitempty"`
 	ProgressStatus     []*ResearchStudyProgressStatus  `json:"progressStatus,omitempty"`
+	Identifier         []*Identifier                   `json:"identifier,omitempty"`
+	ImplicitRules      *string                         `json:"implicitRules,omitempty"`
+	Phase              *CodeableConcept                `json:"phase,omitempty"`
+	Date               *string                         `json:"date,omitempty"`
+	ComparisonGroup    []*ResearchStudyComparisonGroup `json:"comparisonGroup,omitempty"`
+	Title              *string                         `json:"title,omitempty"`
+	Name               *string                         `json:"name,omitempty"`
+	RelatedArtifact    []*RelatedArtifact              `json:"relatedArtifact,omitempty"`
+	Label              []*ResearchStudyLabel           `json:"label,omitempty"`
+	URL                *string                         `json:"url,omitempty"`
+	ModifierExtension  []*Extension                    `json:"modifierExtension,omitempty"`
+	ResourceType       *string                         `json:"resourceType,omitempty"`
+	Description        *string                         `json:"description,omitempty"`
+	OutcomeMeasure     []*ResearchStudyOutcomeMeasure  `json:"outcomeMeasure,omitempty"`
+	Result             ResearchStudyResultUnion        `json:"result"`
+	Extension          []*Extension                    `json:"extension,omitempty"`
+	Note               []*Annotation                   `json:"note,omitempty"`
+	ID                 *string                         `json:"id,omitempty"`
+	Objective          []*ResearchStudyObjective       `json:"objective,omitempty"`
+	PartOf             *ResearchStudyType              `json:"partOf"`
+	PrimaryPurposeType *CodeableConcept                `json:"primaryPurposeType,omitempty"`
+	Language           *string                         `json:"language,omitempty"`
+	DescriptionSummary *string                         `json:"descriptionSummary,omitempty"`
+	WhyStopped         *CodeableConcept                `json:"whyStopped,omitempty"`
+	Region             []*CodeableConcept              `json:"region,omitempty"`
+	Focus              []*CodeableReference            `json:"focus,omitempty"`
 	AuthResourcePath   *string                         `json:"auth_resource_path,omitempty"`
 }
 
-func (ResearchStudyType) IsResearchStudySiteUnion() {}
-
 func (ResearchStudyType) IsUsageContextValueReferenceUnion() {}
+
+func (ResearchStudyType) IsResearchStudySiteUnion() {}
 
 func (ResearchStudyType) IsResourceUnion() {}
 
 type ResearchSubjectProgress struct {
-	Reason            *CodeableConcept `json:"reason,omitempty"`
-	SubjectState      *CodeableConcept `json:"subjectState,omitempty"`
 	ID                *string          `json:"id,omitempty"`
+	Reason            *CodeableConcept `json:"reason,omitempty"`
 	StartDate         *string          `json:"startDate,omitempty"`
-	Type              *CodeableConcept `json:"type,omitempty"`
+	SubjectState      *CodeableConcept `json:"subjectState,omitempty"`
+	Extension         []*Extension     `json:"extension,omitempty"`
 	Milestone         *CodeableConcept `json:"milestone,omitempty"`
 	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
 	ResourceType      *string          `json:"resourceType,omitempty"`
+	Type              *CodeableConcept `json:"type,omitempty"`
 	EndDate           *string          `json:"endDate,omitempty"`
-	Extension         []*Extension     `json:"extension,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type ResearchSubjectType struct {
-	AssignedComparisonGroup *string                     `json:"assignedComparisonGroup,omitempty"`
-	Contained               []ResourceUnion             `json:"contained,omitempty"`
-	Status                  *string                     `json:"status,omitempty"`
-	Identifier              []*Identifier               `json:"identifier,omitempty"`
 	Language                *string                     `json:"language,omitempty"`
+	Progress                []*ResearchSubjectProgress  `json:"progress,omitempty"`
+	ActualComparisonGroup   *string                     `json:"actualComparisonGroup,omitempty"`
+	ImplicitRules           *string                     `json:"implicitRules,omitempty"`
+	ResourceType            *string                     `json:"resourceType,omitempty"`
 	Text                    *Narrative                  `json:"text,omitempty"`
 	ID                      *string                     `json:"id,omitempty"`
-	Extension               []*Extension                `json:"extension,omitempty"`
-	ImplicitRules           *string                     `json:"implicitRules,omitempty"`
-	Subject                 ResearchSubjectSubjectUnion `json:"subject"`
-	ModifierExtension       []*Extension                `json:"modifierExtension,omitempty"`
-	ResourceType            *string                     `json:"resourceType,omitempty"`
 	Period                  *Period                     `json:"period,omitempty"`
-	Progress                []*ResearchSubjectProgress  `json:"progress,omitempty"`
-	Meta                    *Meta                       `json:"meta,omitempty"`
+	Status                  *string                     `json:"status,omitempty"`
+	Subject                 ResearchSubjectSubjectUnion `json:"subject"`
+	Contained               []ResourceUnion             `json:"contained,omitempty"`
 	Study                   *ResearchStudyType          `json:"study"`
-	ActualComparisonGroup   *string                     `json:"actualComparisonGroup,omitempty"`
+	Identifier              []*Identifier               `json:"identifier,omitempty"`
+	Meta                    *Meta                       `json:"meta,omitempty"`
+	Extension               []*Extension                `json:"extension,omitempty"`
+	ModifierExtension       []*Extension                `json:"modifierExtension,omitempty"`
+	AssignedComparisonGroup *string                     `json:"assignedComparisonGroup,omitempty"`
 	AuthResourcePath        *string                     `json:"auth_resource_path,omitempty"`
 }
 
 func (ResearchSubjectType) IsResourceUnion() {}
 
 type SampledData struct {
-	UpperLimit       *string      `json:"upperLimit,omitempty"`
-	Data             *string      `json:"data,omitempty"`
+	IntervalUnit     *string      `json:"intervalUnit,omitempty"`
+	LowerLimit       *float64     `json:"lowerLimit,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
 	ID               *string      `json:"id,omitempty"`
-	Interval         *string      `json:"interval,omitempty"`
-	IntervalUnit     *string      `json:"intervalUnit,omitempty"`
-	LowerLimit       *string      `json:"lowerLimit,omitempty"`
-	Offsets          *string      `json:"offsets,omitempty"`
-	Origin           *Quantity    `json:"origin,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
-	Dimensions       *string      `json:"dimensions,omitempty"`
-	Factor           *string      `json:"factor,omitempty"`
+	Offsets          *string      `json:"offsets,omitempty"`
+	Dimensions       *int         `json:"dimensions,omitempty"`
+	Factor           *float64     `json:"factor,omitempty"`
+	Interval         *float64     `json:"interval,omitempty"`
+	Data             *string      `json:"data,omitempty"`
+	Origin           *Quantity    `json:"origin,omitempty"`
+	UpperLimit       *float64     `json:"upperLimit,omitempty"`
 	CodeMap          *string      `json:"codeMap,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type Signature struct {
-	TargetFormat     *string                  `json:"targetFormat,omitempty"`
-	Type             []*Coding                `json:"type,omitempty"`
-	When             *string                  `json:"when,omitempty"`
-	Who              SignatureWhoUnion        `json:"who"`
-	Extension        []*Extension             `json:"extension,omitempty"`
-	ID               *string                  `json:"id,omitempty"`
-	ResourceType     *string                  `json:"resourceType,omitempty"`
 	Data             *string                  `json:"data,omitempty"`
 	OnBehalfOf       SignatureOnBehalfOfUnion `json:"onBehalfOf"`
+	When             *string                  `json:"when,omitempty"`
 	SigFormat        *string                  `json:"sigFormat,omitempty"`
+	TargetFormat     *string                  `json:"targetFormat,omitempty"`
+	Who              SignatureWhoUnion        `json:"who"`
+	ID               *string                  `json:"id,omitempty"`
+	ResourceType     *string                  `json:"resourceType,omitempty"`
+	Type             []*Coding                `json:"type,omitempty"`
+	Extension        []*Extension             `json:"extension,omitempty"`
 	AuthResourcePath *string                  `json:"auth_resource_path,omitempty"`
 }
 
 type SpecimenCollection struct {
-	Method                       *CodeableConcept                 `json:"method,omitempty"`
-	Collector                    SpecimenCollectionCollectorUnion `json:"collector"`
-	CollectedDateTime            *string                          `json:"collectedDateTime,omitempty"`
 	BodySite                     *CodeableReference               `json:"bodySite,omitempty"`
-	CollectedPeriod              *Period                          `json:"collectedPeriod,omitempty"`
-	Extension                    []*Extension                     `json:"extension,omitempty"`
-	Procedure                    *ProcedureType                   `json:"procedure"`
-	Quantity                     *Quantity                        `json:"quantity,omitempty"`
-	ModifierExtension            []*Extension                     `json:"modifierExtension,omitempty"`
-	FastingStatusDuration        *Duration                        `json:"fastingStatusDuration,omitempty"`
-	FastingStatusCodeableConcept *CodeableConcept                 `json:"fastingStatusCodeableConcept,omitempty"`
+	Method                       *CodeableConcept                 `json:"method,omitempty"`
 	ID                           *string                          `json:"id,omitempty"`
-	Device                       *CodeableReference               `json:"device,omitempty"`
+	Procedure                    *ProcedureType                   `json:"procedure"`
+	CollectedPeriod              *Period                          `json:"collectedPeriod,omitempty"`
+	ModifierExtension            []*Extension                     `json:"modifierExtension,omitempty"`
+	Quantity                     *Quantity                        `json:"quantity,omitempty"`
+	FastingStatusDuration        *Duration                        `json:"fastingStatusDuration,omitempty"`
 	Duration                     *Duration                        `json:"duration,omitempty"`
+	Collector                    SpecimenCollectionCollectorUnion `json:"collector"`
+	Device                       *CodeableReference               `json:"device,omitempty"`
+	Extension                    []*Extension                     `json:"extension,omitempty"`
 	ResourceType                 *string                          `json:"resourceType,omitempty"`
+	FastingStatusCodeableConcept *CodeableConcept                 `json:"fastingStatusCodeableConcept,omitempty"`
+	CollectedDateTime            *string                          `json:"collectedDateTime,omitempty"`
 	AuthResourcePath             *string                          `json:"auth_resource_path,omitempty"`
 }
 
 type SpecimenContainer struct {
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	ResourceType      *string      `json:"resourceType,omitempty"`
 	SpecimenQuantity  *Quantity    `json:"specimenQuantity,omitempty"`
 	Extension         []*Extension `json:"extension,omitempty"`
 	ID                *string      `json:"id,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string      `json:"auth_resource_path,omitempty"`
 }
 
 type SpecimenFeature struct {
-	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	ResourceType      *string          `json:"resourceType,omitempty"`
 	Type              *CodeableConcept `json:"type,omitempty"`
 	Description       *string          `json:"description,omitempty"`
 	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
+	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
+	ResourceType      *string          `json:"resourceType,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type SpecimenProcessing struct {
+	ResourceType      *string          `json:"resourceType,omitempty"`
+	TimeDateTime      *string          `json:"timeDateTime,omitempty"`
+	TimePeriod        *Period          `json:"timePeriod,omitempty"`
+	Additive          *SubstanceType   `json:"additive"`
+	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
 	Description       *string          `json:"description,omitempty"`
 	Method            *CodeableConcept `json:"method,omitempty"`
-	TimePeriod        *Period          `json:"timePeriod,omitempty"`
-	Additive          *SubstanceType   `json:"additive"`
 	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	ResourceType      *string          `json:"resourceType,omitempty"`
-	Extension         []*Extension     `json:"extension,omitempty"`
-	TimeDateTime      *string          `json:"timeDateTime,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type SpecimenType struct {
+	ModifierExtension   []*Extension          `json:"modifierExtension,omitempty"`
 	Parent              *SpecimenType         `json:"parent"`
-	Language            *string               `json:"language,omitempty"`
-	Extension           []*Extension          `json:"extension,omitempty"`
-	Text                *Narrative            `json:"text,omitempty"`
-	Processing          []*SpecimenProcessing `json:"processing,omitempty"`
-	Type                *CodeableConcept      `json:"type,omitempty"`
-	Subject             SpecimenSubjectUnion  `json:"subject"`
-	Role                []*CodeableConcept    `json:"role,omitempty"`
-	Combined            *string               `json:"combined,omitempty"`
-	Meta                *Meta                 `json:"meta,omitempty"`
-	Collection          *SpecimenCollection   `json:"collection,omitempty"`
-	Feature             []*SpecimenFeature    `json:"feature,omitempty"`
+	Identifier          []*Identifier         `json:"identifier,omitempty"`
 	Note                []*Annotation         `json:"note,omitempty"`
 	ID                  *string               `json:"id,omitempty"`
-	Identifier          []*Identifier         `json:"identifier,omitempty"`
-	Condition           []*CodeableConcept    `json:"condition,omitempty"`
-	ImplicitRules       *string               `json:"implicitRules,omitempty"`
+	Language            *string               `json:"language,omitempty"`
+	Feature             []*SpecimenFeature    `json:"feature,omitempty"`
+	Role                []*CodeableConcept    `json:"role,omitempty"`
+	ReceivedTime        *string               `json:"receivedTime,omitempty"`
+	Collection          *SpecimenCollection   `json:"collection,omitempty"`
+	Extension           []*Extension          `json:"extension,omitempty"`
+	Combined            *string               `json:"combined,omitempty"`
+	Processing          []*SpecimenProcessing `json:"processing,omitempty"`
+	Type                *CodeableConcept      `json:"type,omitempty"`
+	Meta                *Meta                 `json:"meta,omitempty"`
 	ResourceType        *string               `json:"resourceType,omitempty"`
 	AccessionIdentifier *Identifier           `json:"accessionIdentifier,omitempty"`
 	Container           []*SpecimenContainer  `json:"container,omitempty"`
-	ModifierExtension   []*Extension          `json:"modifierExtension,omitempty"`
-	ReceivedTime        *string               `json:"receivedTime,omitempty"`
-	Contained           []ResourceUnion       `json:"contained,omitempty"`
+	Condition           []*CodeableConcept    `json:"condition,omitempty"`
 	Status              *string               `json:"status,omitempty"`
+	Subject             SpecimenSubjectUnion  `json:"subject"`
+	Text                *Narrative            `json:"text,omitempty"`
+	ImplicitRules       *string               `json:"implicitRules,omitempty"`
+	Contained           []ResourceUnion       `json:"contained,omitempty"`
 	AuthResourcePath    *string               `json:"auth_resource_path,omitempty"`
 }
 
@@ -2665,44 +2665,44 @@ func (SpecimenType) IsGroupMemberEntityUnion() {}
 func (SpecimenType) IsResourceUnion() {}
 
 type SubstanceDefinitionCharacterization struct {
+	ID                *string          `json:"id,omitempty"`
+	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
+	ResourceType      *string          `json:"resourceType,omitempty"`
 	Technique         *CodeableConcept `json:"technique,omitempty"`
 	Description       *string          `json:"description,omitempty"`
 	Extension         []*Extension     `json:"extension,omitempty"`
 	File              []*Attachment    `json:"file,omitempty"`
 	Form              *CodeableConcept `json:"form,omitempty"`
-	ID                *string          `json:"id,omitempty"`
-	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	ResourceType      *string          `json:"resourceType,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type SubstanceDefinitionCode struct {
-	Note              []*Annotation          `json:"note,omitempty"`
-	Source            *DocumentReferenceType `json:"source"`
 	Status            *CodeableConcept       `json:"status,omitempty"`
 	ID                *string                `json:"id,omitempty"`
+	Source            *DocumentReferenceType `json:"source"`
+	Extension         []*Extension           `json:"extension,omitempty"`
+	ModifierExtension []*Extension           `json:"modifierExtension,omitempty"`
 	ResourceType      *string                `json:"resourceType,omitempty"`
 	StatusDate        *string                `json:"statusDate,omitempty"`
 	Code              *CodeableConcept       `json:"code,omitempty"`
-	ModifierExtension []*Extension           `json:"modifierExtension,omitempty"`
-	Extension         []*Extension           `json:"extension,omitempty"`
+	Note              []*Annotation          `json:"note,omitempty"`
 	AuthResourcePath  *string                `json:"auth_resource_path,omitempty"`
 }
 
 type SubstanceDefinitionMoiety struct {
-	Identifier        *Identifier      `json:"identifier,omitempty"`
-	Name              *string          `json:"name,omitempty"`
 	AmountQuantity    *Quantity        `json:"amountQuantity,omitempty"`
-	Extension         []*Extension     `json:"extension,omitempty"`
-	MeasurementType   *CodeableConcept `json:"measurementType,omitempty"`
+	Name              *string          `json:"name,omitempty"`
 	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	MolecularFormula  *string          `json:"molecularFormula,omitempty"`
 	AmountString      *string          `json:"amountString,omitempty"`
-	Stereochemistry   *CodeableConcept `json:"stereochemistry,omitempty"`
-	ResourceType      *string          `json:"resourceType,omitempty"`
+	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
-	OpticalActivity   *CodeableConcept `json:"opticalActivity,omitempty"`
+	Identifier        *Identifier      `json:"identifier,omitempty"`
+	MolecularFormula  *string          `json:"molecularFormula,omitempty"`
 	Role              *CodeableConcept `json:"role,omitempty"`
+	Stereochemistry   *CodeableConcept `json:"stereochemistry,omitempty"`
+	OpticalActivity   *CodeableConcept `json:"opticalActivity,omitempty"`
+	ResourceType      *string          `json:"resourceType,omitempty"`
+	MeasurementType   *CodeableConcept `json:"measurementType,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
@@ -2718,97 +2718,98 @@ type SubstanceDefinitionMolecularWeight struct {
 }
 
 type SubstanceDefinitionName struct {
-	ModifierExtension []*Extension                       `json:"modifierExtension,omitempty"`
-	Preferred         *string                            `json:"preferred,omitempty"`
-	Jurisdiction      []*CodeableConcept                 `json:"jurisdiction,omitempty"`
-	Language          []*CodeableConcept                 `json:"language,omitempty"`
-	Name              *string                            `json:"name,omitempty"`
-	ResourceType      *string                            `json:"resourceType,omitempty"`
-	Extension         []*Extension                       `json:"extension,omitempty"`
 	Status            *CodeableConcept                   `json:"status,omitempty"`
-	Source            *DocumentReferenceType             `json:"source"`
-	Synonym           []*SubstanceDefinitionName         `json:"synonym,omitempty"`
-	Type              *CodeableConcept                   `json:"type,omitempty"`
-	Domain            []*CodeableConcept                 `json:"domain,omitempty"`
-	ID                *string                            `json:"id,omitempty"`
 	Translation       []*SubstanceDefinitionName         `json:"translation,omitempty"`
+	Type              *CodeableConcept                   `json:"type,omitempty"`
+	ID                *string                            `json:"id,omitempty"`
+	Name              *string                            `json:"name,omitempty"`
+	Language          []*CodeableConcept                 `json:"language,omitempty"`
+	Jurisdiction      []*CodeableConcept                 `json:"jurisdiction,omitempty"`
+	Source            *DocumentReferenceType             `json:"source"`
+	Domain            []*CodeableConcept                 `json:"domain,omitempty"`
+	Synonym           []*SubstanceDefinitionName         `json:"synonym,omitempty"`
+	ResourceType      *string                            `json:"resourceType,omitempty"`
+	ModifierExtension []*Extension                       `json:"modifierExtension,omitempty"`
+	Extension         []*Extension                       `json:"extension,omitempty"`
+	Preferred         *bool                              `json:"preferred,omitempty"`
 	Official          []*SubstanceDefinitionNameOfficial `json:"official,omitempty"`
 	AuthResourcePath  *string                            `json:"auth_resource_path,omitempty"`
 }
 
 type SubstanceDefinitionNameOfficial struct {
+	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
+	ResourceType      *string          `json:"resourceType,omitempty"`
+	Status            *CodeableConcept `json:"status,omitempty"`
 	Authority         *CodeableConcept `json:"authority,omitempty"`
 	Date              *string          `json:"date,omitempty"`
 	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
-	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	ResourceType      *string          `json:"resourceType,omitempty"`
-	Status            *CodeableConcept `json:"status,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type SubstanceDefinitionProperty struct {
-	ValueQuantity        *Quantity        `json:"valueQuantity,omitempty"`
-	Extension            []*Extension     `json:"extension,omitempty"`
-	ValueBoolean         *string          `json:"valueBoolean,omitempty"`
-	ValueCodeableConcept *CodeableConcept `json:"valueCodeableConcept,omitempty"`
-	ValueDate            *string          `json:"valueDate,omitempty"`
-	ValueAttachment      *Attachment      `json:"valueAttachment,omitempty"`
+	ResourceType         *string          `json:"resourceType,omitempty"`
 	ID                   *string          `json:"id,omitempty"`
 	ModifierExtension    []*Extension     `json:"modifierExtension,omitempty"`
-	ResourceType         *string          `json:"resourceType,omitempty"`
+	ValueAttachment      *Attachment      `json:"valueAttachment,omitempty"`
+	ValueDate            *string          `json:"valueDate,omitempty"`
+	Extension            []*Extension     `json:"extension,omitempty"`
+	ValueBoolean         *bool            `json:"valueBoolean,omitempty"`
+	ValueQuantity        *Quantity        `json:"valueQuantity,omitempty"`
 	Type                 *CodeableConcept `json:"type,omitempty"`
+	ValueCodeableConcept *CodeableConcept `json:"valueCodeableConcept,omitempty"`
 	AuthResourcePath     *string          `json:"auth_resource_path,omitempty"`
 }
 
 type SubstanceDefinitionRelationship struct {
-	AmountQuantity                     *Quantity                `json:"amountQuantity,omitempty"`
 	Extension                          []*Extension             `json:"extension,omitempty"`
-	AmountString                       *string                  `json:"amountString,omitempty"`
 	Source                             *DocumentReferenceType   `json:"source"`
-	Type                               *CodeableConcept         `json:"type,omitempty"`
-	RatioHighLimitAmount               *Ratio                   `json:"ratioHighLimitAmount,omitempty"`
-	AmountRatio                        *Ratio                   `json:"amountRatio,omitempty"`
+	AmountString                       *string                  `json:"amountString,omitempty"`
 	Comparator                         *CodeableConcept         `json:"comparator,omitempty"`
+	ModifierExtension                  []*Extension             `json:"modifierExtension,omitempty"`
+	IsDefining                         *bool                    `json:"isDefining,omitempty"`
+	AmountQuantity                     *Quantity                `json:"amountQuantity,omitempty"`
+	SubstanceDefinitionCodeableConcept *CodeableConcept         `json:"substanceDefinitionCodeableConcept,omitempty"`
 	ID                                 *string                  `json:"id,omitempty"`
-	IsDefining                         *string                  `json:"isDefining,omitempty"`
+	Type                               *CodeableConcept         `json:"type,omitempty"`
+	AmountRatio                        *Ratio                   `json:"amountRatio,omitempty"`
 	ResourceType                       *string                  `json:"resourceType,omitempty"`
 	SubstanceDefinitionReference       *SubstanceDefinitionType `json:"substanceDefinitionReference"`
-	SubstanceDefinitionCodeableConcept *CodeableConcept         `json:"substanceDefinitionCodeableConcept,omitempty"`
-	ModifierExtension                  []*Extension             `json:"modifierExtension,omitempty"`
+	RatioHighLimitAmount               *Ratio                   `json:"ratioHighLimitAmount,omitempty"`
 	AuthResourcePath                   *string                  `json:"auth_resource_path,omitempty"`
 }
 
 type SubstanceDefinitionSourceMaterial struct {
-	Extension         []*Extension       `json:"extension,omitempty"`
-	ID                *string            `json:"id,omitempty"`
-	Species           *CodeableConcept   `json:"species,omitempty"`
+	ResourceType      *string            `json:"resourceType,omitempty"`
 	Type              *CodeableConcept   `json:"type,omitempty"`
 	CountryOfOrigin   []*CodeableConcept `json:"countryOfOrigin,omitempty"`
 	Genus             *CodeableConcept   `json:"genus,omitempty"`
-	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
+	Extension         []*Extension       `json:"extension,omitempty"`
 	Part              *CodeableConcept   `json:"part,omitempty"`
-	ResourceType      *string            `json:"resourceType,omitempty"`
+	ID                *string            `json:"id,omitempty"`
+	ModifierExtension []*Extension       `json:"modifierExtension,omitempty"`
+	Species           *CodeableConcept   `json:"species,omitempty"`
 	AuthResourcePath  *string            `json:"auth_resource_path,omitempty"`
 }
 
 type SubstanceDefinitionStructure struct {
-	Technique                []*CodeableConcept                            `json:"technique,omitempty"`
-	Extension                []*Extension                                  `json:"extension,omitempty"`
-	MolecularFormulaByMoiety *string                                       `json:"molecularFormulaByMoiety,omitempty"`
-	Representation           []*SubstanceDefinitionStructureRepresentation `json:"representation,omitempty"`
-	ResourceType             *string                                       `json:"resourceType,omitempty"`
-	MolecularFormula         *string                                       `json:"molecularFormula,omitempty"`
-	OpticalActivity          *CodeableConcept                              `json:"opticalActivity,omitempty"`
-	Stereochemistry          *CodeableConcept                              `json:"stereochemistry,omitempty"`
 	SourceDocument           *DocumentReferenceType                        `json:"sourceDocument"`
+	Extension                []*Extension                                  `json:"extension,omitempty"`
+	MolecularFormula         *string                                       `json:"molecularFormula,omitempty"`
+	ResourceType             *string                                       `json:"resourceType,omitempty"`
+	Stereochemistry          *CodeableConcept                              `json:"stereochemistry,omitempty"`
+	MolecularFormulaByMoiety *string                                       `json:"molecularFormulaByMoiety,omitempty"`
+	OpticalActivity          *CodeableConcept                              `json:"opticalActivity,omitempty"`
+	MolecularWeight          *SubstanceDefinitionMolecularWeight           `json:"molecularWeight,omitempty"`
+	Representation           []*SubstanceDefinitionStructureRepresentation `json:"representation,omitempty"`
+	Technique                []*CodeableConcept                            `json:"technique,omitempty"`
 	ID                       *string                                       `json:"id,omitempty"`
 	ModifierExtension        []*Extension                                  `json:"modifierExtension,omitempty"`
-	MolecularWeight          *SubstanceDefinitionMolecularWeight           `json:"molecularWeight,omitempty"`
 	AuthResourcePath         *string                                       `json:"auth_resource_path,omitempty"`
 }
 
 type SubstanceDefinitionStructureRepresentation struct {
+	Format            *CodeableConcept       `json:"format,omitempty"`
 	ID                *string                `json:"id,omitempty"`
 	ModifierExtension []*Extension           `json:"modifierExtension,omitempty"`
 	Representation    *string                `json:"representation,omitempty"`
@@ -2816,218 +2817,217 @@ type SubstanceDefinitionStructureRepresentation struct {
 	Type              *CodeableConcept       `json:"type,omitempty"`
 	Document          *DocumentReferenceType `json:"document"`
 	Extension         []*Extension           `json:"extension,omitempty"`
-	Format            *CodeableConcept       `json:"format,omitempty"`
 	AuthResourcePath  *string                `json:"auth_resource_path,omitempty"`
 }
 
 type SubstanceDefinitionType struct {
-	Relationship      []*SubstanceDefinitionRelationship     `json:"relationship,omitempty"`
-	Text              *Narrative                             `json:"text,omitempty"`
-	Description       *string                                `json:"description,omitempty"`
-	Grade             []*CodeableConcept                     `json:"grade,omitempty"`
-	Language          *string                                `json:"language,omitempty"`
-	Code              []*SubstanceDefinitionCode             `json:"code,omitempty"`
-	Extension         []*Extension                           `json:"extension,omitempty"`
-	ImplicitRules     *string                                `json:"implicitRules,omitempty"`
-	ID                *string                                `json:"id,omitempty"`
-	Domain            *CodeableConcept                       `json:"domain,omitempty"`
-	Meta              *Meta                                  `json:"meta,omitempty"`
-	Version           *string                                `json:"version,omitempty"`
 	Supplier          *OrganizationType                      `json:"supplier"`
-	Note              []*Annotation                          `json:"note,omitempty"`
-	ResourceType      *string                                `json:"resourceType,omitempty"`
+	ImplicitRules     *string                                `json:"implicitRules,omitempty"`
+	Grade             []*CodeableConcept                     `json:"grade,omitempty"`
+	Description       *string                                `json:"description,omitempty"`
 	MolecularWeight   []*SubstanceDefinitionMolecularWeight  `json:"molecularWeight,omitempty"`
-	Characterization  []*SubstanceDefinitionCharacterization `json:"characterization,omitempty"`
-	Status            *CodeableConcept                       `json:"status,omitempty"`
-	Structure         *SubstanceDefinitionStructure          `json:"structure,omitempty"`
-	Moiety            []*SubstanceDefinitionMoiety           `json:"moiety,omitempty"`
-	ModifierExtension []*Extension                           `json:"modifierExtension,omitempty"`
-	SourceMaterial    *SubstanceDefinitionSourceMaterial     `json:"sourceMaterial,omitempty"`
-	Classification    []*CodeableConcept                     `json:"classification,omitempty"`
 	Identifier        []*Identifier                          `json:"identifier,omitempty"`
-	Name              []*SubstanceDefinitionName             `json:"name,omitempty"`
-	Manufacturer      *OrganizationType                      `json:"manufacturer"`
 	Property          []*SubstanceDefinitionProperty         `json:"property,omitempty"`
+	ModifierExtension []*Extension                           `json:"modifierExtension,omitempty"`
+	Moiety            []*SubstanceDefinitionMoiety           `json:"moiety,omitempty"`
+	Classification    []*CodeableConcept                     `json:"classification,omitempty"`
+	Version           *string                                `json:"version,omitempty"`
+	Manufacturer      *OrganizationType                      `json:"manufacturer"`
+	Code              []*SubstanceDefinitionCode             `json:"code,omitempty"`
+	Characterization  []*SubstanceDefinitionCharacterization `json:"characterization,omitempty"`
+	Domain            *CodeableConcept                       `json:"domain,omitempty"`
+	ID                *string                                `json:"id,omitempty"`
+	Language          *string                                `json:"language,omitempty"`
+	Meta              *Meta                                  `json:"meta,omitempty"`
+	Status            *CodeableConcept                       `json:"status,omitempty"`
+	Text              *Narrative                             `json:"text,omitempty"`
+	SourceMaterial    *SubstanceDefinitionSourceMaterial     `json:"sourceMaterial,omitempty"`
+	Structure         *SubstanceDefinitionStructure          `json:"structure,omitempty"`
+	Name              []*SubstanceDefinitionName             `json:"name,omitempty"`
+	ResourceType      *string                                `json:"resourceType,omitempty"`
+	Extension         []*Extension                           `json:"extension,omitempty"`
 	Contained         []ResourceUnion                        `json:"contained,omitempty"`
+	Relationship      []*SubstanceDefinitionRelationship     `json:"relationship,omitempty"`
+	Note              []*Annotation                          `json:"note,omitempty"`
 	AuthResourcePath  *string                                `json:"auth_resource_path,omitempty"`
 }
 
 func (SubstanceDefinitionType) IsResourceUnion() {}
 
 type SubstanceIngredient struct {
+	Quantity                 *Ratio           `json:"quantity,omitempty"`
 	ResourceType             *string          `json:"resourceType,omitempty"`
 	SubstanceCodeableConcept *CodeableConcept `json:"substanceCodeableConcept,omitempty"`
 	SubstanceReference       *SubstanceType   `json:"substanceReference"`
 	Extension                []*Extension     `json:"extension,omitempty"`
 	ID                       *string          `json:"id,omitempty"`
 	ModifierExtension        []*Extension     `json:"modifierExtension,omitempty"`
-	Quantity                 *Ratio           `json:"quantity,omitempty"`
 	AuthResourcePath         *string          `json:"auth_resource_path,omitempty"`
 }
 
 type SubstanceType struct {
-	Expiry            *string                `json:"expiry,omitempty"`
-	Description       *string                `json:"description,omitempty"`
-	ResourceType      *string                `json:"resourceType,omitempty"`
-	Extension         []*Extension           `json:"extension,omitempty"`
-	Identifier        []*Identifier          `json:"identifier,omitempty"`
-	Code              *CodeableReference     `json:"code,omitempty"`
-	ImplicitRules     *string                `json:"implicitRules,omitempty"`
-	Status            *string                `json:"status,omitempty"`
-	Quantity          *Quantity              `json:"quantity,omitempty"`
-	ModifierExtension []*Extension           `json:"modifierExtension,omitempty"`
+	Category          []*CodeableConcept     `json:"category,omitempty"`
 	ID                *string                `json:"id,omitempty"`
 	Ingredient        []*SubstanceIngredient `json:"ingredient,omitempty"`
 	Text              *Narrative             `json:"text,omitempty"`
-	Language          *string                `json:"language,omitempty"`
-	Instance          *string                `json:"instance,omitempty"`
 	Meta              *Meta                  `json:"meta,omitempty"`
-	Category          []*CodeableConcept     `json:"category,omitempty"`
+	ResourceType      *string                `json:"resourceType,omitempty"`
+	Language          *string                `json:"language,omitempty"`
+	ModifierExtension []*Extension           `json:"modifierExtension,omitempty"`
+	Extension         []*Extension           `json:"extension,omitempty"`
+	Description       *string                `json:"description,omitempty"`
+	Instance          *bool                  `json:"instance,omitempty"`
 	Contained         []ResourceUnion        `json:"contained,omitempty"`
+	Code              *CodeableReference     `json:"code,omitempty"`
+	Expiry            *string                `json:"expiry,omitempty"`
+	ImplicitRules     *string                `json:"implicitRules,omitempty"`
+	Quantity          *Quantity              `json:"quantity,omitempty"`
+	Identifier        []*Identifier          `json:"identifier,omitempty"`
+	Status            *string                `json:"status,omitempty"`
 	AuthResourcePath  *string                `json:"auth_resource_path,omitempty"`
 }
 
-func (SubstanceType) IsResearchSubjectSubjectUnion() {}
+func (SubstanceType) IsDiagnosticReportSubjectUnion() {}
 
-func (SubstanceType) IsObservationSubjectUnion() {}
+func (SubstanceType) IsResearchSubjectSubjectUnion() {}
 
 func (SubstanceType) IsSpecimenSubjectUnion() {}
 
-func (SubstanceType) IsDiagnosticReportSubjectUnion() {}
+func (SubstanceType) IsObservationSubjectUnion() {}
 
 func (SubstanceType) IsResourceUnion() {}
 
 type TaskInput struct {
-	ValueInstant               *string                `json:"valueInstant,omitempty"`
-	ValueDecimal               *string                `json:"valueDecimal,omitempty"`
-	ValueURI                   *string                `json:"valueUri,omitempty"`
-	ValueBoolean               *string                `json:"valueBoolean,omitempty"`
-	ValueBase64Binary          *string                `json:"valueBase64Binary,omitempty"`
-	Extension                  []*Extension           `json:"extension,omitempty"`
-	ValueRange                 *Range                 `json:"valueRange,omitempty"`
-	ValueString                *string                `json:"valueString,omitempty"`
-	ValueAvailability          *Availability          `json:"valueAvailability,omitempty"`
-	ValueUUID                  *string                `json:"valueUuid,omitempty"`
-	ResourceType               *string                `json:"resourceType,omitempty"`
-	ValueCount                 *Count                 `json:"valueCount,omitempty"`
-	ValueInteger64             *string                `json:"valueInteger64,omitempty"`
-	ValueExpression            *Expression            `json:"valueExpression,omitempty"`
-	ModifierExtension          []*Extension           `json:"modifierExtension,omitempty"`
-	ValueCanonical             *string                `json:"valueCanonical,omitempty"`
-	ValueContactDetail         *ContactDetail         `json:"valueContactDetail,omitempty"`
-	ValueInteger               *string                `json:"valueInteger,omitempty"`
-	ValueAddress               *Address               `json:"valueAddress,omitempty"`
 	ValueIdentifier            *Identifier            `json:"valueIdentifier,omitempty"`
-	ValueTime                  *string                `json:"valueTime,omitempty"`
-	ValueRatio                 *Ratio                 `json:"valueRatio,omitempty"`
-	Type                       *CodeableConcept       `json:"type,omitempty"`
-	ValueSampledData           *SampledData           `json:"valueSampledData,omitempty"`
-	ValueParameterDefinition   *ParameterDefinition   `json:"valueParameterDefinition,omitempty"`
-	ValueID                    *string                `json:"valueId,omitempty"`
-	ValueTriggerDefinition     *TriggerDefinition     `json:"valueTriggerDefinition,omitempty"`
+	ResourceType               *string                `json:"resourceType,omitempty"`
+	ValueDistance              *Distance              `json:"valueDistance,omitempty"`
+	ValueCodeableConcept       *CodeableConcept       `json:"valueCodeableConcept,omitempty"`
+	ValueAddress               *Address               `json:"valueAddress,omitempty"`
+	ValueSignature             *Signature             `json:"valueSignature,omitempty"`
+	ValueCodeableReference     *CodeableReference     `json:"valueCodeableReference,omitempty"`
+	ValueCode                  *string                `json:"valueCode,omitempty"`
+	ValueExpression            *Expression            `json:"valueExpression,omitempty"`
+	ValueInteger64             *int                   `json:"valueInteger64,omitempty"`
 	ValueDate                  *string                `json:"valueDate,omitempty"`
+	ValueAvailability          *Availability          `json:"valueAvailability,omitempty"`
+	ValueID                    *string                `json:"valueId,omitempty"`
+	ValueSampledData           *SampledData           `json:"valueSampledData,omitempty"`
+	ValueCount                 *Count                 `json:"valueCount,omitempty"`
+	ValueMoney                 *Money                 `json:"valueMoney,omitempty"`
+	ValuePeriod                *Period                `json:"valuePeriod,omitempty"`
+	ValueQuantity              *Quantity              `json:"valueQuantity,omitempty"`
+	ValueBase64Binary          *string                `json:"valueBase64Binary,omitempty"`
+	ValueDosage                *Dosage                `json:"valueDosage,omitempty"`
+	ValueTiming                *Timing                `json:"valueTiming,omitempty"`
+	ValueURL                   *string                `json:"valueUrl,omitempty"`
+	Extension                  []*Extension           `json:"extension,omitempty"`
+	ValueAge                   *Age                   `json:"valueAge,omitempty"`
+	ValueRatio                 *Ratio                 `json:"valueRatio,omitempty"`
+	ValueInteger               *int                   `json:"valueInteger,omitempty"`
 	ValueRatioRange            *RatioRange            `json:"valueRatioRange,omitempty"`
-	ValueUnsignedInt           *string                `json:"valueUnsignedInt,omitempty"`
+	ValueUsageContext          *UsageContext          `json:"valueUsageContext,omitempty"`
+	ValueUnsignedInt           *int                   `json:"valueUnsignedInt,omitempty"`
+	ValueExtendedContactDetail *ExtendedContactDetail `json:"valueExtendedContactDetail,omitempty"`
 	ValueContactPoint          *ContactPoint          `json:"valueContactPoint,omitempty"`
 	ValueAnnotation            *Annotation            `json:"valueAnnotation,omitempty"`
-	ValueCodeableReference     *CodeableReference     `json:"valueCodeableReference,omitempty"`
-	ValueDistance              *Distance              `json:"valueDistance,omitempty"`
-	ValueAttachment            *Attachment            `json:"valueAttachment,omitempty"`
-	ValueCodeableConcept       *CodeableConcept       `json:"valueCodeableConcept,omitempty"`
-	ValuePositiveInt           *string                `json:"valuePositiveInt,omitempty"`
-	ValueExtendedContactDetail *ExtendedContactDetail `json:"valueExtendedContactDetail,omitempty"`
-	ValueDuration              *Duration              `json:"valueDuration,omitempty"`
-	ValueURL                   *string                `json:"valueUrl,omitempty"`
-	ValueMeta                  *Meta                  `json:"valueMeta,omitempty"`
-	ValueQuantity              *Quantity              `json:"valueQuantity,omitempty"`
-	ValueDosage                *Dosage                `json:"valueDosage,omitempty"`
 	ValueRelatedArtifact       *RelatedArtifact       `json:"valueRelatedArtifact,omitempty"`
-	ValueDataRequirement       *DataRequirement       `json:"valueDataRequirement,omitempty"`
-	ValuePeriod                *Period                `json:"valuePeriod,omitempty"`
-	ValueOid                   *string                `json:"valueOid,omitempty"`
-	ValueAge                   *Age                   `json:"valueAge,omitempty"`
-	ValueCoding                *Coding                `json:"valueCoding,omitempty"`
-	ValueSignature             *Signature             `json:"valueSignature,omitempty"`
-	ID                         *string                `json:"id,omitempty"`
+	ValueParameterDefinition   *ParameterDefinition   `json:"valueParameterDefinition,omitempty"`
+	ValueMeta                  *Meta                  `json:"valueMeta,omitempty"`
+	ValueAttachment            *Attachment            `json:"valueAttachment,omitempty"`
 	ValueHumanName             *HumanName             `json:"valueHumanName,omitempty"`
-	ValueMarkdown              *string                `json:"valueMarkdown,omitempty"`
-	ValueUsageContext          *UsageContext          `json:"valueUsageContext,omitempty"`
+	ValueURI                   *string                `json:"valueUri,omitempty"`
+	ValueOid                   *string                `json:"valueOid,omitempty"`
+	ValueContactDetail         *ContactDetail         `json:"valueContactDetail,omitempty"`
 	ValueDateTime              *string                `json:"valueDateTime,omitempty"`
-	ValueCode                  *string                `json:"valueCode,omitempty"`
-	ValueTiming                *Timing                `json:"valueTiming,omitempty"`
-	ValueMoney                 *Money                 `json:"valueMoney,omitempty"`
+	ModifierExtension          []*Extension           `json:"modifierExtension,omitempty"`
+	ValueDecimal               *float64               `json:"valueDecimal,omitempty"`
+	ValueInstant               *string                `json:"valueInstant,omitempty"`
+	ValueTime                  *string                `json:"valueTime,omitempty"`
+	ValueString                *string                `json:"valueString,omitempty"`
+	ValueMarkdown              *string                `json:"valueMarkdown,omitempty"`
+	ValueRange                 *Range                 `json:"valueRange,omitempty"`
+	ValuePositiveInt           *int                   `json:"valuePositiveInt,omitempty"`
+	ValueCanonical             *string                `json:"valueCanonical,omitempty"`
+	ValueCoding                *Coding                `json:"valueCoding,omitempty"`
+	ValueDuration              *Duration              `json:"valueDuration,omitempty"`
+	ValueTriggerDefinition     *TriggerDefinition     `json:"valueTriggerDefinition,omitempty"`
+	ValueBoolean               *bool                  `json:"valueBoolean,omitempty"`
+	ValueDataRequirement       *DataRequirement       `json:"valueDataRequirement,omitempty"`
+	ID                         *string                `json:"id,omitempty"`
+	Type                       *CodeableConcept       `json:"type,omitempty"`
+	ValueUUID                  *string                `json:"valueUuid,omitempty"`
 	AuthResourcePath           *string                `json:"auth_resource_path,omitempty"`
 }
 
 type TaskOutput struct {
-	ValueMoney                 *Money                 `json:"valueMoney,omitempty"`
-	ValuePositiveInt           *string                `json:"valuePositiveInt,omitempty"`
-	ValueInstant               *string                `json:"valueInstant,omitempty"`
-	ValueURI                   *string                `json:"valueUri,omitempty"`
-	ValueDateTime              *string                `json:"valueDateTime,omitempty"`
-	ValueIdentifier            *Identifier            `json:"valueIdentifier,omitempty"`
-	ValueDosage                *Dosage                `json:"valueDosage,omitempty"`
-	ValueQuantity              *Quantity              `json:"valueQuantity,omitempty"`
-	ValueAvailability          *Availability          `json:"valueAvailability,omitempty"`
-	ValueSignature             *Signature             `json:"valueSignature,omitempty"`
-	ValueRange                 *Range                 `json:"valueRange,omitempty"`
-	ValueUsageContext          *UsageContext          `json:"valueUsageContext,omitempty"`
-	ValueID                    *string                `json:"valueId,omitempty"`
-	ValueCode                  *string                `json:"valueCode,omitempty"`
-	ValueContactPoint          *ContactPoint          `json:"valueContactPoint,omitempty"`
-	ValueTime                  *string                `json:"valueTime,omitempty"`
-	ValueHumanName             *HumanName             `json:"valueHumanName,omitempty"`
-	ValueCodeableReference     *CodeableReference     `json:"valueCodeableReference,omitempty"`
 	ValueMeta                  *Meta                  `json:"valueMeta,omitempty"`
-	ID                         *string                `json:"id,omitempty"`
-	ValueBoolean               *string                `json:"valueBoolean,omitempty"`
-	ValueDuration              *Duration              `json:"valueDuration,omitempty"`
-	ValueDataRequirement       *DataRequirement       `json:"valueDataRequirement,omitempty"`
-	ValueExtendedContactDetail *ExtendedContactDetail `json:"valueExtendedContactDetail,omitempty"`
-	ValueOid                   *string                `json:"valueOid,omitempty"`
-	ValuePeriod                *Period                `json:"valuePeriod,omitempty"`
-	ValueAddress               *Address               `json:"valueAddress,omitempty"`
-	ValueURL                   *string                `json:"valueUrl,omitempty"`
-	ValueCoding                *Coding                `json:"valueCoding,omitempty"`
-	ModifierExtension          []*Extension           `json:"modifierExtension,omitempty"`
-	ValueAnnotation            *Annotation            `json:"valueAnnotation,omitempty"`
-	ValueCodeableConcept       *CodeableConcept       `json:"valueCodeableConcept,omitempty"`
-	ValueRatioRange            *RatioRange            `json:"valueRatioRange,omitempty"`
-	ValueAge                   *Age                   `json:"valueAge,omitempty"`
-	ValueRatio                 *Ratio                 `json:"valueRatio,omitempty"`
-	ValueParameterDefinition   *ParameterDefinition   `json:"valueParameterDefinition,omitempty"`
+	ValueInteger64             *int                   `json:"valueInteger64,omitempty"`
+	ValueAvailability          *Availability          `json:"valueAvailability,omitempty"`
 	ValueContactDetail         *ContactDetail         `json:"valueContactDetail,omitempty"`
-	ValueCount                 *Count                 `json:"valueCount,omitempty"`
-	ValueUUID                  *string                `json:"valueUuid,omitempty"`
-	ValueRelatedArtifact       *RelatedArtifact       `json:"valueRelatedArtifact,omitempty"`
-	Extension                  []*Extension           `json:"extension,omitempty"`
-	ValueExpression            *Expression            `json:"valueExpression,omitempty"`
-	ValueAttachment            *Attachment            `json:"valueAttachment,omitempty"`
+	ValueURI                   *string                `json:"valueUri,omitempty"`
+	ValueBoolean               *bool                  `json:"valueBoolean,omitempty"`
+	ValueCode                  *string                `json:"valueCode,omitempty"`
+	ValueDataRequirement       *DataRequirement       `json:"valueDataRequirement,omitempty"`
+	ModifierExtension          []*Extension           `json:"modifierExtension,omitempty"`
 	ValueTiming                *Timing                `json:"valueTiming,omitempty"`
-	ValueBase64Binary          *string                `json:"valueBase64Binary,omitempty"`
-	ValueUnsignedInt           *string                `json:"valueUnsignedInt,omitempty"`
-	Type                       *CodeableConcept       `json:"type,omitempty"`
 	ValueTriggerDefinition     *TriggerDefinition     `json:"valueTriggerDefinition,omitempty"`
-	ValueInteger64             *string                `json:"valueInteger64,omitempty"`
-	ValueMarkdown              *string                `json:"valueMarkdown,omitempty"`
-	ValueDecimal               *string                `json:"valueDecimal,omitempty"`
-	ValueInteger               *string                `json:"valueInteger,omitempty"`
+	ValueString                *string                `json:"valueString,omitempty"`
+	ValueRelatedArtifact       *RelatedArtifact       `json:"valueRelatedArtifact,omitempty"`
+	ValueIdentifier            *Identifier            `json:"valueIdentifier,omitempty"`
+	ValueMoney                 *Money                 `json:"valueMoney,omitempty"`
+	ValueDateTime              *string                `json:"valueDateTime,omitempty"`
+	ValueRatioRange            *RatioRange            `json:"valueRatioRange,omitempty"`
+	ValueBase64Binary          *string                `json:"valueBase64Binary,omitempty"`
 	ValueSampledData           *SampledData           `json:"valueSampledData,omitempty"`
+	Type                       *CodeableConcept       `json:"type,omitempty"`
+	ValueRange                 *Range                 `json:"valueRange,omitempty"`
+	ValuePositiveInt           *int                   `json:"valuePositiveInt,omitempty"`
+	ValueHumanName             *HumanName             `json:"valueHumanName,omitempty"`
+	ValueDuration              *Duration              `json:"valueDuration,omitempty"`
+	ID                         *string                `json:"id,omitempty"`
 	ValueCanonical             *string                `json:"valueCanonical,omitempty"`
+	ValueExtendedContactDetail *ExtendedContactDetail `json:"valueExtendedContactDetail,omitempty"`
+	ValueSignature             *Signature             `json:"valueSignature,omitempty"`
+	Extension                  []*Extension           `json:"extension,omitempty"`
+	ValueUsageContext          *UsageContext          `json:"valueUsageContext,omitempty"`
+	ValueCodeableReference     *CodeableReference     `json:"valueCodeableReference,omitempty"`
+	ValueExpression            *Expression            `json:"valueExpression,omitempty"`
+	ValuePeriod                *Period                `json:"valuePeriod,omitempty"`
 	ValueDate                  *string                `json:"valueDate,omitempty"`
 	ValueDistance              *Distance              `json:"valueDistance,omitempty"`
+	ValueUUID                  *string                `json:"valueUuid,omitempty"`
 	ResourceType               *string                `json:"resourceType,omitempty"`
-	ValueString                *string                `json:"valueString,omitempty"`
+	ValueInteger               *int                   `json:"valueInteger,omitempty"`
+	ValueID                    *string                `json:"valueId,omitempty"`
+	ValueContactPoint          *ContactPoint          `json:"valueContactPoint,omitempty"`
+	ValueCount                 *Count                 `json:"valueCount,omitempty"`
+	ValueUnsignedInt           *int                   `json:"valueUnsignedInt,omitempty"`
+	ValueMarkdown              *string                `json:"valueMarkdown,omitempty"`
+	ValueCoding                *Coding                `json:"valueCoding,omitempty"`
+	ValueAnnotation            *Annotation            `json:"valueAnnotation,omitempty"`
+	ValueAddress               *Address               `json:"valueAddress,omitempty"`
+	ValueQuantity              *Quantity              `json:"valueQuantity,omitempty"`
+	ValueCodeableConcept       *CodeableConcept       `json:"valueCodeableConcept,omitempty"`
+	ValueDosage                *Dosage                `json:"valueDosage,omitempty"`
+	ValueOid                   *string                `json:"valueOid,omitempty"`
+	ValueParameterDefinition   *ParameterDefinition   `json:"valueParameterDefinition,omitempty"`
+	ValueAttachment            *Attachment            `json:"valueAttachment,omitempty"`
+	ValueURL                   *string                `json:"valueUrl,omitempty"`
+	ValueAge                   *Age                   `json:"valueAge,omitempty"`
+	ValueTime                  *string                `json:"valueTime,omitempty"`
+	ValueInstant               *string                `json:"valueInstant,omitempty"`
+	ValueRatio                 *Ratio                 `json:"valueRatio,omitempty"`
+	ValueDecimal               *float64               `json:"valueDecimal,omitempty"`
 	AuthResourcePath           *string                `json:"auth_resource_path,omitempty"`
 }
 
 type TaskPerformer struct {
+	ModifierExtension []*Extension            `json:"modifierExtension,omitempty"`
 	ResourceType      *string                 `json:"resourceType,omitempty"`
 	Actor             TaskPerformerActorUnion `json:"actor"`
 	Extension         []*Extension            `json:"extension,omitempty"`
 	Function          *CodeableConcept        `json:"function,omitempty"`
 	ID                *string                 `json:"id,omitempty"`
-	ModifierExtension []*Extension            `json:"modifierExtension,omitempty"`
 	AuthResourcePath  *string                 `json:"auth_resource_path,omitempty"`
 }
 
@@ -3036,7 +3036,7 @@ type TaskRestriction struct {
 	ModifierExtension []*Extension                  `json:"modifierExtension,omitempty"`
 	Period            *Period                       `json:"period,omitempty"`
 	Recipient         TaskRestrictionRecipientUnion `json:"recipient"`
-	Repetitions       *string                       `json:"repetitions,omitempty"`
+	Repetitions       *int                          `json:"repetitions,omitempty"`
 	ResourceType      *string                       `json:"resourceType,omitempty"`
 	Extension         []*Extension                  `json:"extension,omitempty"`
 	AuthResourcePath  *string                       `json:"auth_resource_path,omitempty"`
@@ -3044,42 +3044,42 @@ type TaskRestriction struct {
 
 type TaskType struct {
 	Meta                  *Meta                `json:"meta,omitempty"`
-	BasedOn               ResourceUnion        `json:"basedOn"`
-	Description           *string              `json:"description,omitempty"`
-	Input                 []*TaskInput         `json:"input,omitempty"`
-	PartOf                *TaskType            `json:"partOf"`
-	Owner                 TaskOwnerUnion       `json:"owner"`
-	Intent                *string              `json:"intent,omitempty"`
-	Text                  *Narrative           `json:"text,omitempty"`
-	ImplicitRules         *string              `json:"implicitRules,omitempty"`
-	Status                *string              `json:"status,omitempty"`
-	Code                  *CodeableConcept     `json:"code,omitempty"`
-	Priority              *string              `json:"priority,omitempty"`
-	RequestedPeriod       *Period              `json:"requestedPeriod,omitempty"`
-	DoNotPerform          *string              `json:"doNotPerform,omitempty"`
-	Identifier            []*Identifier        `json:"identifier,omitempty"`
-	InstantiatesCanonical *string              `json:"instantiatesCanonical,omitempty"`
-	InstantiatesURI       *string              `json:"instantiatesUri,omitempty"`
-	Note                  []*Annotation        `json:"note,omitempty"`
-	Focus                 ResourceUnion        `json:"focus"`
-	Restriction           *TaskRestriction     `json:"restriction,omitempty"`
-	Output                []*TaskOutput        `json:"output,omitempty"`
-	Requester             TaskRequesterUnion   `json:"requester"`
-	Contained             []ResourceUnion      `json:"contained,omitempty"`
-	GroupIdentifier       *Identifier          `json:"groupIdentifier,omitempty"`
-	BusinessStatus        *CodeableConcept     `json:"businessStatus,omitempty"`
-	StatusReason          *CodeableReference   `json:"statusReason,omitempty"`
 	ExecutionPeriod       *Period              `json:"executionPeriod,omitempty"`
-	AuthoredOn            *string              `json:"authoredOn,omitempty"`
-	Performer             []*TaskPerformer     `json:"performer,omitempty"`
-	Reason                []*CodeableReference `json:"reason,omitempty"`
-	ResourceType          *string              `json:"resourceType,omitempty"`
-	Extension             []*Extension         `json:"extension,omitempty"`
-	LastModified          *string              `json:"lastModified,omitempty"`
+	BusinessStatus        *CodeableConcept     `json:"businessStatus,omitempty"`
 	RequestedPerformer    []*CodeableReference `json:"requestedPerformer,omitempty"`
-	ID                    *string              `json:"id,omitempty"`
-	Language              *string              `json:"language,omitempty"`
+	RequestedPeriod       *Period              `json:"requestedPeriod,omitempty"`
+	Owner                 TaskOwnerUnion       `json:"owner"`
+	ResourceType          *string              `json:"resourceType,omitempty"`
+	Intent                *string              `json:"intent,omitempty"`
 	ModifierExtension     []*Extension         `json:"modifierExtension,omitempty"`
+	PartOf                *TaskType            `json:"partOf"`
+	Text                  *Narrative           `json:"text,omitempty"`
+	Restriction           *TaskRestriction     `json:"restriction,omitempty"`
+	StatusReason          *CodeableReference   `json:"statusReason,omitempty"`
+	AuthoredOn            *string              `json:"authoredOn,omitempty"`
+	BasedOn               ResourceUnion        `json:"basedOn"`
+	Identifier            []*Identifier        `json:"identifier,omitempty"`
+	Output                []*TaskOutput        `json:"output,omitempty"`
+	Priority              *string              `json:"priority,omitempty"`
+	DoNotPerform          *bool                `json:"doNotPerform,omitempty"`
+	LastModified          *string              `json:"lastModified,omitempty"`
+	InstantiatesCanonical *string              `json:"instantiatesCanonical,omitempty"`
+	Code                  *CodeableConcept     `json:"code,omitempty"`
+	Status                *string              `json:"status,omitempty"`
+	GroupIdentifier       *Identifier          `json:"groupIdentifier,omitempty"`
+	Contained             []ResourceUnion      `json:"contained,omitempty"`
+	ImplicitRules         *string              `json:"implicitRules,omitempty"`
+	Input                 []*TaskInput         `json:"input,omitempty"`
+	Focus                 ResourceUnion        `json:"focus"`
+	Requester             TaskRequesterUnion   `json:"requester"`
+	InstantiatesURI       *string              `json:"instantiatesUri,omitempty"`
+	Language              *string              `json:"language,omitempty"`
+	Reason                []*CodeableReference `json:"reason,omitempty"`
+	ID                    *string              `json:"id,omitempty"`
+	Note                  []*Annotation        `json:"note,omitempty"`
+	Extension             []*Extension         `json:"extension,omitempty"`
+	Performer             []*TaskPerformer     `json:"performer,omitempty"`
+	Description           *string              `json:"description,omitempty"`
 	AuthResourcePath      *string              `json:"auth_resource_path,omitempty"`
 }
 
@@ -3088,57 +3088,58 @@ func (TaskType) IsImagingStudyBasedOnUnion() {}
 func (TaskType) IsResourceUnion() {}
 
 type Timing struct {
-	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
-	Repeat            *TimingRepeat    `json:"repeat,omitempty"`
-	ResourceType      *string          `json:"resourceType,omitempty"`
 	Code              *CodeableConcept `json:"code,omitempty"`
 	Event             *string          `json:"event,omitempty"`
 	Extension         []*Extension     `json:"extension,omitempty"`
 	ID                *string          `json:"id,omitempty"`
+	ModifierExtension []*Extension     `json:"modifierExtension,omitempty"`
+	Repeat            *TimingRepeat    `json:"repeat,omitempty"`
+	ResourceType      *string          `json:"resourceType,omitempty"`
 	AuthResourcePath  *string          `json:"auth_resource_path,omitempty"`
 }
 
 type TimingRepeat struct {
-	Offset           *string      `json:"offset,omitempty"`
-	TimeOfDay        *string      `json:"timeOfDay,omitempty"`
-	DurationUnit     *string      `json:"durationUnit,omitempty"`
-	Frequency        *string      `json:"frequency,omitempty"`
-	PeriodMax        *string      `json:"periodMax,omitempty"`
-	ID               *string      `json:"id,omitempty"`
-	Period           *string      `json:"period,omitempty"`
-	BoundsRange      *Range       `json:"boundsRange,omitempty"`
-	CountMax         *string      `json:"countMax,omitempty"`
-	DayOfWeek        *string      `json:"dayOfWeek,omitempty"`
-	PeriodUnit       *string      `json:"periodUnit,omitempty"`
-	FrequencyMax     *string      `json:"frequencyMax,omitempty"`
 	BoundsPeriod     *Period      `json:"boundsPeriod,omitempty"`
+	Duration         *float64     `json:"duration,omitempty"`
+	ID               *string      `json:"id,omitempty"`
 	Extension        []*Extension `json:"extension,omitempty"`
-	Duration         *string      `json:"duration,omitempty"`
 	When             *string      `json:"when,omitempty"`
-	DurationMax      *string      `json:"durationMax,omitempty"`
-	Count            *string      `json:"count,omitempty"`
 	BoundsDuration   *Duration    `json:"boundsDuration,omitempty"`
+	PeriodMax        *float64     `json:"periodMax,omitempty"`
+	Frequency        *int         `json:"frequency,omitempty"`
 	ResourceType     *string      `json:"resourceType,omitempty"`
+	TimeOfDay        *string      `json:"timeOfDay,omitempty"`
+	DayOfWeek        *string      `json:"dayOfWeek,omitempty"`
+	DurationMax      *float64     `json:"durationMax,omitempty"`
+	PeriodUnit       *string      `json:"periodUnit,omitempty"`
+	DurationUnit     *string      `json:"durationUnit,omitempty"`
+	BoundsRange      *Range       `json:"boundsRange,omitempty"`
+	Count            *int         `json:"count,omitempty"`
+	Offset           *int         `json:"offset,omitempty"`
+	Period           *float64     `json:"period,omitempty"`
+	CountMax         *int         `json:"countMax,omitempty"`
+	FrequencyMax     *int         `json:"frequencyMax,omitempty"`
 	AuthResourcePath *string      `json:"auth_resource_path,omitempty"`
 }
 
 type TriggerDefinition struct {
 	TimingTiming      *Timing            `json:"timingTiming,omitempty"`
+	Type              *string            `json:"type,omitempty"`
+	ResourceType      *string            `json:"resourceType,omitempty"`
+	Name              *string            `json:"name,omitempty"`
+	SubscriptionTopic *string            `json:"subscriptionTopic,omitempty"`
+	ID                *string            `json:"id,omitempty"`
+	TimingDateTime    *string            `json:"timingDateTime,omitempty"`
+	Code              *CodeableConcept   `json:"code,omitempty"`
+	Data              []*DataRequirement `json:"data,omitempty"`
+	TimingDate        *string            `json:"timingDate,omitempty"`
 	Condition         *Expression        `json:"condition,omitempty"`
 	Extension         []*Extension       `json:"extension,omitempty"`
-	Data              []*DataRequirement `json:"data,omitempty"`
-	SubscriptionTopic *string            `json:"subscriptionTopic,omitempty"`
-	TimingDateTime    *string            `json:"timingDateTime,omitempty"`
-	ID                *string            `json:"id,omitempty"`
-	Name              *string            `json:"name,omitempty"`
-	TimingDate        *string            `json:"timingDate,omitempty"`
-	Type              *string            `json:"type,omitempty"`
-	Code              *CodeableConcept   `json:"code,omitempty"`
-	ResourceType      *string            `json:"resourceType,omitempty"`
 	AuthResourcePath  *string            `json:"auth_resource_path,omitempty"`
 }
 
 type UsageContext struct {
+	ID                   *string                         `json:"id,omitempty"`
 	ResourceType         *string                         `json:"resourceType,omitempty"`
 	ValueCodeableConcept *CodeableConcept                `json:"valueCodeableConcept,omitempty"`
 	ValueQuantity        *Quantity                       `json:"valueQuantity,omitempty"`
@@ -3146,22 +3147,21 @@ type UsageContext struct {
 	ValueReference       UsageContextValueReferenceUnion `json:"valueReference"`
 	Code                 *Coding                         `json:"code,omitempty"`
 	Extension            []*Extension                    `json:"extension,omitempty"`
-	ID                   *string                         `json:"id,omitempty"`
 	AuthResourcePath     *string                         `json:"auth_resource_path,omitempty"`
 }
 
 type VirtualServiceDetail struct {
-	MaxParticipants              *string                `json:"maxParticipants,omitempty"`
-	AddressContactPoint          *ContactPoint          `json:"addressContactPoint,omitempty"`
-	AddressString                *string                `json:"addressString,omitempty"`
 	ID                           *string                `json:"id,omitempty"`
+	AdditionalInfo               *string                `json:"additionalInfo,omitempty"`
 	ChannelType                  *Coding                `json:"channelType,omitempty"`
 	ResourceType                 *string                `json:"resourceType,omitempty"`
-	SessionKey                   *string                `json:"sessionKey,omitempty"`
-	AdditionalInfo               *string                `json:"additionalInfo,omitempty"`
-	AddressExtendedContactDetail *ExtendedContactDetail `json:"addressExtendedContactDetail,omitempty"`
-	Extension                    []*Extension           `json:"extension,omitempty"`
+	AddressContactPoint          *ContactPoint          `json:"addressContactPoint,omitempty"`
+	AddressString                *string                `json:"addressString,omitempty"`
 	AddressURL                   *string                `json:"addressUrl,omitempty"`
+	Extension                    []*Extension           `json:"extension,omitempty"`
+	MaxParticipants              *int                   `json:"maxParticipants,omitempty"`
+	AddressExtendedContactDetail *ExtendedContactDetail `json:"addressExtendedContactDetail,omitempty"`
+	SessionKey                   *string                `json:"sessionKey,omitempty"`
 	AuthResourcePath             *string                `json:"auth_resource_path,omitempty"`
 }
 

@@ -7,30 +7,30 @@ import (
 )
 
 type SafeSpecimenType struct {
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	Parent *SpecimenType `json:"parent"`
-	Language *string `json:"language,omitempty"`
-	Extension []*Extension `json:"extension,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	Processing []*SpecimenProcessing `json:"processing,omitempty"`
-	Type *CodeableConcept `json:"type,omitempty"`
-	Subject TypedObject `json:"subject"`
-	Role []*CodeableConcept `json:"role,omitempty"`
-	Combined *string `json:"combined,omitempty"`
-	Meta *Meta `json:"meta,omitempty"`
-	Collection *SpecimenCollection `json:"collection,omitempty"`
-	Feature []*SpecimenFeature `json:"feature,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
 	Note []*Annotation `json:"note,omitempty"`
 	ID *string `json:"id,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	Condition []*CodeableConcept `json:"condition,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Language *string `json:"language,omitempty"`
+	Feature []*SpecimenFeature `json:"feature,omitempty"`
+	Role []*CodeableConcept `json:"role,omitempty"`
+	ReceivedTime *string `json:"receivedTime,omitempty"`
+	Collection *SpecimenCollection `json:"collection,omitempty"`
+	Extension []*Extension `json:"extension,omitempty"`
+	Combined *string `json:"combined,omitempty"`
+	Processing []*SpecimenProcessing `json:"processing,omitempty"`
+	Type *CodeableConcept `json:"type,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
 	ResourceType *string `json:"resourceType,omitempty"`
 	AccessionIdentifier *Identifier `json:"accessionIdentifier,omitempty"`
 	Container []*SpecimenContainer `json:"container,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	ReceivedTime *string `json:"receivedTime,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
+	Condition []*CodeableConcept `json:"condition,omitempty"`
 	Status *string `json:"status,omitempty"`
+	Subject TypedObject `json:"subject"`
+	Text *Narrative `json:"text,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -41,28 +41,28 @@ func (o *SpecimenType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = SpecimenType{
+		ModifierExtension: safe.ModifierExtension,
 		Parent: safe.Parent,
-		Language: safe.Language,
-		Extension: safe.Extension,
-		Text: safe.Text,
-		Processing: safe.Processing,
-		Type: safe.Type,
-		Role: safe.Role,
-		Combined: safe.Combined,
-		Meta: safe.Meta,
-		Collection: safe.Collection,
-		Feature: safe.Feature,
+		Identifier: safe.Identifier,
 		Note: safe.Note,
 		ID: safe.ID,
-		Identifier: safe.Identifier,
-		Condition: safe.Condition,
-		ImplicitRules: safe.ImplicitRules,
+		Language: safe.Language,
+		Feature: safe.Feature,
+		Role: safe.Role,
+		ReceivedTime: safe.ReceivedTime,
+		Collection: safe.Collection,
+		Extension: safe.Extension,
+		Combined: safe.Combined,
+		Processing: safe.Processing,
+		Type: safe.Type,
+		Meta: safe.Meta,
 		ResourceType: safe.ResourceType,
 		AccessionIdentifier: safe.AccessionIdentifier,
 		Container: safe.Container,
-		ModifierExtension: safe.ModifierExtension,
-		ReceivedTime: safe.ReceivedTime,
+		Condition: safe.Condition,
 		Status: safe.Status,
+		Text: safe.Text,
+		ImplicitRules: safe.ImplicitRules,
 		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "subject", safe.Subject.Typename, &o.Subject); err != nil {

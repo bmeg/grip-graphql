@@ -59,6 +59,7 @@ func (gh *Handler) graphqlHandler(client gripql.Client, jwtHandler middleware.JW
 	resolvers := &graph.Resolver{
 		Schema: schema,
 		GripDb: client,
+		Graph:  os.Getenv("GRAPH"),
 	}
 	srv := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: resolvers}))
 	//srv.Use(extension.FixedComplexityLimit(50)) If you want to limit complexity
@@ -108,10 +109,16 @@ func playgroundHandler() gin.HandlerFunc {
 
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
 
+	if c, ok := config["graph"]; ok {
+		os.Setenv("GRAPH", c)
+	}
+
 	var mware middleware.JWTHandler = &middleware.ProdJWTHandler{}
 	if config["test"] == "true" {
 		mware = &middleware.MockJWTHandler{}
+		os.Setenv("GRAPH", "TEST")
 	}
+
 	os.Setenv("AUTH_ENABLED", "true")
 	if c, ok := config["auth"]; ok {
 		os.Setenv("AUTH_ENABLED", c)

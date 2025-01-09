@@ -7,46 +7,46 @@ import (
 )
 
 type SafeResearchStudyType struct {
-	Title *string `json:"title,omitempty"`
+	Recruitment *ResearchStudyRecruitment `json:"recruitment,omitempty"`
+	Text *Narrative `json:"text,omitempty"`
 	Classifier []*CodeableConcept `json:"classifier,omitempty"`
 	AssociatedParty []*ResearchStudyAssociatedParty `json:"associatedParty,omitempty"`
-	Label []*ResearchStudyLabel `json:"label,omitempty"`
-	ImplicitRules *string `json:"implicitRules,omitempty"`
-	Status *string `json:"status,omitempty"`
-	Recruitment *ResearchStudyRecruitment `json:"recruitment,omitempty"`
-	Keyword []*CodeableConcept `json:"keyword,omitempty"`
-	ResourceType *string `json:"resourceType,omitempty"`
-	Objective []*ResearchStudyObjective `json:"objective,omitempty"`
-	Identifier []*Identifier `json:"identifier,omitempty"`
-	Region []*CodeableConcept `json:"region,omitempty"`
-	Phase *CodeableConcept `json:"phase,omitempty"`
-	PrimaryPurposeType *CodeableConcept `json:"primaryPurposeType,omitempty"`
 	Site TypedObject `json:"site"`
-	Name *string `json:"name,omitempty"`
-	DescriptionSummary *string `json:"descriptionSummary,omitempty"`
-	ComparisonGroup []*ResearchStudyComparisonGroup `json:"comparisonGroup,omitempty"`
-	Language *string `json:"language,omitempty"`
-	Note []*Annotation `json:"note,omitempty"`
-	Date *string `json:"date,omitempty"`
+	Keyword []*CodeableConcept `json:"keyword,omitempty"`
+	StudyDesign []*CodeableConcept `json:"studyDesign,omitempty"`
 	Condition []*CodeableConcept `json:"condition,omitempty"`
 	Meta *Meta `json:"meta,omitempty"`
-	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
-	Period *Period `json:"period,omitempty"`
-	PartOf *ResearchStudyType `json:"partOf"`
-	Extension []*Extension `json:"extension,omitempty"`
-	Contained TypedObject `json:"contained,omitempty"`
-	StudyDesign []*CodeableConcept `json:"studyDesign,omitempty"`
-	Text *Narrative `json:"text,omitempty"`
-	OutcomeMeasure []*ResearchStudyOutcomeMeasure `json:"outcomeMeasure,omitempty"`
-	ID *string `json:"id,omitempty"`
-	WhyStopped *CodeableConcept `json:"whyStopped,omitempty"`
-	URL *string `json:"url,omitempty"`
-	Description *string `json:"description,omitempty"`
-	RelatedArtifact []*RelatedArtifact `json:"relatedArtifact,omitempty"`
-	Focus []*CodeableReference `json:"focus,omitempty"`
-	Result TypedObject `json:"result"`
 	Version *string `json:"version,omitempty"`
+	Status *string `json:"status,omitempty"`
+	Contained TypedObject `json:"contained,omitempty"`
+	Period *Period `json:"period,omitempty"`
 	ProgressStatus []*ResearchStudyProgressStatus `json:"progressStatus,omitempty"`
+	Identifier []*Identifier `json:"identifier,omitempty"`
+	ImplicitRules *string `json:"implicitRules,omitempty"`
+	Phase *CodeableConcept `json:"phase,omitempty"`
+	Date *string `json:"date,omitempty"`
+	ComparisonGroup []*ResearchStudyComparisonGroup `json:"comparisonGroup,omitempty"`
+	Title *string `json:"title,omitempty"`
+	Name *string `json:"name,omitempty"`
+	RelatedArtifact []*RelatedArtifact `json:"relatedArtifact,omitempty"`
+	Label []*ResearchStudyLabel `json:"label,omitempty"`
+	URL *string `json:"url,omitempty"`
+	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	Description *string `json:"description,omitempty"`
+	OutcomeMeasure []*ResearchStudyOutcomeMeasure `json:"outcomeMeasure,omitempty"`
+	Result TypedObject `json:"result"`
+	Extension []*Extension `json:"extension,omitempty"`
+	Note []*Annotation `json:"note,omitempty"`
+	ID *string `json:"id,omitempty"`
+	Objective []*ResearchStudyObjective `json:"objective,omitempty"`
+	PartOf *ResearchStudyType `json:"partOf"`
+	PrimaryPurposeType *CodeableConcept `json:"primaryPurposeType,omitempty"`
+	Language *string `json:"language,omitempty"`
+	DescriptionSummary *string `json:"descriptionSummary,omitempty"`
+	WhyStopped *CodeableConcept `json:"whyStopped,omitempty"`
+	Region []*CodeableConcept `json:"region,omitempty"`
+	Focus []*CodeableReference `json:"focus,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
 }
 
@@ -57,43 +57,43 @@ func (o *ResearchStudyType) UnmarshalJSON(b []byte) error {
 	}
 
 	*o = ResearchStudyType{
-		Title: safe.Title,
+		Recruitment: safe.Recruitment,
+		Text: safe.Text,
 		Classifier: safe.Classifier,
 		AssociatedParty: safe.AssociatedParty,
-		Label: safe.Label,
-		ImplicitRules: safe.ImplicitRules,
-		Status: safe.Status,
-		Recruitment: safe.Recruitment,
 		Keyword: safe.Keyword,
-		ResourceType: safe.ResourceType,
-		Objective: safe.Objective,
-		Identifier: safe.Identifier,
-		Region: safe.Region,
-		Phase: safe.Phase,
-		PrimaryPurposeType: safe.PrimaryPurposeType,
-		Name: safe.Name,
-		DescriptionSummary: safe.DescriptionSummary,
-		ComparisonGroup: safe.ComparisonGroup,
-		Language: safe.Language,
-		Note: safe.Note,
-		Date: safe.Date,
+		StudyDesign: safe.StudyDesign,
 		Condition: safe.Condition,
 		Meta: safe.Meta,
-		ModifierExtension: safe.ModifierExtension,
-		Period: safe.Period,
-		PartOf: safe.PartOf,
-		Extension: safe.Extension,
-		StudyDesign: safe.StudyDesign,
-		Text: safe.Text,
-		OutcomeMeasure: safe.OutcomeMeasure,
-		ID: safe.ID,
-		WhyStopped: safe.WhyStopped,
-		URL: safe.URL,
-		Description: safe.Description,
-		RelatedArtifact: safe.RelatedArtifact,
-		Focus: safe.Focus,
 		Version: safe.Version,
+		Status: safe.Status,
+		Period: safe.Period,
 		ProgressStatus: safe.ProgressStatus,
+		Identifier: safe.Identifier,
+		ImplicitRules: safe.ImplicitRules,
+		Phase: safe.Phase,
+		Date: safe.Date,
+		ComparisonGroup: safe.ComparisonGroup,
+		Title: safe.Title,
+		Name: safe.Name,
+		RelatedArtifact: safe.RelatedArtifact,
+		Label: safe.Label,
+		URL: safe.URL,
+		ModifierExtension: safe.ModifierExtension,
+		ResourceType: safe.ResourceType,
+		Description: safe.Description,
+		OutcomeMeasure: safe.OutcomeMeasure,
+		Extension: safe.Extension,
+		Note: safe.Note,
+		ID: safe.ID,
+		Objective: safe.Objective,
+		PartOf: safe.PartOf,
+		PrimaryPurposeType: safe.PrimaryPurposeType,
+		Language: safe.Language,
+		DescriptionSummary: safe.DescriptionSummary,
+		WhyStopped: safe.WhyStopped,
+		Region: safe.Region,
+		Focus: safe.Focus,
 		AuthResourcePath: safe.AuthResourcePath,
 	}
 	if err := unmarshalUnion(b, "site", safe.Site.Typename, &o.Site); err != nil {

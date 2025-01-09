@@ -16,6 +16,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/vektah/gqlparser/v2 v2.5.20
 	go.mongodb.org/mongo-driver v1.11.9
+	golang.org/x/exp v0.0.0-20240707233637-46b078467d37
 	google.golang.org/protobuf v1.35.2
 )
 
@@ -79,7 +80,6 @@ require (
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240424034433-3c2c7870ae76 // indirect
 	golang.org/x/crypto v0.30.0 // indirect
-	golang.org/x/exp v0.0.0-20240707233637-46b078467d37 // indirect
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/net v0.32.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect

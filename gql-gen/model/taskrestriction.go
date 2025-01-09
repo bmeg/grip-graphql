@@ -11,7 +11,7 @@ type SafeTaskRestriction struct {
 	ModifierExtension []*Extension `json:"modifierExtension,omitempty"`
 	Period *Period `json:"period,omitempty"`
 	Recipient TypedObject `json:"recipient"`
-	Repetitions *string `json:"repetitions,omitempty"`
+	Repetitions *int `json:"repetitions,omitempty"`
 	ResourceType *string `json:"resourceType,omitempty"`
 	Extension []*Extension `json:"extension,omitempty"`
 	AuthResourcePath *string `json:"auth_resource_path,omitempty"`
