@@ -2,31 +2,27 @@ package graph
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/gripql/inspect"
-	"google.golang.org/protobuf/types/known/structpb"
 )
 
 func applyAuthFilters(q **gripql.Query, authList []any) {
 	Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{gripql.Within("auth_resource_path", authList...)}}
 	steps := inspect.PipelineSteps((*q).Statements)
-	//fmt.Println("STEPS: ", steps)
 	FilteredGS := []*gripql.GraphStatement{}
 	step_value := 0
+
 	for i, v := range (*q).Statements {
-		//fmt.Println("statement v: ", v)
 		steps_index, _ := strconv.Atoi(steps[i])
-		if i == 0 {
+		if i == 0 || steps_index <= step_value {
 			FilteredGS = append(FilteredGS, v)
-			continue
-		} else if steps_index > step_value {
+		} else {
 			FilteredGS = append(FilteredGS, v, Has_Statement)
 			step_value++
-		} else {
-			FilteredGS = append(FilteredGS, v)
 		}
 	}
 	(*q).Statements = FilteredGS
@@ -49,63 +45,30 @@ func applyDefaultFilters(q **gripql.Query, args map[string]any) {
 }
 
 func (rt *renderTree) applyUnwinds(query **gripql.Query) {
-	/* Assumes query is at f0 and only applies unwinds to that node currently*/
-	for _, val := range rt.rFieldPaths["f0"].unwindPath {
-		*query = (*query).Unwind(val)
+	for _, value := range rt.rFieldPaths["f0"].unwindPath {
+		*query = (*query).Unwind(value)
 	}
 }
 
-/*
-Note since this function only has access to one row at a time it cannot merge
-the rows and do a full rewind it can only add list objects to make it valid with the existing schema.
-TODO: create proper merge function in grip
-*/
 func (rt *renderTree) applyRewinds(query **gripql.Query) error {
-	/*
-		Applies a JS function to every row in the grip query
-		Args:
-			x - input row object
-			args - user defined function args used in the function
-	*/
-	jsfunc := `
-function RewindObj(x, args) {
-  args.paths.sort((a, b) => b.split('.').length - a.split('.').length);
-  args.paths.forEach(path => {
-    const keys = path.split('.');
-    let current = x;
+	// sort fields so that toType operations are done first then groups
 
-    for (let i = 0; i < keys.length - 1; i++) {
-      if (current[keys[i]] === undefined) {
-        return;
-      }
-      current = current[keys[i]];
-    }
+	sort.Slice(rt.rFieldPaths["f0"].unwindPath, func(i, j int) bool {
+		return len(strings.Split(rt.rFieldPaths["f0"].unwindPath[i], "."))-len(strings.Split(rt.rFieldPaths["f0"].unwindPath[j], ".")) > 0
+	})
 
-    const lastKey = keys[keys.length - 1];
-    if (current[lastKey] !== undefined && !Array.isArray(current[lastKey])) {
-      current[lastKey] = [current[lastKey]];
-    }
-  });
-
-  return [x];
-}
-`
-
-	fields := make(map[string]*structpb.Value)
-	values := make([]*structpb.Value, len(rt.rFieldPaths["f0"].unwindPath))
-	for i, p := range rt.rFieldPaths["f0"].unwindPath {
-		values[i] = structpb.NewStringValue(p)
+	for _, value := range rt.rFieldPaths["f0"].unwindPath {
+		if !strings.Contains(value, ".") {
+			*query = (*query).Group(map[string]string{value: "$f0." + value})
+		} else {
+			*query = (*query).ToType("$f0."+value, "list")
+		}
 	}
-
-	fields["paths"] = structpb.NewListValue(&structpb.ListValue{Values: values})
-	pbStruct := &structpb.Struct{Fields: fields}
-	*query = (*query).FlatMap(&gripql.Code{Function: "RewindObj", Source: jsfunc, Args: pbStruct})
 	return nil
 }
 
 func (rt *renderTree) applyFilters(query **gripql.Query, filter map[string]any) error {
 	//Todo: support "sort" operations
-
 	rt.applyUnwinds(query)
 	*query = (*query).As("f0")
 	chainedFilter, err := applyJsonFilter(filter)
