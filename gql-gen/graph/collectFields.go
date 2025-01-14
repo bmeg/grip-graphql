@@ -9,6 +9,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bmeg/grip/gripql"
+	"github.com/bmeg/grip/log"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -101,20 +102,15 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 	q := gripql.V().HasLabel(sourceType[:len(sourceType)-4]).As("f0")
 	queryBuild(&q, resctx.Field.Selections, "f0", rt, "", rt.rTree)
 
-	fmt.Printf("RNAME TREE: %#v\n", rt.rFieldPaths)
-	fmt.Printf("R TREE: %#v\n", rt.rTree)
+	log.Infof("RNAME TREE: %#v\n", rt.rFieldPaths)
+	log.Infof("R TREE: %#v\n", rt.rTree)
 
-	render := make(map[string]any, len(rt.rFieldPaths))
-	for checkpoint, paths := range rt.rFieldPaths {
-		checkpointPrefix := "$" + checkpoint + "."
-		for _, path := range paths.path {
-			render[checkpointPrefix+path] = checkpointPrefix + path
-		}
-	}
+	renderTree := make(map[string]any, len(rt.rTree))
+	buildRenderTree(renderTree, rt.rTree)
 
-	fmt.Println("RENDER: ", render)
+	log.Infof("ARGS: %#v\n", resctx.Args)
+	log.Infof("RENDER: \n", renderTree)
 	q = q.Select("f0")
-	fmt.Printf("ARGS: %#v\n", resctx.Args)
 
 	if filter, ok := resctx.Args["filter"]; ok {
 		if filter != nil && len(filter.(map[string]any)) > 0 {
@@ -136,28 +132,28 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 	// apply default filters after main filters so that all data can be considered in filter before apply filter statements
 	applyDefaultFilters(&q, resctx.Args)
 
-	q = q.Render(render)
-	fmt.Println("QUERY AFTER RENDER: ", q)
+	q = q.Render(renderTree)
+	log.Infoln("QUERY AFTER RENDER: ", q)
 
 	result, err := r.GripDb.Traversal(context.Background(), &gripql.GraphQuery{Graph: r.Graph, Query: q.Statements})
 	if err != nil {
 		return nil, fmt.Errorf("Traversal Error: %s", err)
 	}
 
-	// Build response tree once, traverse/populate it len(result) times
-	responseTree := make(map[string]any, len(rt.rTree))
-	buildResponseTree(responseTree, rt.rTree)
-	fmt.Println("CACHED TREE: ", responseTree)
+	log.Infoln("QUERY AFTER TRAVERSAL")
 
 	out := []any{}
 	for r := range result {
-		out = append(out, populateResponseTree(responseTree, r.GetRender().GetStructValue().AsMap()))
+		out = append(out, r.GetRender().GetStructValue().AsMap())
 	}
+
+	log.Infoln("QUERY AFTER RESULT")
+
 	return out, nil
 }
 
-func buildResponseTree(output map[string]any, renderTree map[string]any) {
-	/* Build the skeleton of the response tree without filling in the values */
+func buildRenderTree(output map[string]any, renderTree map[string]any) {
+	/* Build the render tree to be used in grip render step */
 	for key, val := range renderTree {
 		switch v := val.(type) {
 		case renderTreePath:
@@ -167,47 +163,17 @@ func buildResponseTree(output map[string]any, renderTree map[string]any) {
 				if next, exists := current[renderKey]; exists {
 					current = next.(map[string]any)
 				} else {
-					current[renderKey] = nil
+					current[fieldPath] = renderKey
 				}
 			}
 		case map[string]any:
 			subTree := make(map[string]any)
-			buildResponseTree(subTree, v)
+			buildRenderTree(subTree, v)
 			output[key] = subTree
 		case string:
-			if key == "__typename" {
-				output[key] = val
-			} else {
-				fmt.Printf("Unexpected type: %T\n", val)
-			}
+			output[key] = val
 		default:
 			fmt.Printf("Unexpected type: %T\n", val)
 		}
 	}
-}
-
-func populateResponseTree(cachedTree, values map[string]any) map[string]any {
-	/* fill in the values of the given response tree */
-	output := make(map[string]any, len(cachedTree))
-	for key, val := range cachedTree {
-		switch v := val.(type) {
-		case map[string]any:
-			if filteredSubTree := populateResponseTree(v, values); len(filteredSubTree) > 0 {
-				output[key] = filteredSubTree
-			}
-		case nil:
-			if renderedValue, exists := values[key]; exists {
-				// Remove render prefix so that output prop key name matches schema
-				keySuffix := key[strings.IndexByte(key, '.')+1:]
-				if strValue, ok := renderedValue.(string); ok && key == strValue {
-					output[keySuffix] = nil
-				} else {
-					output[keySuffix] = renderedValue
-				}
-			}
-		default:
-			output[key] = val
-		}
-	}
-	return output
 }
