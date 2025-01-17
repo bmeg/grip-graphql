@@ -664,12 +664,12 @@ func Test_Graphql_Bad_Filter_Logical_Operator(t *testing.T) {
 							"orr": [
 								{
 									"!=": {
-										"processing.method.coding.display": "some code"
+										"Specimen.processing.method.coding.display": "some code"
 									}
 								},
 								{
 									">": {
-										"collection.bodySite.concept.coding.code": "123456"
+										"Specimen.collection.bodySite.concept.coding.code": "123456"
 									}
 								}
 							]
@@ -720,19 +720,19 @@ func Test_Graphql_Filter_Ok(t *testing.T) {
 									"and": [
 										{
 											">": {
-												"component.valueInteger": "364"
+												"Observation.component.valueInteger": "364"
 											}
 										},
 										{
 											"=": {
-												"component.code.coding.code": "indexed_collection_date"
+												"Observation.component.code.coding.code": "indexed_collection_date"
 											}
 										}
 									]
 								},
 								{
 									"!=": {
-										"id": "21f3411d-89a4-4bcc-9ce7-b76edb1c745f"
+										"Observation.id": "21f3411d-89a4-4bcc-9ce7-b76edb1c745f"
 									}
 								}
 							]
@@ -928,6 +928,59 @@ func Test_Nested_Edge_Traversal_Ok(t *testing.T) {
 		}
 		if obs_docref_specimen_id == "50c67a06-ea2d-4d24-9249-418dc77a16a9" {
 			t.Error("Non test project row detected. Auth filtering failed")
+		}
+	}
+}
+
+func Test_Nested_Edge_Traversal_Filter_Ok(t *testing.T) {
+	payload := strings.ReplaceAll(`{
+	    "query": "query($filter: JSON){observation(filter: $filter first:10){id component{ valueInteger code{ coding{ code}}} 	focus {... on DocumentReferenceType {id auth_resource_path content { attachment { extension { url valueString valueUrl}}}}}}}",
+	    "variables": {
+						"filter": {
+							"or": [
+								{
+									"and": [
+										{
+											"=": {
+												"Observation.component.code.coding.code": "indexed_collection_date"
+											}
+										}
+									]
+								},
+								{
+									"!=": {
+										"DocumentReference.content.attachment.extension.valueString": "227f0a5379362d42eaa1814cfc0101b8"
+									}
+								}
+							]
+						}
+					}}`, "\t", "")
+	req := &Request{
+		url:    "http://localhost:8201/graphql/query",
+		method: "POST",
+		headers: map[string]any{
+			"Authorization": createToken(false, false, true),
+			"Content-Type":  "application/json"},
+		body: []byte(payload),
+	}
+
+	response, status := TemplateRequest(req, t)
+	t.Log("RESP: ", response)
+	if !status {
+		t.Error("Status returned false: ", response)
+	}
+
+	data, ok := response["data"].(map[string]any)["observation"].([]any)
+	if !ok {
+		t.Error("observation index not found in data")
+	}
+	for _, row := range data {
+		valueString, ok := row.(map[string]any)["focus"].(map[string]any)["content"].([]any)[0].(map[string]any)["attachment"].(map[string]any)["extension"].([]any)[0].(map[string]any)["valueString"]
+		if !ok {
+			t.Error("error in traversal, docref doesn't contain valuestring")
+		}
+		if valueString == "227f0a5379362d42eaa1814cfc0101b8" {
+			t.Error("filter asks for value string to not be 227f0a5379362d42eaa1814cfc0101b8 yet valuestring is 227f0a5379362d42eaa1814cfc0101b8")
 		}
 	}
 }

@@ -86,6 +86,11 @@ Current supported comparator statements:
 | "lte", "<=" | less than or equal             |
 | "in"        | value is in the list of values |
 
+Filter keys must be of form TYPE.jsonPath where TYPE is the vertex name without the 'Type' suffix and jsonpath is a '.' delimited path to
+the field that will be filtered on. So for example in 'Specimen.processing.method.coding.display' Specimen is short for SpecimenType which is the vertex that is being filtered and 'processing.method.coding.display' is the path to the field that is filtered.
+
+Nested filtering is supported and can be done by specifying nested queried node types instead of the root node type.
+
 Example query using random SNOMED codings:
 
 ```
@@ -96,19 +101,19 @@ Example query using random SNOMED codings:
 				"or": [
 					{
 						"=": {
-							"processing.method.coding.display": "Brief intervention"
+							"Specimen.processing.method.coding.display": "Brief intervention"
 						}
 					},
 					{
 						"=": {
-							"processing.method.coding.display": "Cuboid syndrome"
+							"Specimen.processing.method.coding.display": "Cuboid syndrome"
 						}
 					}
 				]
 			},
 			{
 				">": {
-					"collection.bodySite.concept.coding.code": "261665006"
+					"Specimen.collection.bodySite.concept.coding.code": "261665006"
 				}
 			}
 		]

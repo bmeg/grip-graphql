@@ -8,9 +8,11 @@ import (
 
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/gripql/inspect"
+	"github.com/bmeg/grip/log"
 )
 
 func applyAuthFilters(q **gripql.Query, authList []any) {
+	/* Applies gen3 RBAC auth filters to the query */
 	Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{gripql.Within("auth_resource_path", authList...)}}
 	steps := inspect.PipelineSteps((*q).Statements)
 	FilteredGS := []*gripql.GraphStatement{}
@@ -45,7 +47,8 @@ func applyDefaultFilters(q **gripql.Query, args map[string]any) {
 }
 
 func (rt *renderTree) applyRewinds(query **gripql.Query) {
-	for f, paths := range rt.rActualUnwinds {
+	/* Applies rewinds negating unwinds so that output data list structures are preserved */
+	for f, paths := range rt.rUnwinds {
 		*query = (*query).Select(f)
 		// sort fields so that toType operations are done first then groups
 		sort.Slice(paths, func(i, j int) bool {
@@ -64,11 +67,12 @@ func (rt *renderTree) applyRewinds(query **gripql.Query) {
 }
 
 func (rt *renderTree) applyFilters(query **gripql.Query, filter map[string]any) error {
-	//Todo: support "sort" operations
-	chainedFilter, err := applyJsonFilter(filter)
+	/* Applies json filters to query as one Has statment at the end of the traversal */
+	chainedFilter, err := rt.makeJsonFilter(filter)
 	if err != nil {
 		return err
 	}
+	log.Infof("Has Filter: %v\n", chainedFilter)
 
 	*query = (*query).Has(chainedFilter)
 	rt.applyRewinds(query)
@@ -115,7 +119,8 @@ func getUnwinds(filter map[string]any) ([]string, error) {
 	}
 }
 
-func applyJsonFilter(filter map[string]any) (*gripql.HasExpression, error) {
+func (rt *renderTree) makeJsonFilter(filter map[string]any) (*gripql.HasExpression, error) {
+	/* Constructs the Grip Has expression used to do json filters */
 	topLevelOp := ""
 	for key := range filter {
 		topLevelOp = key
@@ -131,7 +136,7 @@ func applyJsonFilter(filter map[string]any) (*gripql.HasExpression, error) {
 			if !ok {
 				return nil, fmt.Errorf("invalid nested filter structure")
 			}
-			subExpr, err := applyJsonFilter(itemObj)
+			subExpr, err := rt.makeJsonFilter(itemObj)
 			if err != nil {
 				return nil, err
 			}
@@ -162,8 +167,14 @@ func applyJsonFilter(filter map[string]any) (*gripql.HasExpression, error) {
 			field = key
 			break
 		}
-
-		hasExpr, err := mapGraphQLOperatorToGrip(field, topFilter[field], topLevelOp)
+		if !strings.Contains(field, ".") {
+			return nil, fmt.Errorf("filter key '%s' must be of format TYPE.property", field)
+		}
+		formattedField, err := rt.formatField(field)
+		if err != nil {
+			return nil, err
+		}
+		hasExpr, err := mapGraphQLOperatorToGrip(formattedField, topFilter[field], topLevelOp)
 		if err != nil {
 			return nil, err
 		}
@@ -172,7 +183,19 @@ func applyJsonFilter(filter map[string]any) (*gripql.HasExpression, error) {
 	}
 }
 
+func (rt *renderTree) formatField(field string) (string, error) {
+	/* Swaps input field like Observation into traversal state '$fn'*/
+	filestrs := strings.Split(field, ".")
+	f, ok := rt.fLookup[filestrs[0]]
+	if !ok {
+		return "", fmt.Errorf("node type %s not found in traversal types %s", filestrs[0], rt.fLookup)
+	}
+	filestrs[0] = "$" + f
+	return strings.Join(filestrs, "."), nil
+}
+
 func mapGraphQLOperatorToGrip(field string, value any, op string) (*gripql.HasExpression, error) {
+	/* Translates query operator into Grip Has Expression filter operation */
 	switch strings.ToLower(op) {
 	case "eq", "=":
 		return gripql.Eq(field, value), nil
@@ -189,6 +212,6 @@ func mapGraphQLOperatorToGrip(field string, value any, op string) (*gripql.HasEx
 	case "in":
 		return gripql.Within(field, value), nil
 	default:
-		return nil, fmt.Errorf("Operator %s does not match any of the known operators\n", op)
+		return nil, fmt.Errorf("Operator %s does not match any of the known operators", op)
 	}
 }

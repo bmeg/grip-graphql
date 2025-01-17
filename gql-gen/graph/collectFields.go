@@ -20,12 +20,12 @@ type Resolver struct {
 }
 
 type renderTree struct {
-	prevName          string
-	moved             bool
-	rFieldPaths       map[string][]string
-	rTree             map[string]interface{}
-	rPotentialUnwinds []string
-	rActualUnwinds    map[string][]string
+	prevName    string
+	moved       bool
+	fLookup     map[string]string
+	rFieldPaths map[string][]string
+	rTree       map[string]interface{}
+	rUnwinds    map[string][]string
 }
 
 func (rt *renderTree) NewElement() string {
@@ -35,6 +35,8 @@ func (rt *renderTree) NewElement() string {
 }
 
 func containedinSubstr(pUnwinds []string, path string) bool {
+	/* Compares list of  potential unwind filter paths to currenet path to determine wether
+	current path needs to be unwound or not*/
 	paths := strings.Split(path, ".")
 
 	for _, unwind := range pUnwinds {
@@ -53,7 +55,7 @@ func containedinSubstr(pUnwinds []string, path string) bool {
 }
 
 func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string, rt *renderTree, parentPath string, currentTree map[string]any) {
-	// Recursively traverses AST and build grip query, renders field tree
+	// Recursively traverses AST and build grip query and populate many fields in renderTree object
 	for _, s := range selSet {
 		switch sel := s.(type) {
 		case *ast.Field:
@@ -80,18 +82,13 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 					}
 				}
 				if !exists {
-					rPath := rt.rFieldPaths[curElement]
-					rPath = append(rPath, firstTerm)
-					rt.rFieldPaths[curElement] = rPath
+					rt.rFieldPaths[curElement] = append(rt.rFieldPaths[curElement], firstTerm)
 				}
 				currentTree[curElement] = rt.rFieldPaths[curElement]
 			} else {
-				fmt.Println("UNWINDS: ", rt.rPotentialUnwinds, "NEWPPATH", newParentPath, "NODE: ", len(rt.rFieldPaths))
-				if sel.Definition.Type.Elem != nil && containedinSubstr(rt.rPotentialUnwinds, newParentPath) {
+				if sel.Definition.Type.Elem != nil && containedinSubstr(rt.rUnwinds["potential"], newParentPath) {
 					fval := fmt.Sprintf("f%d", len(rt.rFieldPaths)-1)
-					aunwinds := rt.rActualUnwinds[fval]
-					aunwinds = append(aunwinds, newParentPath)
-					rt.rActualUnwinds[fval] = aunwinds
+					rt.rUnwinds[fval] = append(rt.rUnwinds[fval], newParentPath)
 					*query = (*query).Unwind(newParentPath)
 					*query = (*query).As(fval)
 				}
@@ -100,6 +97,7 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 		case *ast.InlineFragment:
 			elem := rt.NewElement()
 			if _, exists := currentTree[rt.prevName]; !exists {
+				rt.fLookup[sel.TypeCondition[:len(sel.TypeCondition)-4]] = elem
 				currentTree[rt.prevName] = map[string]any{"__typename": sel.TypeCondition}
 			}
 			fragmentTree := currentTree[rt.prevName].(map[string]interface{})
@@ -122,17 +120,18 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 			return nil, err
 		}
 	}
-	rt := &renderTree{
-		rActualUnwinds:    map[string][]string{},
-		rPotentialUnwinds: unwinds,
-		rFieldPaths:       map[string][]string{},
-		rTree:             map[string]any{},
-	}
-	q := gripql.V().HasLabel(sourceType[:len(sourceType)-4]).As("f0")
-	queryBuild(&q, resctx.Field.Selections, "f0", rt, "", rt.rTree)
-	fmt.Println("ACTUAL UNWINDS: ", rt.rActualUnwinds)
 
-	log.Infof("RNAME TREE: %#v\n", rt.rFieldPaths)
+	sourceRoot := sourceType[:len(sourceType)-4]
+	rt := &renderTree{
+		fLookup:     map[string]string{sourceRoot: "f0"},
+		rUnwinds:    map[string][]string{"potential": unwinds},
+		rFieldPaths: map[string][]string{},
+		rTree:       map[string]any{},
+	}
+	q := gripql.V().HasLabel(sourceRoot).As("f0")
+	queryBuild(&q, resctx.Field.Selections, "f0", rt, "", rt.rTree)
+	delete(rt.rUnwinds, "potential")
+
 	log.Infof("R TREE: %#v\n", rt.rTree)
 
 	renderTree := make(map[string]any, len(rt.rTree))
@@ -140,7 +139,6 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 
 	log.Infof("ARGS: %#v\n", resctx.Args)
 	log.Infof("RENDER: \n", renderTree)
-	q = q.Select("f0")
 
 	if filter, ok := resctx.Args["filter"]; ok {
 		if filter != nil && len(filter.(map[string]any)) > 0 {
@@ -170,15 +168,12 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 		return nil, fmt.Errorf("Traversal Error: %s", err)
 	}
 
-	log.Infoln("QUERY AFTER TRAVERSAL")
-
 	out := []any{}
 	for r := range result {
 		out = append(out, r.GetRender().GetStructValue().AsMap())
 	}
 
 	log.Infoln("QUERY AFTER RESULT")
-
 	return out, nil
 }
 
@@ -203,7 +198,7 @@ func buildRenderTree(output map[string]any, renderTree map[string]any) {
 		case string:
 			output[key] = val
 		default:
-			fmt.Printf("Unexpected type: %T\n", val)
+			log.Infof("Unexpected type: %T\n", val)
 		}
 	}
 }

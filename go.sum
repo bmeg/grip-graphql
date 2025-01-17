@@ -24,8 +24,8 @@ github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230512164433-5d1fd1a340c9/g
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 h1:jfIu9sQUG6Ig+0+Ap1h4unLjW6YQJpKZVmUzxsD4E/Q=
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0/go.mod h1:t2tdKJDJF9BV14lnkjHmOQgcvEKgtqs5a1N3LNdJhGE=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
-github.com/bmeg/grip v0.0.0-20250114170030-20e7f63fb720 h1:v/ESPTr9vb6uijv/VswPCAfvimtF/bCbEDPC/skzI0E=
-github.com/bmeg/grip v0.0.0-20250114170030-20e7f63fb720/go.mod h1:xBPjee1i7ZnwR9/UsHtblHyf7X7vAr5tFWTNtmtqmWg=
+github.com/bmeg/grip v0.0.0-20250117212733-0fc1119cf92d h1:cNqgSq6pwN7AxUiAlPSLAhXrPC3+HZrcps4VLKQWAUk=
+github.com/bmeg/grip v0.0.0-20250117212733-0fc1119cf92d/go.mod h1:xBPjee1i7ZnwR9/UsHtblHyf7X7vAr5tFWTNtmtqmWg=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad h1:ICgBexeLB7iv/IQz4rsP+MimOXFZUwWSPojEypuOaQ8=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad/go.mod h1:ft96Irkp72C7ZrUWRenG7LrF0NKMxXdRvsypo5Njhm4=
 github.com/bufbuild/protovalidate-go v0.4.0 h1:ModSkCLEW07fiyGtdtMXKY+Gz3oPFKSfiaSCgL+FtpU=
