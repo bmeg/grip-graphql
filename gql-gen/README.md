@@ -24,7 +24,7 @@ go run github.com/99designs/gqlgen generate
 To start server with no auth checks for local development run:
 
 ```
-grip server -w graphql=gql-gen.so  -l graphql:auth=false
+grip server -w graphql=gql-gen.so  -l graphql:auth=false -l graphql:graph=CALIPER
 ```
 
 ## Filters

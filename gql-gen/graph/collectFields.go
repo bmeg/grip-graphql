@@ -19,22 +19,37 @@ type Resolver struct {
 	Schema *ast.Schema
 }
 
-type renderTreePath struct {
-	path       []string
-	unwindPath []string
-}
-
 type renderTree struct {
-	prevName    string
-	moved       bool
-	rFieldPaths map[string]renderTreePath
-	rTree       map[string]interface{}
+	prevName          string
+	moved             bool
+	rFieldPaths       map[string][]string
+	rTree             map[string]interface{}
+	rPotentialUnwinds []string
+	rActualUnwinds    map[string][]string
 }
 
 func (rt *renderTree) NewElement() string {
 	rName := fmt.Sprintf("f%d", len(rt.rFieldPaths))
-	rt.rFieldPaths[rName] = renderTreePath{path: []string{}, unwindPath: []string{}}
+	rt.rFieldPaths[rName] = []string{}
 	return rName
+}
+
+func containedinSubstr(pUnwinds []string, path string) bool {
+	paths := strings.Split(path, ".")
+
+	for _, unwind := range pUnwinds {
+		unwindParts := strings.Split(unwind, ".")
+		j := 0
+		for i := 0; i < len(unwindParts) && j < len(paths); i++ {
+			if unwindParts[i] == paths[j] {
+				j++
+			}
+		}
+		if j == len(paths) {
+			return true
+		}
+	}
+	return false
 }
 
 func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string, rt *renderTree, parentPath string, currentTree map[string]any) {
@@ -58,7 +73,7 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 					firstTerm = newParentPath[:dotIndex]
 				}
 				exists := false
-				for _, term := range rt.rFieldPaths[curElement].path {
+				for _, term := range rt.rFieldPaths[curElement] {
 					if term == firstTerm {
 						exists = true
 						break
@@ -66,15 +81,19 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 				}
 				if !exists {
 					rPath := rt.rFieldPaths[curElement]
-					rPath.path = append(rPath.path, firstTerm)
+					rPath = append(rPath, firstTerm)
 					rt.rFieldPaths[curElement] = rPath
 				}
 				currentTree[curElement] = rt.rFieldPaths[curElement]
 			} else {
-				if sel.Definition.Type.Elem != nil {
-					rPath := rt.rFieldPaths[curElement]
-					rPath.unwindPath = append(rPath.unwindPath, newParentPath)
-					rt.rFieldPaths[curElement] = rPath
+				fmt.Println("UNWINDS: ", rt.rPotentialUnwinds, "NEWPPATH", newParentPath, "NODE: ", len(rt.rFieldPaths))
+				if sel.Definition.Type.Elem != nil && containedinSubstr(rt.rPotentialUnwinds, newParentPath) {
+					fval := fmt.Sprintf("f%d", len(rt.rFieldPaths)-1)
+					aunwinds := rt.rActualUnwinds[fval]
+					aunwinds = append(aunwinds, newParentPath)
+					rt.rActualUnwinds[fval] = aunwinds
+					*query = (*query).Unwind(newParentPath)
+					*query = (*query).As(fval)
 				}
 				queryBuild(query, sel.SelectionSet, curElement, rt, newParentPath, currentTree)
 			}
@@ -95,12 +114,23 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 
 func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType string) ([]any, error) {
 	resctx := graphql.GetFieldContext(ctx)
+	unwinds := []string{}
+	var err error
+	if filter, ok := resctx.Args["filter"].(map[string]any); ok && filter != nil {
+		unwinds, err = getUnwinds(filter)
+		if err != nil {
+			return nil, err
+		}
+	}
 	rt := &renderTree{
-		rFieldPaths: map[string]renderTreePath{"f0": renderTreePath{path: []string{}, unwindPath: []string{}}},
-		rTree:       map[string]any{},
+		rActualUnwinds:    map[string][]string{},
+		rPotentialUnwinds: unwinds,
+		rFieldPaths:       map[string][]string{},
+		rTree:             map[string]any{},
 	}
 	q := gripql.V().HasLabel(sourceType[:len(sourceType)-4]).As("f0")
 	queryBuild(&q, resctx.Field.Selections, "f0", rt, "", rt.rTree)
+	fmt.Println("ACTUAL UNWINDS: ", rt.rActualUnwinds)
 
 	log.Infof("RNAME TREE: %#v\n", rt.rFieldPaths)
 	log.Infof("R TREE: %#v\n", rt.rTree)
@@ -156,8 +186,8 @@ func buildRenderTree(output map[string]any, renderTree map[string]any) {
 	/* Build the render tree to be used in grip render step */
 	for key, val := range renderTree {
 		switch v := val.(type) {
-		case renderTreePath:
-			for _, fieldPath := range v.path {
+		case []string:
+			for _, fieldPath := range v {
 				current := output
 				renderKey := "$" + key + "." + fieldPath
 				if next, exists := current[renderKey]; exists {

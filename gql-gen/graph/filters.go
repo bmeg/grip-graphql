@@ -44,46 +44,75 @@ func applyDefaultFilters(q **gripql.Query, args map[string]any) {
 	}
 }
 
-func (rt *renderTree) applyUnwinds(query **gripql.Query) {
-	for _, value := range rt.rFieldPaths["f0"].unwindPath {
-		*query = (*query).Unwind(value)
-	}
-}
-
-func (rt *renderTree) applyRewinds(query **gripql.Query) error {
-	// sort fields so that toType operations are done first then groups
-
-	sort.Slice(rt.rFieldPaths["f0"].unwindPath, func(i, j int) bool {
-		return len(strings.Split(rt.rFieldPaths["f0"].unwindPath[i], "."))-len(strings.Split(rt.rFieldPaths["f0"].unwindPath[j], ".")) > 0
-	})
-
-	for _, value := range rt.rFieldPaths["f0"].unwindPath {
-		if !strings.Contains(value, ".") {
-			*query = (*query).Group(map[string]string{value: "$f0." + value})
-		} else {
-			*query = (*query).ToType("$f0."+value, "list")
+func (rt *renderTree) applyRewinds(query **gripql.Query) {
+	for f, paths := range rt.rActualUnwinds {
+		*query = (*query).Select(f)
+		// sort fields so that toType operations are done first then groups
+		sort.Slice(paths, func(i, j int) bool {
+			return len(strings.Split(paths[i], "."))-len(strings.Split(paths[j], ".")) > 0
+		})
+		for _, path := range paths {
+			jsonPath := "$" + f + "." + path
+			if !strings.Contains(path, ".") {
+				*query = (*query).Group(map[string]string{path: jsonPath})
+			} else {
+				*query = (*query).ToType(jsonPath, "list")
+			}
 		}
+		*query = (*query).As(f)
 	}
-	return nil
 }
 
 func (rt *renderTree) applyFilters(query **gripql.Query, filter map[string]any) error {
 	//Todo: support "sort" operations
-	rt.applyUnwinds(query)
-	*query = (*query).As("f0")
 	chainedFilter, err := applyJsonFilter(filter)
 	if err != nil {
 		return err
 	}
 
 	*query = (*query).Has(chainedFilter)
-	err = rt.applyRewinds(query)
-	if err != nil {
-		return err
-	}
-	*query = (*query).As("f0")
+	rt.applyRewinds(query)
 
 	return nil
+}
+
+func getUnwinds(filter map[string]any) ([]string, error) {
+	/* Returns a list of fields that may need to be unwound so that query builder can unwind as it builds the query */
+	topLevelOp := ""
+	for key := range filter {
+		topLevelOp = key
+		break
+	}
+	topLevelOpLowerCase := strings.ToLower(topLevelOp)
+
+	switch topLevelOpLowerCase {
+	case "and", "or":
+		var fieldPaths []string
+		for _, item := range filter[topLevelOp].([]any) {
+			itemObj, ok := item.(map[string]any)
+			if !ok {
+				return nil, fmt.Errorf("invalid nested filter structure")
+			}
+			subFieldPaths, err := getUnwinds(itemObj)
+			if err != nil {
+				return nil, err
+			}
+			fieldPaths = append(fieldPaths, subFieldPaths...)
+		}
+		return fieldPaths, nil
+
+	default:
+		field := ""
+		topFilter, ok := filter[topLevelOp].(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("invalid logical operator '%s'", topLevelOp)
+		}
+		for key := range topFilter {
+			field = key
+			break
+		}
+		return []string{field}, nil
+	}
 }
 
 func applyJsonFilter(filter map[string]any) (*gripql.HasExpression, error) {
