@@ -120,3 +120,41 @@ Example query using random SNOMED codings:
 	}
 }
 ```
+
+## Sort Filters
+
+Sort filters are specified in the top level type arguments. Their expected format is:
+
+```
+[
+  {
+    field: "JSON_PATH_STRING", descending: Boolean
+  }
+]
+```
+
+For example the below query contains a valid sort operation:
+
+```
+query {
+  observation(first: 1000000 sort: [{field:"DocumentReference.content[0].attachment.size" descending:true}]) {
+    id
+    focus {
+      ... on DocumentReferenceType {
+        id
+        auth_resource_path
+        content {
+          attachment {
+            extension {
+              url
+              valueString
+              valueUrl
+            }
+            size
+          }
+        }
+      }
+    }
+  }
+}
+```

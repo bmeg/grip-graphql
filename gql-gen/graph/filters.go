@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bmeg/grip-graphql/gql-gen/model"
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/gripql/inspect"
 	"github.com/bmeg/grip/log"
@@ -66,16 +67,40 @@ func (rt *renderTree) applyRewinds(query **gripql.Query) {
 	}
 }
 
+func (rt *renderTree) applySort(q **gripql.Query, sortings []*model.SortInput) error {
+	/*
+		sort must be in form -- sort: [
+		   {
+		     field: "field",
+			 descending: false
+		   }]
+
+		where field is a valid json path
+	*/
+	sortFields := gripql.Sorting{Fields: []*gripql.SortField{}}
+	for _, sort := range sortings {
+		path, err := rt.formatField(sort.Field)
+		if err != nil {
+			return err
+		}
+		sortFields.Fields = append(sortFields.Fields, &gripql.SortField{Field: path, Descending: *sort.Descending})
+	}
+
+	*q = (*q).Sort(sortFields.Fields)
+	log.Infof("Sort Filter: %v\n", sortFields.Fields)
+
+	return nil
+}
+
 func (rt *renderTree) applyFilters(query **gripql.Query, filter map[string]any) error {
 	/* Applies json filters to query as one Has statment at the end of the traversal */
 	chainedFilter, err := rt.makeJsonFilter(filter)
 	if err != nil {
 		return err
 	}
-	log.Infof("Has Filter: %v\n", chainedFilter)
 
 	*query = (*query).Has(chainedFilter)
-	rt.applyRewinds(query)
+	log.Infof("Has Filter: %v\n", chainedFilter)
 
 	return nil
 }

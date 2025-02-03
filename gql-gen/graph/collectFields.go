@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 
 	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/bmeg/grip-graphql/gql-gen/model"
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/log"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -19,7 +21,13 @@ type Resolver struct {
 	Schema *ast.Schema
 }
 
+type Args struct {
+	first  uint32
+	offset uint32
+}
+
 type renderTree struct {
+	args        map[string]Args
 	prevName    string
 	moved       bool
 	fLookup     map[string]string
@@ -91,7 +99,35 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 					rt.rUnwinds[fval] = append(rt.rUnwinds[fval], newParentPath)
 					*query = (*query).Unwind(newParentPath)
 					*query = (*query).As(fval)
+
 				}
+
+				first := sel.Arguments.ForName("first")
+				if first != nil {
+					uintFirst, err := strconv.ParseUint(first.Value.Raw, 10, 32)
+					if err != nil {
+						fmt.Println("ERR: ", err)
+						break
+					}
+					fieldPathsidx := fmt.Sprintf("f%d", len(rt.rFieldPaths))
+					arg := rt.args[fieldPathsidx]
+					arg.first = uint32(uintFirst)
+					rt.args[fieldPathsidx] = arg
+
+				}
+
+				offset := sel.Arguments.ForName("offset")
+				if offset != nil {
+					uintOffset, err := strconv.ParseUint(offset.Value.Raw, 10, 32)
+					if err != nil {
+						break
+					}
+					fieldPathsidx := fmt.Sprintf("f%d", len(rt.rFieldPaths))
+					arg := rt.args[fieldPathsidx]
+					arg.offset = uint32(uintOffset)
+					rt.args[fieldPathsidx] = arg
+				}
+
 				queryBuild(query, sel.SelectionSet, curElement, rt, newParentPath, currentTree)
 			}
 		case *ast.InlineFragment:
@@ -102,6 +138,12 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 			}
 			fragmentTree := currentTree[rt.prevName].(map[string]interface{})
 			*query = (*query).OutNull(rt.prevName + "_" + sel.TypeCondition[:len(sel.TypeCondition)-4]).As(elem)
+			if _, ok := rt.args[elem]; ok && rt.args[elem].first != 0 {
+				*query = (*query).Limit(rt.args[elem].first)
+			}
+			if _, ok := rt.args[elem]; ok && rt.args[elem].offset != 0 {
+				*query = (*query).Skip(rt.args[elem].offset)
+			}
 			queryBuild(query, sel.SelectionSet, elem, rt, "", fragmentTree)
 			rt.moved = true
 		default:
@@ -112,6 +154,7 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 
 func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType string) ([]any, error) {
 	resctx := graphql.GetFieldContext(ctx)
+
 	unwinds := []string{}
 	var err error
 	if filter, ok := resctx.Args["filter"].(map[string]any); ok && filter != nil {
@@ -123,6 +166,7 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 
 	sourceRoot := sourceType[:len(sourceType)-4]
 	rt := &renderTree{
+		args:        map[string]Args{},
 		fLookup:     map[string]string{sourceRoot: "f0"},
 		rUnwinds:    map[string][]string{"potential": unwinds},
 		rFieldPaths: map[string][]string{},
@@ -147,6 +191,19 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 				return nil, err
 			}
 		}
+	}
+	if sortings, ok := resctx.Args["sort"]; ok {
+		if listsortings, ok := sortings.([]*model.SortInput); ok {
+			if len(listsortings) > 0 {
+				err = rt.applySort(&q, listsortings)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+	if len(rt.rUnwinds) > 0 {
+		rt.applyRewinds(&q)
 	}
 
 	if os.Getenv("AUTH_ENABLED") == "true" {
