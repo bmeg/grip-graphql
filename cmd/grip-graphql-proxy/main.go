@@ -14,6 +14,7 @@ var gripServer = "localhost:8202"
 var serverPort = "8080"
 var configFile = "config.js"
 var graph = "test-db"
+var writable = false
 
 func main() {
 
@@ -23,10 +24,11 @@ func main() {
 	pflag.StringVar(&serverPort, "port", serverPort, "Proxy port")
 	pflag.StringVar(&configFile, "config", configFile, "Config")
 	pflag.StringVar(&graph, "graph", graph, "Graph")
+	pflag.BoolVar(&writable, "write", writable, "Allow Write")
 
 	pflag.Parse()
 
-	client, err := gripql.Connect(rpc.ConfigWithDefaults(gripServer), false)
+	client, err := gripql.Connect(rpc.ConfigWithDefaults(gripServer), writable)
 	if err != nil {
 		log.Errorf("Error: %s", err)
 	}
