@@ -1,5 +1,0 @@
-Default: mongo
-Drivers:
-  mongo:
-    MongoDB:
-      URL: mongodb://local-mongodb
