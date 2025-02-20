@@ -30,8 +30,8 @@ github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0/go.mod h1:t2tdK
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/bmeg/grip v0.0.0-20250203230556-54c6baa9a315 h1:5W0/gs9B5NXLMHaxvxygEBorQDdNvEX3PMgvZCeDrpk=
-github.com/bmeg/grip v0.0.0-20250203230556-54c6baa9a315/go.mod h1:afNS+svbAkFH3XUPjDIaKahT0F0GxAYsZim2bH+b0KU=
+github.com/bmeg/grip v0.0.0-20250220231158-c2adf0ef912c h1:0IL6Zyj7BWHw5i+Smb+4FjmlQv6ObZfXdxHMGpJhspw=
+github.com/bmeg/grip v0.0.0-20250220231158-c2adf0ef912c/go.mod h1:afNS+svbAkFH3XUPjDIaKahT0F0GxAYsZim2bH+b0KU=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad h1:ICgBexeLB7iv/IQz4rsP+MimOXFZUwWSPojEypuOaQ8=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad/go.mod h1:ft96Irkp72C7ZrUWRenG7LrF0NKMxXdRvsypo5Njhm4=
 github.com/bufbuild/protovalidate-go v0.4.0 h1:ModSkCLEW07fiyGtdtMXKY+Gz3oPFKSfiaSCgL+FtpU=
