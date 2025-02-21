@@ -6,16 +6,16 @@ ENV PATH="/go/bin:${PATH}"
 ADD ./ /go/src/github.com/bmeg/grip-graphql
 WORKDIR /go/src/github.com/bmeg/grip-graphql
 
-RUN go install github.com/bmeg/grip@c2adf0ef912c15152e87bfcc003f686e35949968
+RUN go install github.com/bmeg/grip@1415e5997112d17d3525ef825e3920655d270bc7
 RUN make all
 
-#FROM alpine
-#WORKDIR /data
-#VOLUME /data
-#ENV PATH="/app:${PATH}"
-#COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/gql-gen.so /data/
-#COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/gen3_writer.so /data/
-#COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/grip-graphql-endpoint.so /data/
-#COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/config/gen3.js /data/config/
-#COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/mongo.yml /data/
-#COPY --from=build-env /go/bin/grip /app/
+FROM alpine
+WORKDIR /data
+VOLUME /data
+ENV PATH="/app:${PATH}"
+COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/gql-gen.so /data/
+COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/gen3_writer.so /data/
+COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/grip-graphql-endpoint.so /data/
+COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/config/gen3.js /data/config/
+COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/mongo.yml /data/
+COPY --from=build-env /go/bin/grip /app/
