@@ -42,6 +42,8 @@ github.com/bmeg/grip v0.0.0-20250221173344-1415e5997112 h1:w/JUZqx3xrYLgkWhtWTDS
 github.com/bmeg/grip v0.0.0-20250221173344-1415e5997112/go.mod h1:afNS+svbAkFH3XUPjDIaKahT0F0GxAYsZim2bH+b0KU=
 github.com/bmeg/grip v0.0.0-20250221184207-3d80c14ed485 h1:yDqf3nkX8/dEUjtIQSivMmTsr2GNYwig4CLA53vHKn4=
 github.com/bmeg/grip v0.0.0-20250221184207-3d80c14ed485/go.mod h1:afNS+svbAkFH3XUPjDIaKahT0F0GxAYsZim2bH+b0KU=
+github.com/bmeg/grip v0.0.0-20250224001904-4a91bc794513 h1:i5Ow/2T+Y0dgp98y+T64mtriif1r9+7qHoyYFQYqqA4=
+github.com/bmeg/grip v0.0.0-20250224001904-4a91bc794513/go.mod h1:afNS+svbAkFH3XUPjDIaKahT0F0GxAYsZim2bH+b0KU=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad h1:ICgBexeLB7iv/IQz4rsP+MimOXFZUwWSPojEypuOaQ8=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad/go.mod h1:ft96Irkp72C7ZrUWRenG7LrF0NKMxXdRvsypo5Njhm4=
 github.com/bmeg/jsonschema/v5 v5.3.4-0.20241111204732-55db82022a92 h1:Myx/j+WxfEg+P3nDaizR1hBpjKSLgvr4ydzgp1/1pAU=
