@@ -11,7 +11,6 @@ grip server  -w writer=gen3_writer.so \
              -l writer:test=true \
              -l graphql:test=true \
              -l reader:test=true
-
 ```
 
 then cd to tests directory and run:
@@ -22,6 +21,14 @@ If the graph name is `TEST` and the config is setup for test=true, mock auth wil
 
 Note: some tests that rely on the underlying data in the DB only work when all tests are run, since not all tests populate the grip with data
 
+## Running locally
+
+To run the gqlgen plugin locally with no auth on graph CALIPER:
+
+```
+grip server -w graphql=gql-gen.so -l graphql:auth=false -l graphql:graph=CALIPER
+```
+
 ## Version
 
-go version go1.22.5
+go version go1.23.6
