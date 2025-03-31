@@ -530,7 +530,7 @@ func Test_Get_Project_Vertices_Ok(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		if v.Gid == "" {
+		if v.Id == "" {
 			t.Error("Gid should be populated if unmarshal was successful")
 		}
 		mappedData := v.Data.AsMap()

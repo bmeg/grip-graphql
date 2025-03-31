@@ -14,7 +14,7 @@ import (
 
 func applyAuthFilters(q **gripql.Query, authList []any) {
 	/* Applies gen3 RBAC auth filters to the query */
-	Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{gripql.Within("auth_resource_path", authList...)}}
+	Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{Has: gripql.Within("auth_resource_path", authList...)}}
 	steps := inspect.PipelineSteps((*q).Statements)
 	FilteredGS := []*gripql.GraphStatement{}
 	step_value := 0

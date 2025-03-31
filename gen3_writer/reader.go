@@ -47,8 +47,8 @@ func edgeSerialize(edgeChan chan *gripql.Edge, fill_gid string, workers int) cha
 		wg.Add(1)
 		go func() {
 			for e := range edgeChan {
-				if fill_gid != "" && e.Gid == "" {
-					e.Gid = util.UUID()
+				if fill_gid != "" && e.Id == "" {
+					e.Id = util.UUID()
 				}
 				doc := mongo.PackEdge(gdbi.NewElementFromEdge(e))
 				rawBytes, err := bson.Marshal(doc)

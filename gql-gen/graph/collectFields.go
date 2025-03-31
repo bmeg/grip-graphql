@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 
 	"strings"
@@ -82,14 +83,7 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 				if dotIndex := strings.Index(newParentPath, "."); dotIndex != -1 {
 					firstTerm = newParentPath[:dotIndex]
 				}
-				exists := false
-				for _, term := range rt.rFieldPaths[curElement] {
-					if term == firstTerm {
-						exists = true
-						break
-					}
-				}
-				if !exists {
+				if !slices.Contains(rt.rFieldPaths[curElement], firstTerm) {
 					rt.rFieldPaths[curElement] = append(rt.rFieldPaths[curElement], firstTerm)
 				}
 				currentTree[curElement] = rt.rFieldPaths[curElement]
@@ -136,7 +130,7 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 				rt.fLookup[sel.TypeCondition[:len(sel.TypeCondition)-4]] = elem
 				currentTree[rt.prevName] = map[string]any{"__typename": sel.TypeCondition}
 			}
-			fragmentTree := currentTree[rt.prevName].(map[string]interface{})
+			fragmentTree := currentTree[rt.prevName].(map[string]any)
 			*query = (*query).OutNull(rt.prevName + "_" + sel.TypeCondition[:len(sel.TypeCondition)-4]).As(elem)
 			if _, ok := rt.args[elem]; ok && rt.args[elem].first != 0 {
 				*query = (*query).Limit(rt.args[elem].first)
@@ -182,7 +176,7 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 	buildRenderTree(renderTree, rt.rTree)
 
 	log.Infof("ARGS: %#v\n", resctx.Args)
-	log.Infof("RENDER: \n", renderTree)
+	log.Infof("RENDER: %#v\n", renderTree)
 
 	if filter, ok := resctx.Args["filter"]; ok {
 		if filter != nil && len(filter.(map[string]any)) > 0 {
@@ -207,7 +201,7 @@ func (r *queryResolver) GetSelectedFieldsAst(ctx context.Context, sourceType str
 	}
 
 	if os.Getenv("AUTH_ENABLED") == "true" {
-		authList, ok := ctx.Value("auth_list").([]interface{})
+		authList, ok := ctx.Value("auth_list").([]any)
 		if !ok {
 			return nil, fmt.Errorf("auth_list not found or invalid")
 		}

@@ -6,7 +6,7 @@ import (
 )
 
 // Custom JSON type handler for json filter query arguments
-type JSON map[string]interface{}
+type JSON map[string]any
 
 func (j *JSON) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, j); err != nil {
@@ -16,5 +16,5 @@ func (j *JSON) UnmarshalJSON(b []byte) error {
 }
 
 func (j JSON) MarshalJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}(j))
+	return json.Marshal(map[string]any(j))
 }
