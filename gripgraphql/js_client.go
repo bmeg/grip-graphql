@@ -9,6 +9,7 @@ import (
 
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/gripql/inspect"
+	"github.com/google/uuid"
 
 	//"github.com/bmeg/grip-graphql/middleware"
 	//"github.com/bmeg/grip/jobstorage"
@@ -24,6 +25,8 @@ type JSClientWrapper struct {
 	client gripql.Client
 	query  goja.Callable
 	graph  string
+
+	auth bool
 }
 
 type JSRenamer struct{}
@@ -77,62 +80,76 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 		log.Infof("Error: %s\n", err)
 		return nil
 	}
-	ResourceList := cw.vm.Get("ResourceList").Export()
-	Header := cw.vm.Get("Header").Export().(any)
-	ctx := context.WithValue(context.Background(), "Header", Header)
-	ctx = context.WithValue(ctx, "ResourceList", ResourceList)
 
 	query := gripql.GraphQuery{}
 	err = protojson.Unmarshal(queryJSON, &query)
-
-	sValue, _ := structpb.NewValue(ResourceList)
-	Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{
-		Has: &gripql.HasExpression{Expression: &gripql.HasExpression_Condition{
-			Condition: &gripql.HasCondition{
-				Condition: gripql.Condition_WITHIN,
-				Key:       "auth_resource_path",
-				Value:     sValue,
-			},
-		}},
-	}}
-
+	if err != nil {
+		log.Errorf("unmarshal error: %s", err)
+	}
 	query.Graph = cw.graph
-	steps := inspect.PipelineSteps(query.Query)
+
+	var ctx context.Context
 	FilteredGS, CachedGS, RemainingGS := []*gripql.GraphStatement{}, []*gripql.GraphStatement{}, []*gripql.GraphStatement{}
-	for i, v := range query.Query {
-		steps_index, err := strconv.Atoi(steps[i])
+
+	if cw.auth {
+		ResourceList := cw.vm.Get("ResourceList").Export()
+		Header := cw.vm.Get("Header").Export().(any)
+		ctx := context.WithValue(context.Background(), "Header", Header)
+		ctx = context.WithValue(ctx, "ResourceList", ResourceList)
+
+		sValue, _ := structpb.NewValue(ResourceList)
+		Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{
+			Has: &gripql.HasExpression{Expression: &gripql.HasExpression_Condition{
+				Condition: &gripql.HasCondition{
+					Condition: gripql.Condition_WITHIN,
+					Key:       "auth_resource_path",
+					Value:     sValue,
+				},
+			}},
+		}}
+		steps := inspect.PipelineSteps(query.Query)
+		for i, v := range query.Query {
+			steps_index, err := strconv.Atoi(steps[i])
+			if err != nil {
+				log.Infof("Error: %s\n", err)
+				return nil
+			}
+			if i > steps_index {
+				RemainingGS = append(RemainingGS, v)
+			}
+
+			if i == steps_index {
+				FilteredGS = append(FilteredGS, v, Has_Statement)
+				CachedGS = append(CachedGS, v, Has_Statement)
+			} else {
+				if i == 0 {
+					CachedGS = append(CachedGS, v)
+				}
+				FilteredGS = append(FilteredGS, v)
+			}
+		}
+		query.Query = FilteredGS
+	} else {
+		ctx = context.Background()
+	}
+
+	/*
+		log.Infof("Getting cached job")
+		resultChan, err := cw.GetCachedJob(query, CachedGS, RemainingGS)
 		if err != nil {
 			log.Infof("Error: %s\n", err)
 			return nil
 		}
-		if i > steps_index {
-			RemainingGS = append(RemainingGS, v)
-		}
-
-		if i == steps_index {
-			FilteredGS = append(FilteredGS, v, Has_Statement)
-			CachedGS = append(CachedGS, v, Has_Statement)
-		} else {
-			if i == 0 {
-				CachedGS = append(CachedGS, v)
+		if resultChan != nil {
+			cachedOut := []any{}
+			for row := range resultChan {
+				cachedOut = append(cachedOut, cw.vm.ToValue(toInterface(row)))
 			}
-			FilteredGS = append(FilteredGS, v)
+			return cw.vm.ToValue(cachedOut)
 		}
-	}
+	*/
 
-	query.Query = FilteredGS
-	resultChan, err := cw.GetCachedJob(query, CachedGS, RemainingGS)
-	if err != nil {
-		log.Infof("Error: %s\n", err)
-		return nil
-	}
-	if resultChan != nil {
-		cachedOut := []any{}
-		for row := range resultChan {
-			cachedOut = append(cachedOut, cw.vm.ToValue(toInterface(row)))
-		}
-		return cw.vm.ToValue(cachedOut)
-	}
+	log.Infof("Doing traversal")
 
 	res, err := cw.client.Traversal(ctx, &query)
 	if err != nil {
@@ -144,6 +161,7 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	for row := range res {
 		out = append(out, cw.vm.ToValue(toInterface(row)))
 	}
+	//log.Infof("Returning value: %s\n", out)
 
 	return cw.vm.ToValue(out)
 }
@@ -162,17 +180,61 @@ func (cw *JSClientWrapper) V(args goja.Value) goja.Value {
 	return out
 }
 
+func (cw *JSClientWrapper) AddVertex(args ...goja.Value) goja.Value {
+	log.Infof("addVertex %s", args)
+
+	gid := ""
+	if args[0] != nil {
+		g := args[0].Export()
+		if gstr, ok := g.(string); ok {
+			gid = gstr
+		}
+	}
+	if gid == "" {
+		gid = uuid.New().String()
+	}
+
+	log.Info("getting label")
+	label := ""
+	l := args[1].Export()
+	if lstr, ok := l.(string); ok {
+		label = lstr
+	}
+
+	vData := map[string]any{}
+	data := jsExport(args[2])
+	if data != nil {
+		if jData, ok := data.(map[string]any); ok {
+			vData = jData
+		}
+	}
+
+	vertex := &gripql.Vertex{
+		Gid:   gid,
+		Label: label,
+	}
+	vertex.SetDataMap(vData)
+
+	log.Infof("adding vertex: %s", vertex)
+	err := cw.client.AddVertex(cw.graph, vertex)
+	if err != nil {
+		log.Errorf("error adding vertex: %s", err)
+	}
+	log.Infof("Added vertex")
+	return cw.vm.ToValue(gid)
+}
+
 func (cw *JSClientWrapper) toValue() goja.Value {
 	return cw.vm.ToValue(cw)
 }
 
-func GetJSClient(graph string, client gripql.Client, vm *goja.Runtime) (*JSClientWrapper, error) { // ctx context.Context
+func GetJSClient(graph string, client gripql.Client, vm *goja.Runtime, auth bool) (*JSClientWrapper, error) { // ctx context.Context
 	gripqljs, _ := gripqljs.Asset("gripql.js")
 	vm.RunString(string(gripqljs))
 
 	qVal := vm.Get("query")
 	query, _ := goja.AssertFunction(qVal)
 
-	myWrapper := &JSClientWrapper{vm, client, query, graph}
+	myWrapper := &JSClientWrapper{vm, client, query, graph, auth}
 	return myWrapper, nil
 }
