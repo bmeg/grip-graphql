@@ -6,7 +6,7 @@ toolchain go1.24.0
 
 require (
 	github.com/99designs/gqlgen v0.17.57
-	github.com/bmeg/grip v0.0.0-20250407224841-510f048b5a2d
+	github.com/bmeg/grip v0.0.0-20250407225912-d0f5c735c219
 	github.com/dop251/goja v0.0.0-20240707163329-b1681fb2a2f5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
@@ -31,8 +31,6 @@ require (
 	github.com/agnivade/levenshtein v1.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad // indirect
-	github.com/bmeg/jsonschema/v5 v5.3.4-0.20241111204732-55db82022a92 // indirect
-	github.com/bmeg/jsonschemagraph v0.0.3-0.20250330060023-8f61d8bfec9a // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cockroachdb/errors v1.11.3 // indirect
 	github.com/cockroachdb/fifo v0.0.0-20240616162244-4768e80dfb9a // indirect
