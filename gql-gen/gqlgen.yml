@@ -1,0 +1,19 @@
+schema:
+  - graph/schema.graphql
+exec:
+  package: generated
+  layout: single-file
+  filename: generated/exec.go
+model:
+  filename: model/generated.go
+  package: model
+resolver:
+  package: graph
+  filename: graph/resolver.go
+  layout: single-file
+
+omit_slice_element_pointers: true
+
+models:
+  JSON:
+    model: github.com/99designs/gqlgen/graphql.Map
