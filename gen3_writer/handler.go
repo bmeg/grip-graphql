@@ -508,8 +508,9 @@ func (gh *Handler) GetProjectVertices(c *gin.Context) {
 		return
 	}
 
+	fm := gripql.NewFlattenMarshaler()
 	for i := range result {
-		rowString, _ := protojson.Marshal(i.GetVertex())
+		rowString, _ := fm.Marshal(i.GetVertex())
 		_, err := writer.Write(append(rowString, '\n'))
 		if err != nil {
 			RegError(c, writer, graph, GetInternalServerErr(err))
@@ -528,7 +529,7 @@ func (gh *Handler) ProjectDelete(c *gin.Context) {
 	str_split := strings.Split(project_id, "-")
 	project := "/programs/" + str_split[0] + "/projects/" + str_split[1]
 
-	Vquery := gripql.V().Has(gripql.Eq("auth_resource_path", project)).Render("_gid")
+	Vquery := gripql.V().Has(gripql.Eq("auth_resource_path", project)).Render("_id")
 	query := &gripql.GraphQuery{Graph: c.Param("graph"), Query: Vquery.Statements}
 	result, err := gh.client.Traversal(ctx, query)
 	if err != nil {
@@ -576,7 +577,7 @@ func (gh *Handler) WriteVertex(c *gin.Context) {
 		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
-	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] write-vertex: %s", v.GetGid()))
+	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] write-vertex: %s", v.GetId()))
 }
 
 func (gh *Handler) WriteEdge(c *gin.Context) {
@@ -603,7 +604,7 @@ func (gh *Handler) WriteEdge(c *gin.Context) {
 		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
-	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] write-edge: %s", e.GetGid()))
+	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] write-edge: %s", e.GetId()))
 }
 
 func (gh *Handler) MongoBulk(c *gin.Context) {

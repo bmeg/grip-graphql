@@ -17,7 +17,6 @@ import (
 
 	"github.com/bmeg/grip/gripql"
 	"github.com/golang-jwt/jwt/v5"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type Request struct {
@@ -516,7 +515,7 @@ func Test_Get_Project_Vertices_Ok(t *testing.T) {
 	}
 
 	reader := bufio.NewReader(resp.Body)
-	jum := protojson.UnmarshalOptions{DiscardUnknown: true}
+	jum := gripql.NewFlattenMarshaler()
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -530,7 +529,7 @@ func Test_Get_Project_Vertices_Ok(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		if v.Gid == "" {
+		if v.Id == "" {
 			t.Error("Gid should be populated if unmarshal was successful")
 		}
 		mappedData := v.Data.AsMap()

@@ -288,7 +288,7 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 
 			_, err = vm.RunString(string(data))
 			if err != nil {
-				log.Errorf("Error running data config", err)
+				log.Errorf("Error running data config %s", err)
 			}
 
 			schema, err := e.Build()
