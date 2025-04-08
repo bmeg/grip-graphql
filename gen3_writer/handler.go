@@ -508,8 +508,9 @@ func (gh *Handler) GetProjectVertices(c *gin.Context) {
 		return
 	}
 
+	fm := gripql.NewFlattenMarshaler()
 	for i := range result {
-		rowString, _ := protojson.Marshal(i.GetVertex())
+		rowString, _ := fm.Marshal(i.GetVertex())
 		_, err := writer.Write(append(rowString, '\n'))
 		if err != nil {
 			RegError(c, writer, graph, GetInternalServerErr(err))
