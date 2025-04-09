@@ -37,7 +37,7 @@ func GetExpiration(tokenString string) (time.Time, error) {
 			return exp, nil
 		}
 	}
-	return time.Time{}, fmt.Errorf("Expiration field 'exp' type float64 not found in token %s", token)
+	return time.Time{}, fmt.Errorf("Expiration field 'exp' type float64 not found in token %v", token)
 }
 
 type ProdJWTHandler struct{}

@@ -50,7 +50,7 @@ func (cw *JSClientWrapper) GetCachedJob(query gripql.GraphQuery, CachedGS []*gri
 			if job.State == 2 {
 				result, err = cw.client.ResumeJob(job.Graph, job.Id, &gripql.GraphQuery{Graph: job.Graph, Query: RemainingGS})
 				if err != nil {
-					fmt.Println("ERR: ", err)
+					log.Errorln("ERR: ", err)
 					return nil, err
 				}
 				log.Infoln("resumed job finished")

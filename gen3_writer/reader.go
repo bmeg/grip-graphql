@@ -7,64 +7,10 @@ import (
 	"io"
 	"sync"
 
-	"github.com/bmeg/grip/gdbi"
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/log"
-	"github.com/bmeg/grip/mongo"
-	"github.com/bmeg/grip/util"
-	"go.mongodb.org/mongo-driver/bson"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 )
-
-func vertexSerialize(vertChan chan *gripql.Vertex, workers int) chan []byte {
-	dataChan := make(chan []byte, workers)
-	var wg sync.WaitGroup
-	for i := 0; i < workers; i++ {
-		wg.Add(1)
-		go func() {
-			for v := range vertChan {
-				doc := mongo.PackVertex(gdbi.NewElementFromVertex(v))
-				rawBytes, err := bson.Marshal(doc)
-				if err == nil {
-					dataChan <- rawBytes
-				}
-			}
-			wg.Done()
-		}()
-	}
-	go func() {
-		wg.Wait()
-		close(dataChan)
-	}()
-	return dataChan
-}
-
-func edgeSerialize(edgeChan chan *gripql.Edge, fill_gid string, workers int) chan []byte {
-	dataChan := make(chan []byte, workers)
-	var wg sync.WaitGroup
-	for i := 0; i < workers; i++ {
-		wg.Add(1)
-		go func() {
-			for e := range edgeChan {
-				if fill_gid != "" && e.Id == "" {
-					e.Id = util.UUID()
-				}
-				doc := mongo.PackEdge(gdbi.NewElementFromEdge(e))
-				rawBytes, err := bson.Marshal(doc)
-				if err == nil {
-					dataChan <- rawBytes
-				}
-			}
-			wg.Done()
-		}()
-	}
-	go func() {
-		wg.Wait()
-		close(dataChan)
-	}()
-	return dataChan
-}
 
 func StreamEdgesFromReader(reader io.Reader, workers int) (chan *gripql.Edge, error) {
 	if workers < 1 {
@@ -78,8 +24,7 @@ func StreamEdgesFromReader(reader io.Reader, workers int) (chan *gripql.Edge, er
 	edgeChan := make(chan *gripql.Edge, workers)
 	var wg sync.WaitGroup
 
-	jum := protojson.UnmarshalOptions{DiscardUnknown: true}
-
+	jum := gripql.NewFlattenMarshaler()
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
 		go func() {
@@ -104,6 +49,7 @@ func StreamEdgesFromReader(reader io.Reader, workers int) (chan *gripql.Edge, er
 
 	return edgeChan, nil
 }
+
 func StreamVerticesFromReader(reader io.Reader, workers int) (chan *gripql.Vertex, error) {
 	if workers < 1 {
 		workers = 1
@@ -116,7 +62,7 @@ func StreamVerticesFromReader(reader io.Reader, workers int) (chan *gripql.Verte
 	vertChan := make(chan *gripql.Vertex, workers)
 	var wg sync.WaitGroup
 
-	jum := protojson.UnmarshalOptions{DiscardUnknown: true}
+	jum := gripql.NewFlattenMarshaler()
 
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
@@ -124,6 +70,7 @@ func StreamVerticesFromReader(reader io.Reader, workers int) (chan *gripql.Verte
 			for line := range lineChan {
 				v := &gripql.Vertex{}
 				err := jum.Unmarshal([]byte(line), v)
+
 				if err != nil {
 					log.WithFields(log.Fields{"error": err}).Errorf("Unmarshaling vertex: %s", line)
 				} else {
@@ -148,7 +95,7 @@ func streamJsonFromReader(reader io.Reader, graph string, mapExtraArgs map[strin
 	vertChan := make(chan *gripql.RawJson, workers)
 	warnings := make(chan string, workers)
 	var wg sync.WaitGroup
-	jum := protojson.UnmarshalOptions{DiscardUnknown: true}
+	jum := gripql.NewFlattenMarshaler()
 
 	for i := 0; i < workers; i++ {
 		wg.Add(1)

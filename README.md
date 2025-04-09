@@ -4,13 +4,11 @@ grip-graphql is a collection of go plugins designed and implemented for connecti
 
 gen3_writer directory contains a [Gin](https://github.com/gin-gonic/gin) go server plugin that is used for Writing / Deleting data from Graphs on a grip server
 
-gripgraphql directory contains a graphql based read query plugin that uses a [goja](https://github.com/dop251/goja) engine to read from a static schema defined as a config file to create custom graphql queries that can be used to abstract Grip's complex query language into a more digestible query format for the frontend to use.
+gripgraphql directory contains a graphql based read query plugin that uses a [goja](https://github.com/dop251/goja) engine to read from a static schema defined as a config file to create custom graphql queries that can be used to abstract Grip's complex query language into a more digestible query format for frontend usage.
 
-gql-gen directory contains a graphql schema based read plugin that leverages [gql-gen](https://github.com/99designs/gqlgen) to autogenerate go structs and for schema introspection
+gql-gen directory contains a static graphql schema based on the [FHIR](https://build.fhir.org/downloads.html) data model. It translates fhir queries into the grip query language, then unmarshalls json results back into a predictable FHIR like format.
 
-See ./gen3_writer for tests and additional documentation
-
-### Matching plugin versions to avoid go.mod version Errors:
+### Avoiding package version mismatches
 
 Error messages when loading plugins into grip like the one below are quite common:
 

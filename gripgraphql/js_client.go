@@ -210,7 +210,7 @@ func (cw *JSClientWrapper) AddVertex(args ...goja.Value) goja.Value {
 	}
 
 	vertex := &gripql.Vertex{
-		Gid:   gid,
+		Id:    gid,
 		Label: label,
 	}
 	vertex.SetDataMap(vData)

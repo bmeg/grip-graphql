@@ -100,7 +100,7 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 				if first != nil {
 					uintFirst, err := strconv.ParseUint(first.Value.Raw, 10, 32)
 					if err != nil {
-						fmt.Println("ERR: ", err)
+						log.Infoln("ERR: ", err)
 						break
 					}
 					fieldPathsidx := fmt.Sprintf("f%d", len(rt.rFieldPaths))
