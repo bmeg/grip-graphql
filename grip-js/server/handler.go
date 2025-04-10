@@ -9,10 +9,6 @@ import (
 	"strconv"
 	"sync"
 
-	//"encoding/json"
-
-	//"encoding/json"
-
 	"github.com/bmeg/grip-graphql/middleware"
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/log"
@@ -58,162 +54,6 @@ type Endpoint struct {
 	mutationNodes map[string]QueryField
 }
 
-func parseField(name string, x any) (*graphql.Field, error) {
-	switch v := x.(type) {
-	case string:
-		if v == "Int" {
-			return &graphql.Field{Name: name, Type: graphql.Int}, nil
-		}
-		if v == "String" {
-			return &graphql.Field{Name: name, Type: graphql.String}, nil
-		}
-		if v == "Boolean" {
-			return &graphql.Field{Name: name, Type: graphql.Boolean}, nil
-		}
-		if v == "Float" {
-			return &graphql.Field{Name: name, Type: graphql.Float}, nil
-		}
-	case []any:
-		if len(v) != 1 {
-			return nil, fmt.Errorf("incorrect elements in schema array (only 1)")
-		}
-		if lf, err := parseField(name, v[0]); err == nil {
-			l := graphql.NewList(lf.Type)
-			return &graphql.Field{Name: name, Type: l}, nil
-		} else {
-			log.Errorf("Error parsing list: %s", err)
-		}
-	case map[string]any:
-		obj, err := parseObject(name, v)
-		if err != nil {
-			return nil, err
-		}
-		return &graphql.Field{Name: name, Type: obj}, nil
-	}
-
-	return nil, fmt.Errorf("type not found: %#v", x)
-}
-
-func parseObject(name string, x map[string]any) (*graphql.Object, error) {
-	fields := graphql.Fields{}
-	for k, v := range x {
-		f, err := parseField(k, v)
-		if err == nil {
-			fields[k] = f
-		} else {
-			return nil, err
-		}
-	}
-	return graphql.NewObject(graphql.ObjectConfig{
-		Name:   name,
-		Fields: fields,
-	}), nil
-}
-
-func (e *Endpoint) parseJSHandler(x map[string]any) (QueryField, error) {
-	name := ""
-	if nameA, ok := x["name"]; ok {
-		if nameStr, ok := nameA.(string); ok {
-			name = nameStr
-		}
-	}
-	if name == "" {
-		return QueryField{}, fmt.Errorf("name not defined")
-	}
-
-	var jHandler func(goja.FunctionCall) goja.Value
-	if handlerA, ok := x["handler"]; ok {
-		if handler, ok := handlerA.(func(goja.FunctionCall) goja.Value); ok {
-			jHandler = handler
-		} else {
-			return QueryField{}, fmt.Errorf("unknown handler type: %#T", handlerA)
-		}
-	}
-
-	defaults := map[string]any{}
-	if defaultsA, ok := x["defaults"]; ok {
-		if defaultsM, ok := defaultsA.(map[string]any); ok {
-			// 			maps.Copy(defaultsM, defaults)
-			for k, v := range defaultsM {
-				defaults[k] = v
-			}
-		}
-	}
-
-	arguments := map[string]any{}
-	if argumentsA, ok := x["args"]; ok {
-		if argumentsM, ok := argumentsA.(map[string]any); ok {
-			for k, v := range argumentsM {
-				arguments[k] = v
-			}
-		}
-	}
-	log.Info("ARGS: ", arguments)
-
-	log.Infof("Loading handler %s", name)
-	if schemaA, ok := x["schema"]; ok {
-		objField, err := parseField(name, schemaA)
-		if err == nil {
-			objField.Resolve = func(params graphql.ResolveParams) (any, error) {
-				log.Debug("Calling resolver")
-				uArgs := map[string]any{}
-				for k, v := range defaults {
-					uArgs[k] = v
-				}
-				for k, v := range params.Args {
-					uArgs[k] = v
-				}
-
-				/*if cacheA, ok := x["cached"]; ok {
-				      uArgs["cached"] = cacheA
-				  }
-				  fmt.Println("\n\n\n\n\n\nCACHED ARGS: ", uArgs["cached"].(bool))*/
-
-				ctx := params.Context
-				vArgs := e.vm.ToValue(uArgs)
-				// find out difference between set and export
-				e.vm.Set("ResourceList", ctx.Value("ResourceList"))
-				e.vm.Set("Header", ctx.Value("Header"))
-
-				args := goja.FunctionCall{
-					Arguments: []goja.Value{e.cw.toValue(), vArgs},
-				}
-				log.Infof("Calling user function")
-				val := jHandler(args)
-				log.Infoln("VAL: ", val)
-				out := jsExport(val)
-				log.Infof("User function returned : %#v", out)
-				return out, nil
-			}
-
-			if len(arguments) > 0 {
-				args := graphql.FieldConfigArgument{}
-				for k, v := range arguments {
-					if v == "String" {
-						args[k] = &graphql.ArgumentConfig{Type: graphql.String}
-					}
-					if v == "Int" {
-						args[k] = &graphql.ArgumentConfig{Type: graphql.Int}
-					}
-					if v == "Boolean" {
-						args[k] = &graphql.ArgumentConfig{Type: graphql.Boolean}
-					}
-				}
-				objField.Args = args
-			}
-			return QueryField{
-				name:    name,
-				field:   objField,
-				handler: jHandler,
-			}, nil
-		} else {
-			return QueryField{}, fmt.Errorf("parse error: %s", err)
-		}
-	} else {
-		return QueryField{}, fmt.Errorf("schema not found for %s", name)
-	}
-}
-
 func (e *Endpoint) Add(x map[string]any) {
 	o, err := e.parseJSHandler(x)
 	if err == nil {
@@ -232,33 +72,6 @@ func (e *Endpoint) AddMutation(x map[string]any) {
 	} else {
 		log.Errorf("Query 'addMutation' error: %s", err)
 	}
-
-}
-
-func jsExport(val goja.Value) any {
-	o := val.Export()
-	if oList, ok := o.([]any); ok {
-		out := []any{}
-		for _, i := range oList {
-			if ov, ok := i.(goja.Value); ok {
-				out = append(out, jsExport(ov))
-			} else {
-				out = append(out, i)
-			}
-		}
-		return out
-	}
-	if oMap, ok := o.(map[string]any); ok {
-		out := map[string]any{}
-		for k, v := range oMap {
-			if ov, ok := v.(goja.Value); ok {
-				out[k] = jsExport(ov)
-			} else {
-				out[k] = v
-			}
-		}
-	}
-	return o
 }
 
 func (e *Endpoint) Build() (*graphql.Schema, error) {
@@ -269,7 +82,6 @@ func (e *Endpoint) Build() (*graphql.Schema, error) {
 	}
 
 	queryObj := graphql.NewObject(graphql.ObjectConfig{Name: "Query", Fields: qf})
-
 	schemaConfig := graphql.SchemaConfig{
 		Query: queryObj,
 	}
@@ -327,11 +139,6 @@ func NewGraphQLJS(graph string, auth bool, client gripql.Client, code string) *G
 	return gh
 }
 
-/*
-var Pool sync.Pool
-var poolInited bool
-var poolInitMux sync.Mutex
-*/
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
 	configPath := ""
 	graph := ""
@@ -415,6 +222,5 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 		}
 		gh.gjHandler.ServeHTTP(writer, request.WithContext(ctx))
 	}
-
 	return nil
 }

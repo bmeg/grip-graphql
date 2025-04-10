@@ -12,8 +12,6 @@ import (
 	"github.com/bmeg/grip/gripql/inspect"
 	"github.com/google/uuid"
 
-	//"github.com/bmeg/grip-graphql/middleware"
-	//"github.com/bmeg/grip/jobstorage"
 	gripqljs "github.com/bmeg/grip/gripql/javascript"
 	"github.com/bmeg/grip/log"
 	"github.com/dop251/goja"
@@ -46,7 +44,9 @@ func (j JSRenamer) MethodName(t reflect.Type, m reflect.Method) string {
 func toInterface(qr *gripql.QueryResult) any {
 	fmt.Println("QUERY RESULT: ", qr)
 	if v := qr.GetVertex(); v != nil {
-		return v.GetDataMap()
+		data := v.GetDataMap()
+		data["id"] = v.Id
+		return data
 	}
 	if e := qr.GetEdge(); e != nil {
 		return e.GetDataMap()
@@ -141,9 +141,10 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 
 	out := []any{}
 	for row := range res {
-		out = append(out, cw.vm.ToValue(toInterface(row)))
+		result := toInterface(row)
+		out = append(out, result)
 	}
-	log.Debugf("Returning value: %s\n", out)
+	log.Debugf("Returning value: %#v", out)
 	return cw.vm.ToValue(out)
 }
 
@@ -175,7 +176,7 @@ func (cw *JSClientWrapper) AddVertex(args ...goja.Value) goja.Value {
 		_id = uuid.New().String()
 	}
 
-	log.Info("getting label")
+	log.Debugf("getting label")
 	_label := ""
 	l := args[1].Export()
 	if lstr, ok := l.(string); ok {
@@ -190,18 +191,20 @@ func (cw *JSClientWrapper) AddVertex(args ...goja.Value) goja.Value {
 		}
 	}
 
+	log.Debugf("ID: %s LABEL: %s", _id, _label)
 	vertex := &gripql.Vertex{
 		Id:    _id,
 		Label: _label,
 	}
+	vData["id"] = _id
 	vertex.SetDataMap(vData)
 
-	log.Infof("adding vertex: %s", vertex)
+	log.Debugf("adding vertex: %#v graph: %s", vertex, cw.graph)
 	err := cw.client.AddVertex(cw.graph, vertex)
 	if err != nil {
 		log.Errorf("error adding vertex: %s", err)
 	}
-	log.Infof("Added vertex")
+	log.Debugf("Added vertex")
 	return cw.vm.ToValue(_id)
 }
 

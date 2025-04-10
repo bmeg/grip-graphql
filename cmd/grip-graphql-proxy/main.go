@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	gripgraphql "github.com/bmeg/grip-graphql/grip-js/pluginface"
+	gripgraphql "github.com/bmeg/grip-graphql/grip-js/server"
 	"github.com/bmeg/grip/gripql"
 	"github.com/bmeg/grip/log"
 	"github.com/bmeg/grip/util/rpc"

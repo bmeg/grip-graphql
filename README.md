@@ -8,6 +8,17 @@ gripgraphql directory contains a graphql based read query plugin that uses a [go
 
 gql-gen directory contains a static graphql schema based on the [FHIR](https://build.fhir.org/downloads.html) data model. It translates fhir queries into the grip query language, then unmarshalls json results back into a predictable FHIR like format.
 
+## Tests
+
+Tests can be run from the tests directory with
+
+```
+go test -v ./...
+```
+
+In tests/integration each plugin has its own tests file, with a main driver file that controls the order that they are run.
+Since they rely on the writer writing data to grip first, they must be run sequentially.
+
 ### Avoiding package version mismatches
 
 Error messages when loading plugins into grip like the one below are quite common:

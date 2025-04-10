@@ -49,6 +49,7 @@ func runTests(m *testing.M) int {
 	gripGraphqlTests := []func(t *testing.T){
 		Test_Graphql_Query_Forbidden_Perms,
 		Test_Graphql_Query_Proj,
+		Test_Graphql_Mutation_AddSpecimen,
 	}
 
 	fmt.Println("Starting writer tests")

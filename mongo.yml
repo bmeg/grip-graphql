@@ -1,9 +1,0 @@
-Default: mongo
-Server:
-  ReadOnly: false
-  NoJobs: false
-  EnablePlugins: true
-Drivers:
-  mongo:
-    MongoDB:
-      URL: mongodb://mongodb-service
