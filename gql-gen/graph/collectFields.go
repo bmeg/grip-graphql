@@ -33,7 +33,7 @@ type renderTree struct {
 	moved       bool
 	fLookup     map[string]string
 	rFieldPaths map[string][]string
-	rTree       map[string]interface{}
+	rTree       map[string]any
 	rUnwinds    map[string][]string
 }
 

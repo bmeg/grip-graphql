@@ -161,7 +161,7 @@ func Test_Writer_Json_Load_Validation_Errors(t *testing.T) {
 		return
 	}
 
-	var data map[string]interface{}
+	var data map[string]any
 	errors := json.Unmarshal([]byte(buf.String()), &data)
 	if errors != nil {
 		t.Error("Error: ", errors)
@@ -226,7 +226,7 @@ func Test_Writer_Json_Load_Invalid_Json(t *testing.T) {
 		return
 	}
 
-	var data map[string]interface{}
+	var data map[string]any
 	errors := json.Unmarshal([]byte(buf.String()), &data)
 	if errors != nil {
 		t.Error("Error: ", errors)

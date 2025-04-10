@@ -1,4 +1,4 @@
-package gripgraphql
+package server
 
 import (
 	"fmt"

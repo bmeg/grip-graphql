@@ -14,7 +14,6 @@ endpoint.add({
         limit: 100
     },
     handler: (G, args) => {
-        //return G.V().hasLabel("DocumentReference").outE("subject").out().skip(args.offset).limit(args.limit).toList()
         return G.V().hasLabel('DocumentReference').out('subject').skip(args.offset).limit(args.limit).toList()
     }
 })
@@ -34,7 +33,6 @@ endpoint.add({
         limit: 100
     },
     handler: (G, args) => {
-        //return G.V().hasLabel("Specimen").outE().out().skip(args.offset).limit(args.limit).toList()
         return G.V().hasLabel("Specimen").out().skip(args.offset).limit(args.limit).toList()
     }
 })
@@ -56,7 +54,6 @@ endpoint.add({
         limit: 100
     },
     handler: (G, args) => {
-        //return G.V().hasLabel("Encounter").outE().out().skip(args.offset).limit(args.limit).toList()
         return G.V().hasLabel("Encounter").out('subject_Patient').skip(args.offset).limit(args.limit).toList()
     }
 })

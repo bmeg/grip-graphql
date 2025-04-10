@@ -1,8 +1,9 @@
-package gripgraphql
+package server
 
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -17,7 +18,6 @@ import (
 	"github.com/bmeg/grip/log"
 	"github.com/dop251/goja"
 	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/types/known/structpb"
 )
 
 type JSClientWrapper struct {
@@ -44,6 +44,7 @@ func (j JSRenamer) MethodName(t reflect.Type, m reflect.Method) string {
 }
 
 func toInterface(qr *gripql.QueryResult) any {
+	fmt.Println("QUERY RESULT: ", qr)
 	if v := qr.GetVertex(); v != nil {
 		return v.GetDataMap()
 	}
@@ -82,42 +83,29 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	}
 
 	query := gripql.GraphQuery{}
+
 	err = protojson.Unmarshal(queryJSON, &query)
 	if err != nil {
 		log.Errorf("unmarshal error: %s", err)
 	}
 	query.Graph = cw.graph
 
-	var ctx context.Context
-	FilteredGS, CachedGS, RemainingGS := []*gripql.GraphStatement{}, []*gripql.GraphStatement{}, []*gripql.GraphStatement{}
-
+	FilteredGS, RemainingGS, CachedGS := []*gripql.GraphStatement{}, []*gripql.GraphStatement{}, []*gripql.GraphStatement{}
 	if cw.auth {
 		ResourceList := cw.vm.Get("ResourceList").Export()
+		log.Debugln("Resource List: ", ResourceList)
 		Header := cw.vm.Get("Header").Export().(any)
 		ctx := context.WithValue(context.Background(), "Header", Header)
 		ctx = context.WithValue(ctx, "ResourceList", ResourceList)
 
-		sValue, _ := structpb.NewValue(ResourceList)
-		Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{
-			Has: &gripql.HasExpression{Expression: &gripql.HasExpression_Condition{
-				Condition: &gripql.HasCondition{
-					Condition: gripql.Condition_WITHIN,
-					Key:       "auth_resource_path",
-					Value:     sValue,
-				},
-			}},
-		}}
+		Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{Has: gripql.Within("auth_resource_path", ResourceList.([]any)...)}}
 		steps := inspect.PipelineSteps(query.Query)
+		//step_value := 0
 		for i, v := range query.Query {
-			steps_index, err := strconv.Atoi(steps[i])
-			if err != nil {
-				log.Infof("Error: %s\n", err)
-				return nil
-			}
+			steps_index, _ := strconv.Atoi(steps[i])
 			if i > steps_index {
 				RemainingGS = append(RemainingGS, v)
 			}
-
 			if i == steps_index {
 				FilteredGS = append(FilteredGS, v, Has_Statement)
 				CachedGS = append(CachedGS, v, Has_Statement)
@@ -129,10 +117,7 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 			}
 		}
 		query.Query = FilteredGS
-	} else {
-		ctx = context.Background()
 	}
-
 	/*
 		log.Infof("Getting cached job")
 		resultChan, err := cw.GetCachedJob(query, CachedGS, RemainingGS)
@@ -148,12 +133,9 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 			return cw.vm.ToValue(cachedOut)
 		}
 	*/
-
-	log.Infof("Doing traversal")
-
-	res, err := cw.client.Traversal(ctx, &query)
+	res, err := cw.client.Traversal(context.Background(), &gripql.GraphQuery{Graph: query.Graph, Query: query.Query})
 	if err != nil {
-		log.Infof("Error: %s\n", err)
+		log.Infof("Traversal Error: %s\n", err)
 		return nil
 	}
 
@@ -161,8 +143,7 @@ func (cw *JSClientWrapper) ToList(args goja.Value) goja.Value {
 	for row := range res {
 		out = append(out, cw.vm.ToValue(toInterface(row)))
 	}
-	//log.Infof("Returning value: %s\n", out)
-
+	log.Debugf("Returning value: %s\n", out)
 	return cw.vm.ToValue(out)
 }
 
@@ -183,22 +164,22 @@ func (cw *JSClientWrapper) V(args goja.Value) goja.Value {
 func (cw *JSClientWrapper) AddVertex(args ...goja.Value) goja.Value {
 	log.Infof("addVertex %s", args)
 
-	gid := ""
+	_id := ""
 	if args[0] != nil {
 		g := args[0].Export()
 		if gstr, ok := g.(string); ok {
-			gid = gstr
+			_id = gstr
 		}
 	}
-	if gid == "" {
-		gid = uuid.New().String()
+	if _id == "" {
+		_id = uuid.New().String()
 	}
 
 	log.Info("getting label")
-	label := ""
+	_label := ""
 	l := args[1].Export()
 	if lstr, ok := l.(string); ok {
-		label = lstr
+		_label = lstr
 	}
 
 	vData := map[string]any{}
@@ -210,8 +191,8 @@ func (cw *JSClientWrapper) AddVertex(args ...goja.Value) goja.Value {
 	}
 
 	vertex := &gripql.Vertex{
-		Id:    gid,
-		Label: label,
+		Id:    _id,
+		Label: _label,
 	}
 	vertex.SetDataMap(vData)
 
@@ -221,7 +202,7 @@ func (cw *JSClientWrapper) AddVertex(args ...goja.Value) goja.Value {
 		log.Errorf("error adding vertex: %s", err)
 	}
 	log.Infof("Added vertex")
-	return cw.vm.ToValue(gid)
+	return cw.vm.ToValue(_id)
 }
 
 func (cw *JSClientWrapper) toValue() goja.Value {

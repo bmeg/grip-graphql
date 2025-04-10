@@ -7,7 +7,7 @@ endpoint.add({
         "String"
     ],
     handler: (G, args) => {
-        return G.V().hasLabel("Project").render("_gid").toList()
+        return G.V().hasLabel("Project").render("_id").toList()
     }
 })
 
@@ -20,16 +20,16 @@ endpoint.add({
         offset: "Int",
         limit: "Int",
         project_id : "String"
-    }, 
+    },
     defaults: {
         offset: 0,
         limit: 100
     },
     handler: (G, args) => {
         if (args.project_id === undefined) {
-            return G.V().hasLabel("Case").skip(args.offset).limit(args.limit).render("_gid").toList()
+            return G.V().hasLabel("Case").skip(args.offset).limit(args.limit).render("_id").toList()
         } else {
-            return G.V().hasLabel("Case").has(gripql.eq("project_id", args.project_id)).skip(args.offset).limit(args.limit).render("_gid").toList()
+            return G.V().hasLabel("Case").has(gripql.eq("project_id", args.project_id)).skip(args.offset).limit(args.limit).render("_id").toList()
         }
     }
 })

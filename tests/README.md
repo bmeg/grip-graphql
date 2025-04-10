@@ -4,13 +4,13 @@ Tests can be run locally by specifying that you want to turn on the plugin in te
 
 ```
 grip server  -w writer=gen3_writer.so \
-             -w reader=grip-graphql-endpoint.so \
+             -w reader=grip-js.so \
              -w graphql=gql-gen.so \
              -l reader:config=./config/gen3.js \
              -l reader:graph=TEST \
              -l writer:test=true \
              -l graphql:test=true \
-             -l reader:test=true
+             -l reader:auth=true -log-level=debug
 ```
 
 then cd to tests directory and run:

@@ -1,4 +1,4 @@
-package gripgraphql
+package server
 
 import (
 	"context"
@@ -133,6 +133,7 @@ func (e *Endpoint) parseJSHandler(x map[string]any) (QueryField, error) {
 	defaults := map[string]any{}
 	if defaultsA, ok := x["defaults"]; ok {
 		if defaultsM, ok := defaultsA.(map[string]any); ok {
+			// 			maps.Copy(defaultsM, defaults)
 			for k, v := range defaultsM {
 				defaults[k] = v
 			}
@@ -147,12 +148,13 @@ func (e *Endpoint) parseJSHandler(x map[string]any) (QueryField, error) {
 			}
 		}
 	}
+	log.Info("ARGS: ", arguments)
 
 	log.Infof("Loading handler %s", name)
 	if schemaA, ok := x["schema"]; ok {
 		objField, err := parseField(name, schemaA)
 		if err == nil {
-			objField.Resolve = func(params graphql.ResolveParams) (interface{}, error) {
+			objField.Resolve = func(params graphql.ResolveParams) (any, error) {
 				log.Debug("Calling resolver")
 				uArgs := map[string]any{}
 				for k, v := range defaults {
@@ -178,6 +180,7 @@ func (e *Endpoint) parseJSHandler(x map[string]any) (QueryField, error) {
 				}
 				log.Infof("Calling user function")
 				val := jHandler(args)
+				log.Infoln("VAL: ", val)
 				out := jsExport(val)
 				log.Infof("User function returned : %#v", out)
 				return out, nil
@@ -261,7 +264,7 @@ func jsExport(val goja.Value) any {
 func (e *Endpoint) Build() (*graphql.Schema, error) {
 	qf := graphql.Fields{}
 	for k, v := range e.queryNodes {
-		//log.Infof("fields: %+v", v.field)
+		log.Debugf("build fields: %+v", v.field)
 		qf[k] = v.field
 	}
 
@@ -274,7 +277,7 @@ func (e *Endpoint) Build() (*graphql.Schema, error) {
 	if len(e.mutationNodes) > 0 {
 		mf := graphql.Fields{}
 		for k, v := range e.mutationNodes {
-			//log.Infof("fields: %+v", v.field)
+			log.Debugf("build mutation fields: %+v", v.field)
 			mf[k] = v.field
 		}
 		mutationObj := graphql.NewObject(graphql.ObjectConfig{Name: "Mutation", Fields: mf})
@@ -330,15 +333,19 @@ var poolInited bool
 var poolInitMux sync.Mutex
 */
 func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handler, error) {
-	configPath := "config.js"
-	graph := "gdc"
+	configPath := ""
+	graph := ""
 	if c, ok := config["config"]; ok {
 		configPath = c
 	}
 	if c, ok := config["graph"]; ok {
 		graph = c
 	}
-	auth := false
+	if graph == "" || configPath == "" {
+		return nil, fmt.Errorf("graph or config not defined. These args must be specified on startup")
+	}
+
+	auth := true
 	if c, ok := config["auth"]; ok {
 		auth, _ = strconv.ParseBool(c)
 	}
@@ -381,12 +388,13 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 			if gh.cw.graph == "TEST" {
 				jwtHandler = &middleware.MockJWTHandler{}
 			}
-			//fmt.Println("REQUEST HEADERS:::: +++++++++++++++++++", requestHeaders)
+			log.Debug("Request Headers: ", requestHeaders)
 			if val, ok := requestHeaders["Authorization"]; ok {
 				Token := val[0]
 				resourceList, err := jwtHandler.HandleJWTToken(Token, "read")
-				//resourceList := []any{"/programs/cbds/projects/demo", "/programs/cbds/projects/welcome", "/programs/synthea/projects/test"}
+				log.Debugln("Resource List: ", resourceList)
 				if err != nil {
+					log.Debugln("HandleJWTToken Err: ", err)
 					middleware.HandleError(err, writer)
 					return err
 				}

@@ -14,7 +14,7 @@ endpoint.add({
         limit: 100
     },
     handler: (G, args) => {
-        return G.V().hasLabel('Prompt').skip(args.offset).limit(args.limit).render({"id":"$._gid", "prompt":"$.prompt"}).toList()
+        return G.V().hasLabel('Prompt').skip(args.offset).limit(args.limit).render({"id":"$._id", "prompt":"$.prompt"}).toList()
     }
 })
 
