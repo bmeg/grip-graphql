@@ -10,6 +10,7 @@ require (
 	github.com/dop251/goja v0.0.0-20240707163329-b1681fb2a2f5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/google/uuid v1.6.0
 	github.com/graphql-go/graphql v0.8.1
 	github.com/graphql-go/handler v0.2.4
 	github.com/mongodb/mongo-tools v0.0.0-20250131183507-b8a566a7f38f
@@ -76,7 +77,6 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.5-0.20231225225746-43d5d4cd4e0e // indirect
 	github.com/google/pprof v0.0.0-20240711041743-f6c9dda6c6da // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3 // indirect

@@ -19,9 +19,6 @@ import (
 	"github.com/bmeg/grip/schema"
 	"github.com/bmeg/grip/util/rpc"
 	"github.com/gin-gonic/gin"
-	"github.com/mongodb/mongo-tools/common/db"
-	mgo "go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -175,9 +172,6 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 	})
 	g.POST("/add-edge/:project-id", func(c *gin.Context) {
 		h.WriteEdge(c)
-	})
-	g.POST("/mongo-load/:project-id", func(c *gin.Context) {
-		h.MongoBulk(c)
 	})
 	g.POST("/bulk-load/:project-id", func(c *gin.Context) {
 		h.BulkStream(c)
@@ -607,114 +601,6 @@ func (gh *Handler) WriteEdge(c *gin.Context) {
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] write-edge: %s", e.GetId()))
 }
 
-func (gh *Handler) MongoBulk(c *gin.Context) {
-	writer, request, graph := getFields(c)
-	var workerCount = 50
-	var database = "gripdb"
-	var logRate = 10000
-	var bulkBufferSize = 1000
-
-	err := request.ParseMultipartForm(1024 * 1024 * 1024) // 10 GB limit
-	if err != nil {
-		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("failed to parse multipart form: %s", err)})
-		return
-	}
-
-	args := request.MultipartForm.Value
-	request_type_list, ok := args["type"]
-	if !ok {
-		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: "Server must specify GraphElement Type, no value found for 'type'"})
-		return
-	}
-	request_type := request_type_list[0]
-	fill_gid_list, ok := args["fill_gid"]
-	var fill_gid string
-	if ok {
-		fill_gid = fill_gid_list[0]
-	}
-
-	mongoHost_list, ok := args["mongo_host"]
-	var mongoHost string
-	if ok {
-		mongoHost = mongoHost_list[0]
-	} else if !ok {
-		mongoHost = "mongodb://local-mongodb"
-	}
-
-	file, handler, err := request.FormFile("file")
-	if err != nil {
-		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("failed to parse attached file: %s", err)})
-		return
-	}
-	file.Close()
-
-	client, err := mgo.NewClient(options.Client().ApplyURI(mongoHost))
-	if err != nil {
-		RegError(c, writer, graph, GetInternalServerErr(err))
-		return
-	}
-
-	err = client.Connect(context.TODO())
-	if err != nil {
-		RegError(c, writer, graph, GetInternalServerErr(err))
-		return
-	}
-
-	vertexCol := client.Database(database).Collection(fmt.Sprintf("%s_vertices", graph))
-	edgeCol := client.Database(database).Collection(fmt.Sprintf("%s_edges", graph))
-
-	if request_type == "vertex" {
-		log.Infof("Loading vertex file: %s", handler.Filename)
-		vertInserter := db.NewUnorderedBufferedBulkInserter(vertexCol, bulkBufferSize).
-			SetBypassDocumentValidation(true).
-			SetOrdered(false).
-			SetUpsert(true)
-
-		vertChan, err := StreamVerticesFromReader(file, workerCount)
-		if err != nil {
-			RegError(c, writer, graph, GetInternalServerErr(err))
-			return
-		}
-		dataChan := vertexSerialize(vertChan, workerCount)
-		count := 0
-		for d := range dataChan {
-			vertInserter.InsertRaw(d)
-			if count%logRate == 0 {
-				log.Infof("Loaded %d vertices", count)
-			}
-			count++
-		}
-		log.Infof("Loaded %d vertices", count)
-		vertInserter.Flush()
-	}
-	if request_type == "edge" {
-		log.Infof("Loading edge file: %s", handler.Filename)
-		edgeInserter := db.NewUnorderedBufferedBulkInserter(edgeCol, bulkBufferSize).
-			SetBypassDocumentValidation(true).
-			SetOrdered(false).
-			SetUpsert(true)
-
-		edgeChan, err := StreamEdgesFromReader(file, workerCount)
-		if err != nil {
-			RegError(c, writer, graph, GetInternalServerErr(err))
-			return
-		}
-		dataChan := edgeSerialize(edgeChan, fill_gid, workerCount)
-		count := 0
-		for d := range dataChan {
-			edgeInserter.InsertRaw(d)
-			if count%logRate == 0 {
-				log.Infof("Loaded %d edges", count)
-			}
-			count++
-		}
-		log.Infof("Loaded %d vertices", count)
-		edgeInserter.Flush()
-	}
-
-	Response(c, writer, graph, nil, 200, "[200] mongo-bulk: %s")
-}
-
 func (gh *Handler) BulkStreamRaw(c *gin.Context) {
 	writer, request, graph := getFields(c)
 	project_id := c.Param("project-id")
@@ -763,6 +649,11 @@ func (gh *Handler) BulkStreamRaw(c *gin.Context) {
 		wait <- false
 	}()
 	<-wait
+
+	if err != nil {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 500, Message: fmt.Sprintf("BulkAddRaw error: %v", err)})
+		return
+	}
 
 	nonLoadedEdges := append(res.Errors, warnings...)
 	if len(nonLoadedEdges) > 0 {
