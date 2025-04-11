@@ -11,33 +11,6 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v5
-      with:
-        go-version: ^1.23.6
-    - name: Get grip version from go.mod
-      id: get_grip_version
-      run: |
-        GRIP_VERSION=$(grep "github.com/bmeg/grip " go.mod | awk '{print $2}')
-        echo "GRIP_VERSION=${GRIP_VERSION}" >> $GITHUB_ENV
-
-    - name: Install grip from branch
-      run: |
-        go install github.com/bmeg/grip@${{ env.GRIP_VERSION }}
-        if [ ! -f ~/go/bin/grip ]; then
-          echo "Error: grip binary not found at ~/go/bin/grip" >&2
-          exit 1
-        fi
-
-    - name: Store grip
-      uses: actions/upload-artifact@v4
-      with:
-        name: gripBin
-        path: ~/go/bin/grip
-      continue-on-error: false
-
-    - name: Make plugins
-      run: make all
 
     - name: Login to Quay.io
       uses: docker/login-action@v3
@@ -73,6 +46,35 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v5
+      with:
+        go-version: ^1.23.6
+
+    - name: Get grip version from go.mod
+      id: get_grip_version
+      run: |
+        GRIP_VERSION=$(grep "github.com/bmeg/grip " go.mod | awk '{print $2}')
+        echo "GRIP_VERSION=${GRIP_VERSION}" >> $GITHUB_ENV
+
+    - name: Install grip from branch
+      run: |
+        go install github.com/bmeg/grip@${{ env.GRIP_VERSION }}
+        if [ ! -f ~/go/bin/grip ]; then
+          echo "Error: grip binary not found at ~/go/bin/grip" >&2
+          exit 1
+        fi
+
+    - name: Store grip
+      uses: actions/upload-artifact@v4
+      with:
+        name: gripBin
+        path: ~/go/bin/grip
+      continue-on-error: false
+
+    - name: Make plugins
+      run: make all
 
     - name: Download grip
       uses: actions/download-artifact@v4
