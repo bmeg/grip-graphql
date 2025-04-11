@@ -1,10 +1,60 @@
-name: Build and publish grip graphql plugin server image
+name: Build and publish grip graphql plugin server image. Run tests.
 
 on:
   push:
   workflow_dispatch:
 
 jobs:
+  tests:
+    name: integration tests
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v5
+      with:
+        go-version: ^1.24.0
+
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Get grip version from go.mod
+      id: get_grip_version
+      run: |
+        GRIP_VERSION=$(grep "github.com/bmeg/grip " go.mod | awk '{print $2}')
+        echo "GRIP_VERSION=${GRIP_VERSION}" >> $GITHUB_ENV
+
+    - name: Install grip from branch
+      run: |
+        go install github.com/bmeg/grip@${{ env.GRIP_VERSION }}
+        if [ ! -f ~/go/bin/grip ]; then
+          echo "Error: grip binary not found at ~/go/bin/grip" >&2
+          exit 1
+        fi
+
+    - name: Build plugins
+      run: |
+        echo "Building plugins"
+        go mod download
+        CGO_ENABLED=1 go build --buildmode=plugin ./gen3_writer
+        CGO_ENABLED=1 go build --buildmode=plugin ./grip-js
+        CGO_ENABLED=1 go build --buildmode=plugin ./gql-gen
+        # Verify plugin files exist
+        for file in gen3_writer.so grip-js.so gql-gen.so; do
+          if [ ! -f "$file" ]; then
+            echo "Error: Plugin $file not found after build" >&2
+            exit 1
+          fi
+        done
+
+    - name: GRIDs Test
+      run: |
+        ~/go/bin/grip server -w writer=gen3_writer.so -w reader=grip-js.so -w graphql=gql-gen.so \
+          -l reader:config=./grip-js/config/gen3.js -l reader:graph=TEST -l \
+          writer:test=true -l graphql:test=true -l reader:auth=true &
+        sleep 5
+        go test -v ./tests/integration
+
   build:
     runs-on: ubuntu-latest
     steps:
