@@ -17,4 +17,5 @@ COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/gql-gen.so /data/
 COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/gen3_writer.so /data/
 COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/grip-js.so /data/
 COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/grip-js/config/gen3.js /data/config/
+COPY --from=build-env /go/src/github.com/bmeg/grip-graphql/mongo.yml /data/
 COPY --from=build-env /go/bin/grip /app/

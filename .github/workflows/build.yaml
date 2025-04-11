@@ -1,4 +1,4 @@
-name: Build and publish grip graphql plugin server image
+name: Build and publish grip graphql plugin server image. Run tests.
 
 on:
   push:
@@ -15,14 +15,14 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ^1.23.6
-    - name: Determine branch name
-      id: get_branch
+    - name: Get grip version from go.mod
+      id: get_grip_version
       run: |
-        BRANCH=$(echo ${GITHUB_REF#refs/*/} | tr / _)
-        echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+        GRIP_VERSION=$(grep "github.com/bmeg/grip " go.mod | awk '{print $2}')
+        echo "GRIP_VERSION=${GRIP_VERSION}" >> $GITHUB_ENV
 
     - name: Install grip from branch
-      run: go install github.com/bmeg/grip@${{ env.BRANCH }}
+      run: go install github.com/bmeg/grip@${{ env.GRIP_VERSION }}
 
     - name: Store grip
       uses: actions/upload-artifact@v4
