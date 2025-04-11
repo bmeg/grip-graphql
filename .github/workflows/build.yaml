@@ -36,7 +36,7 @@ jobs:
       run: |
         echo "Building plugins"
         go mod download
-        CGO_ENABLED=1 go build --buildmode=plugin ./gen3_wrter
+        CGO_ENABLED=1 go build --buildmode=plugin ./gen3_writer
         CGO_ENABLED=1 go build --buildmode=plugin ./grip-js
         CGO_ENABLED=1 go build --buildmode=plugin ./gql-gen
         # Verify plugin files exist
