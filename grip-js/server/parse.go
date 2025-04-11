@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/bmeg/grip/log"
@@ -32,18 +33,14 @@ func (e *Endpoint) parseJSHandler(x map[string]any) (QueryField, error) {
 	defaults := map[string]any{}
 	if defaultsA, ok := x["defaults"]; ok {
 		if defaultsM, ok := defaultsA.(map[string]any); ok {
-			for k, v := range defaultsM {
-				defaults[k] = v
-			}
+			maps.Copy(defaults, defaultsM)
 		}
 	}
 
 	arguments := map[string]any{}
 	if argumentsA, ok := x["args"]; ok {
 		if argumentsM, ok := argumentsA.(map[string]any); ok {
-			for k, v := range argumentsM {
-				arguments[k] = v
-			}
+			maps.Copy(arguments, argumentsM)
 		}
 	}
 	log.Info("ARGS: ", arguments)
@@ -55,12 +52,8 @@ func (e *Endpoint) parseJSHandler(x map[string]any) (QueryField, error) {
 			objField.Resolve = func(params graphql.ResolveParams) (any, error) {
 				log.Debug("Calling resolver")
 				uArgs := map[string]any{}
-				for k, v := range defaults {
-					uArgs[k] = v
-				}
-				for k, v := range params.Args {
-					uArgs[k] = v
-				}
+				maps.Copy(uArgs, defaults)
+				maps.Copy(uArgs, params.Args)
 
 				ctx := params.Context
 				vArgs := e.vm.ToValue(uArgs)
@@ -79,39 +72,10 @@ func (e *Endpoint) parseJSHandler(x map[string]any) (QueryField, error) {
 			}
 
 			if len(arguments) > 0 {
-				args := graphql.FieldConfigArgument{}
-				for k, v := range arguments {
-					switch v := v.(type) {
-					case string:
-						if v == "String" {
-							args[k] = &graphql.ArgumentConfig{Type: graphql.String}
-						} else if v == "Int" {
-							args[k] = &graphql.ArgumentConfig{Type: graphql.Int}
-						} else if v == "Boolean" {
-							args[k] = &graphql.ArgumentConfig{Type: graphql.Boolean}
-						} else if v == "Float" {
-							args[k] = &graphql.ArgumentConfig{Type: graphql.Float}
-						}
-					case map[string]any:
-						inputObj, err := parseInputObject(k, v)
-						if err != nil {
-							return QueryField{}, fmt.Errorf("failed to parse input object %s: %s", k, err)
-						}
-						args[k] = &graphql.ArgumentConfig{Type: inputObj}
-					case []any:
-						if len(v) != 1 {
-							return QueryField{}, fmt.Errorf("incorrect elements in arg array for %s", k)
-						}
-						if nested, ok := v[0].(map[string]any); ok {
-							inputObj, err := parseInputObject(k, nested)
-							if err != nil {
-								return QueryField{}, fmt.Errorf("failed to parse list input object %s: %s", k, err)
-							}
-							args[k] = &graphql.ArgumentConfig{Type: graphql.NewList(inputObj)}
-						}
-					}
+				objField.Args, err = buildGraphQLArgs(arguments)
+				if err != nil {
+					return QueryField{}, err
 				}
-				objField.Args = args
 			}
 			return QueryField{
 				name:    name,
@@ -124,6 +88,43 @@ func (e *Endpoint) parseJSHandler(x map[string]any) (QueryField, error) {
 	} else {
 		return QueryField{}, fmt.Errorf("schema not found for %s", name)
 	}
+}
+
+func buildGraphQLArgs(arguments map[string]any) (graphql.FieldConfigArgument, error) {
+	args := graphql.FieldConfigArgument{}
+	for k, v := range arguments {
+		switch v := v.(type) {
+		case string:
+			switch v {
+			case "String":
+				args[k] = &graphql.ArgumentConfig{Type: graphql.String}
+			case "Int":
+				args[k] = &graphql.ArgumentConfig{Type: graphql.Int}
+			case "Boolean":
+				args[k] = &graphql.ArgumentConfig{Type: graphql.Boolean}
+			case "Float":
+				args[k] = &graphql.ArgumentConfig{Type: graphql.Float}
+			}
+		case map[string]any:
+			inputObj, err := parseInputObject(k, v)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse input object %s: %w", k, err)
+			}
+			args[k] = &graphql.ArgumentConfig{Type: inputObj}
+		case []any:
+			if len(v) != 1 {
+				return nil, fmt.Errorf("incorrect elements in arg array for %s", k)
+			}
+			if nested, ok := v[0].(map[string]any); ok {
+				inputObj, err := parseInputObject(k, nested)
+				if err != nil {
+					return nil, fmt.Errorf("failed to parse list input object %s: %w", k, err)
+				}
+				args[k] = &graphql.ArgumentConfig{Type: graphql.NewList(inputObj)}
+			}
+		}
+	}
+	return args, nil
 }
 
 func parseField(name string, x any, isInput bool) (*graphql.Field, error) {

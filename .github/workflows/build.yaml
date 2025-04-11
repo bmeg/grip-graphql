@@ -7,9 +7,31 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - name: Check out code
       uses: actions/checkout@v4
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v5
+      with:
+        go-version: ^1.23.6
+    - name: Determine branch name
+      id: get_branch
+      run: |
+        BRANCH=$(echo ${GITHUB_REF#refs/*/} | tr / _)
+        echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+
+    - name: Install grip from branch
+      run: go install github.com/bmeg/grip@${{ env.BRANCH }}
+
+    - name: Store grip
+      uses: actions/upload-artifact@v4
+      with:
+        name: gripBin
+        path: grip
+
+    - name: Make plugins
+      run: make all
 
     - name: Login to Quay.io
       uses: docker/login-action@v3
@@ -36,3 +58,29 @@ jobs:
 
         # Push the tagged image to Quay.io
         docker push --all-tags $REPO
+
+
+  tests:
+    needs: build
+    name: integration tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Download grip
+      uses: actions/download-artifact@v4
+      with:
+        name: gripBin
+        path: .
+
+    - name: Make grip executable
+      run: chmod +x ./grip
+
+    - name: GRIDs Test
+      run: |
+        ./grip server -w writer=gen3_writer.so -w reader=grip-js.so -w graphql=gql-gen.so \
+          -l reader:config=./config/gen3.js -l reader:graph=TEST -l \
+          writer:test=true -l graphql:test=true -l reader:auth=true &
+        sleep 5
+        go test -v ./tests/integration
