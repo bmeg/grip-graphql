@@ -22,13 +22,19 @@ jobs:
         echo "GRIP_VERSION=${GRIP_VERSION}" >> $GITHUB_ENV
 
     - name: Install grip from branch
-      run: go install github.com/bmeg/grip@${{ env.GRIP_VERSION }}
+      run: |
+        go install github.com/bmeg/grip@${{ env.GRIP_VERSION }}
+        if [ ! -f ~/go/bin/grip ]; then
+          echo "Error: grip binary not found at ~/go/bin/grip" >&2
+          exit 1
+        fi
 
     - name: Store grip
       uses: actions/upload-artifact@v4
       with:
         name: gripBin
-        path: grip
+        path: ~/go/bin/grip
+      continue-on-error: false
 
     - name: Make plugins
       run: make all
