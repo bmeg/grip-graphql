@@ -613,11 +613,16 @@ func (gh *Handler) BulkStreamRaw(c *gin.Context) {
 	}
 	mapExtraArgs["auth_resource_path"] = "/programs/" + proj_split[0] + "/projects/" + proj_split[1]
 
-	Hostname, _, hostnameErr := net.SplitHostPort(c.Request.Host)
-	if hostnameErr != nil {
-		RegError(c, writer, graph, GetInternalServerErr(hostnameErr))
-		return
+	var Hostname string = c.Request.Host
+	if strings.Contains(c.Request.Host, ":") {
+		var err error
+		Hostname, _, err = net.SplitHostPort(c.Request.Host)
+		if err != nil {
+			RegError(c, writer, graph, GetInternalServerErr(err))
+			return
+		}
 	}
+
 	mapExtraArgs["namespace"] = Hostname
 	log.Infof("Using hostname: %s", Hostname)
 
