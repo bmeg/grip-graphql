@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 
@@ -611,6 +612,14 @@ func (gh *Handler) BulkStreamRaw(c *gin.Context) {
 		return
 	}
 	mapExtraArgs["auth_resource_path"] = "/programs/" + proj_split[0] + "/projects/" + proj_split[1]
+
+	Hostname, _, hostnameErr := net.SplitHostPort(c.Request.Host)
+	if hostnameErr != nil {
+		RegError(c, writer, graph, GetInternalServerErr(hostnameErr))
+		return
+	}
+	mapExtraArgs["namespace"] = Hostname
+	log.Infof("Using hostname: %s", Hostname)
 
 	host := "localhost:8202"
 	var err error
