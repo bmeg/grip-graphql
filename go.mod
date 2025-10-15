@@ -1,12 +1,10 @@
 module github.com/bmeg/grip-graphql
 
-go 1.24
-
-toolchain go1.24.2
+go 1.24.2
 
 require (
 	github.com/99designs/gqlgen v0.17.57
-	github.com/bmeg/grip v0.0.0-20250915204302-93cb1e8117c8
+	github.com/bmeg/grip v0.0.0-20251015152131-81c3f20ad301
 	github.com/dop251/goja v0.0.0-20240707163329-b1681fb2a2f5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
