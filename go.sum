@@ -15,8 +15,8 @@ github.com/andybalholm/cascadia v1.3.2/go.mod h1:7gtRlve5FxPPgIgX36uWBX58OdBsSS6
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 h1:jfIu9sQUG6Ig+0+Ap1h4unLjW6YQJpKZVmUzxsD4E/Q=
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0/go.mod h1:t2tdKJDJF9BV14lnkjHmOQgcvEKgtqs5a1N3LNdJhGE=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
-github.com/bmeg/grip v0.0.0-20251015152131-81c3f20ad301 h1:8Wxnterbl6QrjrzOFHMYx5opl5y2jbSHh634VNVivqU=
-github.com/bmeg/grip v0.0.0-20251015152131-81c3f20ad301/go.mod h1:YhsmNY+ksx9ohglQWKI+WazwS28uLKPO6ulWS6QLY30=
+github.com/bmeg/grip v0.0.0-20251017205507-9ca459b75288 h1:uzRTjIcH6/n3X7m+WGf/ze17uZqU6finAVLJ2XIuSkw=
+github.com/bmeg/grip v0.0.0-20251017205507-9ca459b75288/go.mod h1:VRHNQsv6XBKuDg0wEItBsOhO9I7I6GkOgtuHsD6RXBk=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad h1:ICgBexeLB7iv/IQz4rsP+MimOXFZUwWSPojEypuOaQ8=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad/go.mod h1:ft96Irkp72C7ZrUWRenG7LrF0NKMxXdRvsypo5Njhm4=
 github.com/bytedance/sonic v1.14.0 h1:/OfKt8HFw0kh2rj8N0F6C/qPGRESq0BbaNZgcNXXzQQ=

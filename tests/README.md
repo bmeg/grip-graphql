@@ -19,7 +19,11 @@ then cd to tests directory and run:
 
 If the graph name is `TEST` and the config is setup for test=true, mock auth will be used, and these tests can be run locally outside of a gen3 instance.
 
-Note: some tests that rely on the underlying data in the DB only work when all tests are run, since not all tests populate the grip with data
+The tests leave 2 graphs in the DB, so to clean out the state after the tests are run, run
+```
+grip drop JSONTEST
+grip drop TEST
+```
 
 ## Running locally
 

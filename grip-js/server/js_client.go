@@ -45,7 +45,7 @@ func toInterface(qr *gripql.QueryResult) any {
 	fmt.Println("QUERY RESULT: ", qr)
 	if v := qr.GetVertex(); v != nil {
 		data := v.GetDataMap()
-		data["id"] = v.Id
+		data["_id"] = v.Id
 		return data
 	}
 	if e := qr.GetEdge(); e != nil {
@@ -196,7 +196,7 @@ func (cw *JSClientWrapper) AddVertex(args ...goja.Value) goja.Value {
 		Id:    _id,
 		Label: _label,
 	}
-	vData["id"] = _id
+	vData["_id"] = _id
 	vertex.SetDataMap(vData)
 
 	log.Debugf("adding vertex: %#v graph: %s", vertex, cw.graph)

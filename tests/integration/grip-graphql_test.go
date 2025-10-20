@@ -1,6 +1,7 @@
 package integration_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/bmeg/grip-graphql/tests/integration"
@@ -24,6 +25,8 @@ func Test_Graphql_Query_Forbidden_Perms(t *testing.T) {
 		Body: payload,
 	}
 	response, status := integration.TemplateRequest(req, t)
+	fmt.Println("RESP: ", response)
+	t.Log("RESP", response)
 	if !(response["StatusCode"].(float64) == 403) {
 		t.Error(response)
 	}

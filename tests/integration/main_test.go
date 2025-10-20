@@ -87,7 +87,7 @@ func runTests(m *testing.M) int {
 
 	fmt.Println("Starting cleanup")
 	cleanupT := &testing.T{}
-	Test_Writer_Delete_Proj(cleanupT)
+	Test_Writer_Delete_Proj_Endpoint_Ok(cleanupT)
 	if cleanupT.Failed() {
 		fmt.Println("Cleanup test failed")
 		return 1
