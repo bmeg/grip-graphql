@@ -6,7 +6,7 @@ Tests can be run locally by specifying that you want to turn on the plugin in te
 grip server  -w writer=gen3_writer.so \
              -w reader=grip-js.so \
              -w graphql=gql-gen.so \
-             -l reader:config=./config/gen3.js \
+             -l reader:config=./grip-js/config/gen3.js \
              -l reader:graph=TEST \
              -l writer:test=true \
              -l graphql:test=true \
