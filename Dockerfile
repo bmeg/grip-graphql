@@ -6,6 +6,9 @@ ENV PATH="/go/bin:${PATH}"
 ADD ./ /go/src/github.com/bmeg/grip-graphql
 WORKDIR /go/src/github.com/bmeg/grip-graphql
 
+RUN go mod tidy
+RUN go mod download
+
 RUN GRIP_VERSION=$(go list -m -json github.com/bmeg/grip | jq -r '.Version') && \
     go install github.com/bmeg/grip@$GRIP_VERSION
 RUN make all
