@@ -88,7 +88,7 @@ func TokenAuthMiddleware(jwtHandler middleware.JWTHandler) gin.HandlerFunc {
 				return
 			}
 
-			anyList, err := jwtHandler.HandleJWTToken(Token, method)
+			anyList, err := jwtHandler.GetAllowedResources(Token, method, "*")
 			if err != nil {
 				RegError(c, c.Writer, c.Param("graph"), err)
 				return
