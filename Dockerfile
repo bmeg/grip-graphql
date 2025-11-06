@@ -6,6 +6,9 @@ ENV PATH="/go/bin:${PATH}"
 ADD ./ /go/src/github.com/bmeg/grip-graphql
 WORKDIR /go/src/github.com/bmeg/grip-graphql
 
+RUN ls -l middleware
+RUN pwd
+
 RUN go mod tidy
 RUN go mod download
 
