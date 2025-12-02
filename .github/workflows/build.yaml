@@ -13,7 +13,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5
       with:
-        go-version: ^1.24.0
+        go-version: ^1.24.2
 
     - name: Check out code
       uses: actions/checkout@v4
@@ -35,6 +35,7 @@ jobs:
     - name: Build plugins
       run: |
         echo "Building plugins"
+        go mod tidy
         go mod download
         CGO_ENABLED=1 go build --buildmode=plugin ./gen3_writer
         CGO_ENABLED=1 go build --buildmode=plugin ./grip-js

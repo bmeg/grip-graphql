@@ -81,7 +81,7 @@ func (gh *Handler) graphqlHandler(client gripql.Client, jwtHandler middleware.JW
 		if os.Getenv("AUTH_ENABLED") == "true" {
 			if val, ok := requestHeaders["Authorization"]; ok {
 				Token := val[0]
-				anyList, err := jwtHandler.HandleJWTToken(Token, "read")
+				anyList, err := jwtHandler.GetAllowedResources(Token, "read", "*")
 				if err != nil {
 					RegError(c, c.Writer, c.Param("graph"), err)
 					return

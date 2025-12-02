@@ -35,10 +35,10 @@ func CreateToken(expired bool, writer bool, reader bool) string {
 		create = "create"
 	}
 	if reader {
-		create = "reader"
+		create = "read"
 	}
 	if writer && reader {
-		create = "create-reader"
+		create = "*"
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{

@@ -88,7 +88,7 @@ func TokenAuthMiddleware(jwtHandler middleware.JWTHandler) gin.HandlerFunc {
 				return
 			}
 
-			anyList, err := jwtHandler.HandleJWTToken(Token, method)
+			anyList, err := jwtHandler.GetAllowedResources(Token, method, "*")
 			if err != nil {
 				RegError(c, c.Writer, c.Param("graph"), err)
 				return
@@ -128,7 +128,7 @@ func NewHTTPHandler(client gripql.Client, config map[string]string) (http.Handle
 
 	// Since using Grip logging functions, log config needs to be set to properly format JSON data outputs
 	logConfig := log.Logger{
-		Level:     "info",
+		Level:     "debug",
 		Formatter: "json",
 	}
 	log.ConfigureLogger(logConfig)

@@ -198,7 +198,7 @@ func (gh *GraphQLJS) ServeHTTP(writer http.ResponseWriter, request *http.Request
 			log.Debug("Request Headers: ", requestHeaders)
 			if val, ok := requestHeaders["Authorization"]; ok {
 				Token := val[0]
-				resourceList, err := jwtHandler.HandleJWTToken(Token, "read")
+				resourceList, err := jwtHandler.GetAllowedResources(Token, "read", "*")
 				log.Debugln("Resource List: ", resourceList)
 				if err != nil {
 					log.Debugln("HandleJWTToken Err: ", err)
