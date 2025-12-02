@@ -15,6 +15,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+var HTTPClient = http.DefaultClient
+
 func getAuthMappings(url string, token string) (any, error) {
 	GetRequest, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -23,7 +25,7 @@ func getAuthMappings(url string, token string) (any, error) {
 	}
 	GetRequest.Header.Set("Authorization", token)
 	GetRequest.Header.Set("Accept", "application/json")
-	fetchedData, err := http.DefaultClient.Do(GetRequest)
+	fetchedData, err := HTTPClient.Do(GetRequest)
 	if err != nil {
 		log.Error(err)
 		return nil, err
