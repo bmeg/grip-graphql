@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/99designs/gqlgen v0.17.57
-	github.com/bmeg/grip v0.0.0-20251202230911-d54d9a03cb7d
+	github.com/bmeg/grip v0.0.0-20260219211118-3a91fb6f32b9
 	github.com/dop251/goja v0.0.0-20240707163329-b1681fb2a2f5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
@@ -12,7 +12,7 @@ require (
 	github.com/graphql-go/graphql v0.8.1
 	github.com/graphql-go/handler v0.2.4
 	github.com/spf13/cobra v1.8.1
-	github.com/spf13/pflag v1.0.5
+	github.com/spf13/pflag v1.0.6
 	github.com/vektah/gqlparser/v2 v2.5.19
 	golang.org/x/exp v0.0.0-20240707233637-46b078467d37
 	google.golang.org/protobuf v1.36.7
