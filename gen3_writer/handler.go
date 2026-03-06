@@ -456,6 +456,7 @@ func (gh *Handler) DeleteVertex(c *gin.Context, vertexId string) {
 
 func (gh *Handler) BulkDelete(c *gin.Context) {
 	writer, request, graph := getFields(c)
+	log.WithFields(log.Fields{"graph": graph}).Info("BulkDelete start")
 
 	var body []byte
 	var err error
@@ -479,11 +480,13 @@ func (gh *Handler) BulkDelete(c *gin.Context) {
 		return
 	}
 	delData.Graph = graph
+	log.WithFields(log.Fields{"graph": graph, "vertices": len(delData.Vertices), "edges": len(delData.Edges)}).Info("BulkDelete parsed payload")
 
 	if err := gh.client.BulkDelete(delData); err != nil {
 		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
+	log.WithFields(log.Fields{"graph": graph}).Info("BulkDelete complete")
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] bulk-delete on graph %s", graph))
 }
 
@@ -533,6 +536,7 @@ func (gh *Handler) ProjectDelete(c *gin.Context) {
 	var delVs []string
 
 	writer, _, graph := getFields(c)
+	log.WithFields(log.Fields{"graph": graph}).Info("ProjectDelete start")
 	project_id := c.Param("project-id")
 	str_split := strings.SplitN(project_id, "-", 2)
 	if len(str_split) != 2 || str_split[0] == "" || str_split[1] == "" {
@@ -558,16 +562,22 @@ func (gh *Handler) ProjectDelete(c *gin.Context) {
 		if r := i.GetRender(); r != nil {
 			if id, ok := r.AsInterface().(string); ok && id != "" {
 				delVs = append(delVs, id)
+				if len(delVs)%10000 == 0 {
+					log.WithFields(log.Fields{"graph": graph, "project_id": project_id, "vertices_collected": len(delVs)}).Info("ProjectDelete traversal progress")
+				}
 			}
 		}
 	}
+	log.WithFields(log.Fields{"graph": graph, "project_id": project_id, "vertices_collected": len(delVs)}).Info("ProjectDelete traversal complete")
 
 	delData := &gripql.DeleteData{Graph: graph, Vertices: delVs, Edges: []string{}}
+	log.WithFields(log.Fields{"graph": graph, "project_id": project_id, "vertices_to_delete": len(delVs)}).Info("ProjectDelete bulk delete begin")
 
 	if err := gh.client.BulkDelete(delData); err != nil {
 		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
+	log.WithFields(log.Fields{"graph": graph, "project_id": project_id}).Info("ProjectDelete complete")
 	Response(c, writer, graph, nil, 200, fmt.Sprintf("[200] project-delete on project %s", project_id))
 }
 
