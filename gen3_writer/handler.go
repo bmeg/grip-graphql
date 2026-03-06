@@ -67,8 +67,8 @@ func TokenAuthMiddleware(jwtHandler middleware.JWTHandler) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		// If request path is open access then no token needed no project_id needed.
-		project_split := strings.Split(c.Param("project-id"), "-")
-		if len(project_split) != 2 {
+		project_split := strings.SplitN(c.Param("project-id"), "-", 2)
+		if len(project_split) != 2 || project_split[0] == "" || project_split[1] == "" {
 			// This error usually occurs when part of the path is correct or a typo in path.
 			RegError(c, c.Writer, c.Param("graph"), &middleware.ServerError{StatusCode: 404, Message: fmt.Sprintf("incorrect path %s", c.Request.URL)})
 			return
@@ -464,15 +464,21 @@ func (gh *Handler) BulkDelete(c *gin.Context) {
 		RegError(c, writer, graph, GetInternalServerErr(err))
 		return
 	}
-	if body == nil {
-		RegError(c, writer, graph, err)
+	if len(body) == 0 {
+		RegError(c, writer, graph, &middleware.ServerError{
+			StatusCode: 400,
+			Message:    "Request body empty. Cannot parse request",
+		})
 		return
-	} else {
-		if err := protojson.Unmarshal([]byte(body), delData); err != nil {
-			RegError(c, writer, graph, err)
-			return
-		}
 	}
+	if err := protojson.Unmarshal(body, delData); err != nil {
+		RegError(c, writer, graph, &middleware.ServerError{
+			StatusCode: 400,
+			Message:    fmt.Sprintf("Invalid bulk-delete payload: %v", err),
+		})
+		return
+	}
+	delData.Graph = graph
 
 	if err := gh.client.BulkDelete(delData); err != nil {
 		RegError(c, writer, graph, GetInternalServerErr(err))
@@ -486,7 +492,14 @@ func (gh *Handler) GetProjectVertices(c *gin.Context) {
 
 	writer, _, graph := getFields(c)
 	project_id := c.Param("project-id")
-	str_split := strings.Split(project_id, "-")
+	str_split := strings.SplitN(project_id, "-", 2)
+	if len(str_split) != 2 || str_split[0] == "" || str_split[1] == "" {
+		RegError(c, writer, graph, &middleware.ServerError{
+			StatusCode: 400,
+			Message:    "project-id must be in '<program>-<project>' format",
+		})
+		return
+	}
 	project := "/programs/" + str_split[0] + "/projects/" + str_split[1]
 
 	Vquery := gripql.V().Has(gripql.Eq("auth_resource_path", project))
@@ -521,7 +534,14 @@ func (gh *Handler) ProjectDelete(c *gin.Context) {
 
 	writer, _, graph := getFields(c)
 	project_id := c.Param("project-id")
-	str_split := strings.Split(project_id, "-")
+	str_split := strings.SplitN(project_id, "-", 2)
+	if len(str_split) != 2 || str_split[0] == "" || str_split[1] == "" {
+		RegError(c, writer, graph, &middleware.ServerError{
+			StatusCode: 400,
+			Message:    "project-id must be in '<program>-<project>' format",
+		})
+		return
+	}
 	project := "/programs/" + str_split[0] + "/projects/" + str_split[1]
 
 	Vquery := gripql.V().Has(gripql.Eq("auth_resource_path", project)).Render("_id")
@@ -535,8 +555,11 @@ func (gh *Handler) ProjectDelete(c *gin.Context) {
 	/* Running bulkDelete with only the vertex ids specified will remove all of the disconnected edges caused by removing
 	   All vertices in the graph. */
 	for i := range result {
-		v := i.ToInterface().(map[string]any)["render"].(string)
-		delVs = append(delVs, v)
+		if r := i.GetRender(); r != nil {
+			if id, ok := r.AsInterface().(string); ok && id != "" {
+				delVs = append(delVs, id)
+			}
+		}
 	}
 
 	delData := &gripql.DeleteData{Graph: graph, Vertices: delVs, Edges: []string{}}
