@@ -582,14 +582,13 @@ func (gh *Handler) WriteVertex(c *gin.Context) {
 		RegError(c, writer, graph, err)
 		return
 	}
-	if body == nil {
-		RegError(c, writer, graph, err)
+	if len(body) == 0 {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: "Request body empty. Cannot parse request"})
 		return
-	} else {
-		if err := protojson.Unmarshal([]byte(body), v); err != nil {
-			RegError(c, writer, graph, err)
-			return
-		}
+	}
+	if err := protojson.Unmarshal(body, v); err != nil {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("Invalid vertex payload: %v", err)})
+		return
 	}
 	if err := gh.client.AddVertex(graph, v); err != nil {
 		RegError(c, writer, graph, GetInternalServerErr(err))
@@ -609,14 +608,13 @@ func (gh *Handler) WriteEdge(c *gin.Context) {
 		RegError(c, writer, graph, err)
 		return
 	}
-	if body == nil {
+	if len(body) == 0 {
 		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: "Request body empty. Cannot parse request"})
 		return
-	} else {
-		if err := protojson.Unmarshal([]byte(body), e); err != nil {
-			RegError(c, writer, graph, err)
-			return
-		}
+	}
+	if err := protojson.Unmarshal(body, e); err != nil {
+		RegError(c, writer, graph, &middleware.ServerError{StatusCode: 400, Message: fmt.Sprintf("Invalid edge payload: %v", err)})
+		return
 	}
 	if err := gh.client.AddEdge(graph, e); err != nil {
 		RegError(c, writer, graph, GetInternalServerErr(err))
