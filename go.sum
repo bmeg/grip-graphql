@@ -43,6 +43,8 @@ github.com/bmeg/grip v0.0.0-20260306232827-22ce766c4b97 h1:SKrNftZQYjTi9WKwvHpAe
 github.com/bmeg/grip v0.0.0-20260306232827-22ce766c4b97/go.mod h1:jjEafw1t+q28cOOl5F4vcIfV4/IN2JqRm06wJIFuEec=
 github.com/bmeg/grip v0.0.0-20260309143457-8d90a606b740 h1:n21WwSDVfLmkeN22QTj4CPl8t4kpNGPd/fMIdRijX3I=
 github.com/bmeg/grip v0.0.0-20260309143457-8d90a606b740/go.mod h1:jjEafw1t+q28cOOl5F4vcIfV4/IN2JqRm06wJIFuEec=
+github.com/bmeg/grip v0.0.0-20260309144215-acd2ce7b228f h1:NagieiaWuz1M0eCjY0dzwg8RBCF8WRrhlDjXae7S0VM=
+github.com/bmeg/grip v0.0.0-20260309144215-acd2ce7b228f/go.mod h1:zViWUxIRoCtLxaYRln/EL661fsvar0SrAPXgljehe8I=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad h1:ICgBexeLB7iv/IQz4rsP+MimOXFZUwWSPojEypuOaQ8=
 github.com/bmeg/jsonpath v0.0.0-20210207014051-cca5355553ad/go.mod h1:ft96Irkp72C7ZrUWRenG7LrF0NKMxXdRvsypo5Njhm4=
 github.com/bmeg/jsonschema/v6 v6.0.4 h1:AXFAz7G05VZkKretSSU+uacMKF8+C16ONG6pzFzzA7E=

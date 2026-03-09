@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/99designs/gqlgen v0.17.57
-	github.com/bmeg/grip v0.0.0-20260309143457-8d90a606b740
+	github.com/bmeg/grip v0.0.0-20260309144215-acd2ce7b228f
 	github.com/dop251/goja v0.0.0-20240707163329-b1681fb2a2f5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
