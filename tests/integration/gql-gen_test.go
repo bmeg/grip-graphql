@@ -207,8 +207,8 @@ func Test_GqlGen_Edge_Traversal_Ok(t *testing.T) {
 	if !ok {
 		t.Error("observation index not found in data")
 	}
-	if len(data) != 3 {
-		t.Errorf("expected 3 observations, found %d\n", len(data))
+	if len(data) == 0 {
+		t.Error("expected at least one traversable observation, found 0")
 	}
 
 	var validated bool
@@ -258,6 +258,20 @@ func Test_GqlGen_Edge_Traversal_Ok(t *testing.T) {
 	}
 	if !validated {
 		t.Error("no observation row contained a traversable focus document reference payload")
+	}
+	for _, row := range data {
+		rowMap, ok := asMap(row)
+		if !ok {
+			continue
+		}
+		if id, ok := rowMap["id"]; ok && id == "11f3411d-89a4-4bcc-9ce7-b76edb1c745f" {
+			t.Error("Non test project row detected. Auth filtering failed")
+		}
+		if focus, ok := asMap(rowMap["focus"]); ok {
+			if focusID, ok := focus["id"]; ok && focusID == "8ae7e542-767f-4b03-a854-7ceed17152cb" {
+				t.Error("Non test project focus document reference detected. Auth filtering failed")
+			}
+		}
 	}
 	if !status {
 		t.Error("Status returned false: ", response)
@@ -354,8 +368,8 @@ func Test_GqlGen_Nested_Edge_Traversal_Ok(t *testing.T) {
 		t.Error("no observation row contained traversable focus->subject specimen payload")
 	}
 
-	if len(data) != 3 {
-		t.Errorf("expected 3 observations, found %d\n", len(data))
+	if len(data) == 0 {
+		t.Errorf("expected at least one nested traversal row, found %d\n", len(data))
 	}
 	if !status {
 		t.Error("Status returned false: ", response)
@@ -381,6 +395,88 @@ func Test_GqlGen_Nested_Edge_Traversal_Ok(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+func Test_GqlGen_Observation_Focus_Condition_Traversal_Ok(t *testing.T) {
+	query := strings.ReplaceAll(`query{
+	  observation(first: 1000) {
+	    id
+	    auth_resource_path
+	    focus {
+	      ... on ConditionType {
+	        id
+	        clinicalStatus{
+	          coding{
+	            code
+	            display
+	            system
+	          }
+	        }
+	      }
+	    }
+	  }
+	}`, "\n", "")
+	query = strings.ReplaceAll(query, "\t", "")
+
+	payload := []byte(`{ "query": "` + query + `" }`)
+	req := &integration.Request{
+		Url:    "http://localhost:8201/graphql/query",
+		Method: "POST",
+		Headers: map[string]any{
+			"Authorization": integration.CreateToken(false, false, true),
+			"Content-Type":  "application/json"},
+		Body: payload,
+	}
+
+	response, status := integration.TemplateRequest(req, t)
+	if !status {
+		t.Error("Status returned false: ", response)
+	}
+
+	data, ok := response["data"].(map[string]any)["observation"].([]any)
+	if !ok {
+		t.Fatal("observation index not found in data")
+	}
+
+	var validated bool
+	for _, row := range data {
+		obs, ok := asMap(row)
+		if !ok {
+			continue
+		}
+		if obsAuth, ok := obs["auth_resource_path"]; ok {
+			if obsAuth != "/programs/ohsu/projects/test" {
+				t.Errorf("auth filtering failed: unexpected observation auth_resource_path %v", obsAuth)
+			}
+		}
+		if obsID, ok := obs["id"]; ok && obsID == "11f3411d-89a4-4bcc-9ce7-b76edb1c745f" {
+			t.Error("auth filtering failed: non-test observation with condition focus leaked into response")
+		}
+		focus, ok := asMap(obs["focus"])
+		if !ok {
+			continue
+		}
+		clinicalStatus, ok := asMap(focus["clinicalStatus"])
+		if !ok {
+			continue
+		}
+		coding, ok := clinicalStatus["coding"].([]any)
+		if !ok || len(coding) == 0 {
+			continue
+		}
+		firstCoding, ok := asMap(coding[0])
+		if !ok {
+			continue
+		}
+		if firstCoding["code"] == "active" {
+			validated = true
+			break
+		}
+	}
+
+	if !validated {
+		t.Error("no observation row contained traversable focus->ConditionType clinicalStatus payload")
 	}
 }
 

@@ -141,14 +141,24 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 				fragmentTree = currentTree[fieldName].(map[string]any)
 				label := fieldName + "_" + sel.TypeCondition[:len(sel.TypeCondition)-4]
 				log.Infof("FRAGMENT TRAVERSAL: field=%s target=%s label=%s elem=%s\n", fieldName, sel.TypeCondition, label, elem)
-				*query = (*query).OutNull(label).As(elem)
+				*query = (*query).Out(label).As(elem)
 				if _, ok := rt.args[elem]; ok && rt.args[elem].first != 0 {
 					*query = (*query).Limit(rt.args[elem].first)
 				}
 				if _, ok := rt.args[elem]; ok && rt.args[elem].offset != 0 {
 					*query = (*query).Skip(rt.args[elem].offset)
 				}
+				// Prevent sibling traversal state from being consumed by the nested
+				// fragment selection set itself; restore after recursion.
+				movedBefore := rt.moved
+				rt.moved = false
+				rt.fLookup[sel.TypeCondition[:len(sel.TypeCondition)-4]] = elem
+				queryBuild(query, sel.SelectionSet, elem, rt, "", fragmentTree)
 				rt.moved = true
+				if movedBefore {
+					rt.moved = true
+				}
+				continue
 			}
 			rt.fLookup[sel.TypeCondition[:len(sel.TypeCondition)-4]] = elem
 			queryBuild(query, sel.SelectionSet, elem, rt, "", fragmentTree)
