@@ -12,20 +12,38 @@ import (
 	"github.com/bmeg/grip/log"
 )
 
+func shouldInjectAuthOnStepEntry(gs *gripql.GraphStatement) bool {
+	// Inject auth filters when we traverse onto concrete vertex/edge steps.
+	// Skip nullable hops and Select rebinding so optional traversals don't collapse.
+	switch gs.GetStatement().(type) {
+	case *gripql.GraphStatement_V,
+		*gripql.GraphStatement_Out,
+		*gripql.GraphStatement_In,
+		*gripql.GraphStatement_OutE,
+		*gripql.GraphStatement_InE,
+		*gripql.GraphStatement_Both,
+		*gripql.GraphStatement_BothE:
+		return true
+	default:
+		return false
+	}
+}
+
 func applyAuthFilters(q **gripql.Query, authList []any) {
 	/* Applies gen3 RBAC auth filters to the query */
 	Has_Statement := &gripql.GraphStatement{Statement: &gripql.GraphStatement_Has{Has: gripql.Within("auth_resource_path", authList...)}}
 	steps := inspect.PipelineSteps((*q).Statements)
 	FilteredGS := []*gripql.GraphStatement{}
-	step_value := 0
+	stepValue := 0
 
 	for i, v := range (*q).Statements {
 		steps_index, _ := strconv.Atoi(steps[i])
-		if i == 0 || steps_index <= step_value {
-			FilteredGS = append(FilteredGS, v)
-		} else {
-			FilteredGS = append(FilteredGS, v, Has_Statement)
-			step_value++
+		FilteredGS = append(FilteredGS, v)
+		if steps_index > stepValue {
+			if shouldInjectAuthOnStepEntry(v) {
+				FilteredGS = append(FilteredGS, Has_Statement)
+			}
+			stepValue = steps_index
 		}
 	}
 	(*q).Statements = FilteredGS

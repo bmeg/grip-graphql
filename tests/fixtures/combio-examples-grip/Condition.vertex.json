@@ -1,0 +1,1 @@
+{"_id":"43c1dc2d-0d3c-56a7-aaf7-95424503b22b","_label":"Condition","auth_resource_path":"/programs/ohsu/projects/test","resourceType":"Condition","id":"43c1dc2d-0d3c-56a7-aaf7-95424503b22b","clinicalStatus":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/condition-clinical","code":"active","display":"Active"}]}}

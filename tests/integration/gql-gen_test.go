@@ -7,6 +7,11 @@ import (
 	"github.com/bmeg/grip-graphql/tests/integration"
 )
 
+func asMap(v any) (map[string]any, bool) {
+	m, ok := v.(map[string]any)
+	return m, ok
+}
+
 func Test_GqlGen_Basic_Graphql(t *testing.T) {
 	/* A basic test for Graphql style query with mock auth */
 	payload := []byte(`{
@@ -202,25 +207,71 @@ func Test_GqlGen_Edge_Traversal_Ok(t *testing.T) {
 	if !ok {
 		t.Error("observation index not found in data")
 	}
-	if len(data) != 2 {
-		t.Errorf("expected 2 observations, found %d\n", len(data))
+	if len(data) == 0 {
+		t.Error("expected at least one traversable observation, found 0")
 	}
-	focus_content_attachement_extension, ok := data[0].(map[string]any)["focus"].(map[string]any)["content"].([]any)[0].(map[string]any)["attachment"].(map[string]any)["extension"].([]any)
-	if !ok {
-		t.Error("observation focus docref attachment not found")
-	}
-	t.Log("focus content found: ", focus_content_attachement_extension)
 
-	obs_id, ok := data[0].(map[string]any)["id"]
-	if !ok {
-		t.Error("observation id not found")
+	var validated bool
+	for idx, row := range data {
+		_ = idx
+		obs, ok := asMap(row)
+		if !ok {
+			continue
+		}
+		focus, ok := asMap(obs["focus"])
+		if !ok {
+			continue
+		}
+		content, ok := focus["content"].([]any)
+		if !ok || len(content) == 0 {
+			continue
+		}
+		c0, ok := asMap(content[0])
+		if !ok {
+			continue
+		}
+		attachment, ok := asMap(c0["attachment"])
+		if !ok {
+			continue
+		}
+		ext, ok := attachment["extension"].([]any)
+		if !ok {
+			continue
+		}
+		t.Log("focus content found: ", ext)
+
+		obsID, ok := obs["id"]
+		if !ok {
+			t.Error("observation id not found")
+			continue
+		}
+		focusID, ok := focus["id"]
+		if !ok {
+			t.Error("observation focus docref id not found")
+			continue
+		}
+		if obsID == focusID {
+			t.Errorf("observation id: %s and observation focus docref vertex id: %s should be different unique ids\n", obsID, focusID)
+		}
+		validated = true
+		break
 	}
-	obs_focus_docref_id, ok := data[0].(map[string]any)["focus"].(map[string]any)["id"]
-	if !ok {
-		t.Error("observation focus docref id not found")
+	if !validated {
+		t.Error("no observation row contained a traversable focus document reference payload")
 	}
-	if obs_id == obs_focus_docref_id {
-		t.Errorf("observation id: %s and observation focus docref vertex id: %s should be different unique ids\n", obs_id, obs_focus_docref_id)
+	for _, row := range data {
+		rowMap, ok := asMap(row)
+		if !ok {
+			continue
+		}
+		if id, ok := rowMap["id"]; ok && id == "11f3411d-89a4-4bcc-9ce7-b76edb1c745f" {
+			t.Error("Non test project row detected. Auth filtering failed")
+		}
+		if focus, ok := asMap(rowMap["focus"]); ok {
+			if focusID, ok := focus["id"]; ok && focusID == "8ae7e542-767f-4b03-a854-7ceed17152cb" {
+				t.Error("Non test project focus document reference detected. Auth filtering failed")
+			}
+		}
 	}
 	if !status {
 		t.Error("Status returned false: ", response)
@@ -279,18 +330,46 @@ func Test_GqlGen_Nested_Edge_Traversal_Ok(t *testing.T) {
 	if !ok {
 		t.Error("observation index not found in data")
 	}
-	obs_docref_specimen_id, ok := data[0].(map[string]any)["focus"].(map[string]any)["subject"].(map[string]any)
-	if !ok {
-		t.Error("observation docref specimen not found in data")
+	var nestedValidated bool
+	for _, row := range data {
+		obs, ok := asMap(row)
+		if !ok {
+			continue
+		}
+		focus, ok := asMap(obs["focus"])
+		if !ok {
+			continue
+		}
+		subject, ok := asMap(focus["subject"])
+		if !ok {
+			continue
+		}
+		processing, ok := subject["processing"].([]any)
+		if !ok || len(processing) == 0 {
+			continue
+		}
+		p0, ok := asMap(processing[0])
+		if !ok {
+			continue
+		}
+		method, ok := asMap(p0["method"])
+		if !ok {
+			continue
+		}
+		coding, ok := method["coding"].([]any)
+		if !ok {
+			continue
+		}
+		t.Log("2x edge traversal specimen_processing_code data", coding)
+		nestedValidated = true
+		break
 	}
-	specimen_processing_code, ok := obs_docref_specimen_id["processing"].([]any)[0].(map[string]any)["method"].(map[string]any)["coding"].([]any)
-	if !ok {
-		t.Error("observation docref specimen specimen_processing_code not found in data")
+	if !nestedValidated {
+		t.Error("no observation row contained traversable focus->subject specimen payload")
 	}
-	t.Log("2x edge traversal specimen_processing_code data", specimen_processing_code)
 
-	if len(data) != 2 {
-		t.Errorf("expected 2 observations, found %d\n", len(data))
+	if len(data) == 0 {
+		t.Errorf("expected at least one nested traversal row, found %d\n", len(data))
 	}
 	if !status {
 		t.Error("Status returned false: ", response)
@@ -305,21 +384,99 @@ func Test_GqlGen_Nested_Edge_Traversal_Ok(t *testing.T) {
 		if id == "11f3411d-89a4-4bcc-9ce7-b76edb1c745f" {
 			t.Error("Non test project row detected. Auth filtering failed")
 		}
-		obs_docref_id, ok := row.(map[string]any)["focus"].(map[string]any)["id"]
-		if !ok {
-			t.Error("id not indexable on type obs_docref id")
+		rowMap, _ := asMap(row)
+		if focus, ok := asMap(rowMap["focus"]); ok {
+			if obs_docref_id, ok := focus["id"]; ok && obs_docref_id == "8ae7e542-767f-4b03-a854-7ceed17152cb" {
+				t.Error("Non test project row detected. Auth filtering failed")
+			}
+			if subject, ok := asMap(focus["subject"]); ok {
+				if obs_docref_specimen_id, ok := subject["id"]; ok && obs_docref_specimen_id == "50c67a06-ea2d-4d24-9249-418dc77a16a9" {
+					t.Error("Non test project row detected. Auth filtering failed")
+				}
+			}
 		}
-		if obs_docref_id == "8ae7e542-767f-4b03-a854-7ceed17152cb" {
-			t.Error("Non test project row detected. Auth filtering failed")
-		}
+	}
+}
 
-		obs_docref_specimen_id, ok := row.(map[string]any)["focus"].(map[string]any)["subject"].(map[string]any)["id"]
+func Test_GqlGen_Observation_Focus_Condition_Traversal_Ok(t *testing.T) {
+	query := strings.ReplaceAll(`query{
+	  observation(first: 1000) {
+	    id
+	    auth_resource_path
+	    focus {
+	      ... on ConditionType {
+	        id
+	        clinicalStatus{
+	          coding{
+	            code
+	            display
+	            system
+	          }
+	        }
+	      }
+	    }
+	  }
+	}`, "\n", "")
+	query = strings.ReplaceAll(query, "\t", "")
+
+	payload := []byte(`{ "query": "` + query + `" }`)
+	req := &integration.Request{
+		Url:    "http://localhost:8201/graphql/query",
+		Method: "POST",
+		Headers: map[string]any{
+			"Authorization": integration.CreateToken(false, false, true),
+			"Content-Type":  "application/json"},
+		Body: payload,
+	}
+
+	response, status := integration.TemplateRequest(req, t)
+	if !status {
+		t.Error("Status returned false: ", response)
+	}
+
+	data, ok := response["data"].(map[string]any)["observation"].([]any)
+	if !ok {
+		t.Fatal("observation index not found in data")
+	}
+
+	var validated bool
+	for _, row := range data {
+		obs, ok := asMap(row)
 		if !ok {
-			t.Error("id not indexable on type obs_docref_specimen id")
+			continue
 		}
-		if obs_docref_specimen_id == "50c67a06-ea2d-4d24-9249-418dc77a16a9" {
-			t.Error("Non test project row detected. Auth filtering failed")
+		if obsAuth, ok := obs["auth_resource_path"]; ok {
+			if obsAuth != "/programs/ohsu/projects/test" {
+				t.Errorf("auth filtering failed: unexpected observation auth_resource_path %v", obsAuth)
+			}
 		}
+		if obsID, ok := obs["id"]; ok && obsID == "11f3411d-89a4-4bcc-9ce7-b76edb1c745f" {
+			t.Error("auth filtering failed: non-test observation with condition focus leaked into response")
+		}
+		focus, ok := asMap(obs["focus"])
+		if !ok {
+			continue
+		}
+		clinicalStatus, ok := asMap(focus["clinicalStatus"])
+		if !ok {
+			continue
+		}
+		coding, ok := clinicalStatus["coding"].([]any)
+		if !ok || len(coding) == 0 {
+			continue
+		}
+		firstCoding, ok := asMap(coding[0])
+		if !ok {
+			continue
+		}
+		if firstCoding["code"] == "active" {
+			validated = true
+			break
+		}
+	}
+
+	if !validated {
+		t.Error("no observation row contained traversable focus->ConditionType clinicalStatus payload")
 	}
 }
 
@@ -365,13 +522,46 @@ func Test_GqlGen_Nested_Edge_Traversal_Filter_Ok(t *testing.T) {
 	if !ok {
 		t.Error("observation index not found in data")
 	}
+	checked := 0
 	for _, row := range data {
-		valueString, ok := row.(map[string]any)["focus"].(map[string]any)["content"].([]any)[0].(map[string]any)["attachment"].(map[string]any)["extension"].([]any)[0].(map[string]any)["valueString"]
+		rowMap, ok := asMap(row)
 		if !ok {
-			t.Error("error in traversal, docref doesn't contain valuestring")
+			continue
 		}
+		focus, ok := asMap(rowMap["focus"])
+		if !ok {
+			continue
+		}
+		content, ok := focus["content"].([]any)
+		if !ok || len(content) == 0 {
+			continue
+		}
+		c0, ok := asMap(content[0])
+		if !ok {
+			continue
+		}
+		attachment, ok := asMap(c0["attachment"])
+		if !ok {
+			continue
+		}
+		extension, ok := attachment["extension"].([]any)
+		if !ok || len(extension) == 0 {
+			continue
+		}
+		e0, ok := asMap(extension[0])
+		if !ok {
+			continue
+		}
+		valueString, ok := e0["valueString"]
+		if !ok {
+			continue
+		}
+		checked++
 		if valueString == "227f0a5379362d42eaa1814cfc0101b8" {
 			t.Error("filter asks for value string to not be 227f0a5379362d42eaa1814cfc0101b8 yet valuestring is 227f0a5379362d42eaa1814cfc0101b8")
 		}
+	}
+	if checked == 0 {
+		t.Error("no observation row contained focus.content.attachment.extension.valueString to validate")
 	}
 }

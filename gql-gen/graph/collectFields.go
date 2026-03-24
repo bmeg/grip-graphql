@@ -125,21 +125,43 @@ func queryBuild(query **gripql.Query, selSet ast.SelectionSet, curElement string
 				queryBuild(query, sel.SelectionSet, curElement, rt, newParentPath, currentTree)
 			}
 		case *ast.InlineFragment:
-			elem := rt.NewElement()
-			if _, exists := currentTree[rt.prevName]; !exists {
+			var elem string
+			var fragmentTree map[string]any
+			parts := strings.Split(parentPath, ".")
+			fieldName := parts[len(parts)-1]
+
+			if parentPath == "" {
+				elem = curElement
+				fragmentTree = currentTree
+			} else {
+				elem = rt.NewElement()
+				if _, exists := currentTree[fieldName]; !exists {
+					currentTree[fieldName] = map[string]any{"__typename": sel.TypeCondition}
+				}
+				fragmentTree = currentTree[fieldName].(map[string]any)
+				label := fieldName + "_" + sel.TypeCondition[:len(sel.TypeCondition)-4]
+				log.Infof("FRAGMENT TRAVERSAL: field=%s target=%s label=%s elem=%s\n", fieldName, sel.TypeCondition, label, elem)
+				*query = (*query).Out(label).As(elem)
+				if _, ok := rt.args[elem]; ok && rt.args[elem].first != 0 {
+					*query = (*query).Limit(rt.args[elem].first)
+				}
+				if _, ok := rt.args[elem]; ok && rt.args[elem].offset != 0 {
+					*query = (*query).Skip(rt.args[elem].offset)
+				}
+				// Prevent sibling traversal state from being consumed by the nested
+				// fragment selection set itself; restore after recursion.
+				movedBefore := rt.moved
+				rt.moved = false
 				rt.fLookup[sel.TypeCondition[:len(sel.TypeCondition)-4]] = elem
-				currentTree[rt.prevName] = map[string]any{"__typename": sel.TypeCondition}
+				queryBuild(query, sel.SelectionSet, elem, rt, "", fragmentTree)
+				rt.moved = true
+				if movedBefore {
+					rt.moved = true
+				}
+				continue
 			}
-			fragmentTree := currentTree[rt.prevName].(map[string]any)
-			*query = (*query).OutNull(rt.prevName + "_" + sel.TypeCondition[:len(sel.TypeCondition)-4]).As(elem)
-			if _, ok := rt.args[elem]; ok && rt.args[elem].first != 0 {
-				*query = (*query).Limit(rt.args[elem].first)
-			}
-			if _, ok := rt.args[elem]; ok && rt.args[elem].offset != 0 {
-				*query = (*query).Skip(rt.args[elem].offset)
-			}
+			rt.fLookup[sel.TypeCondition[:len(sel.TypeCondition)-4]] = elem
 			queryBuild(query, sel.SelectionSet, elem, rt, "", fragmentTree)
-			rt.moved = true
 		default:
 			panic(fmt.Errorf("unsupported type: %T", sel))
 		}

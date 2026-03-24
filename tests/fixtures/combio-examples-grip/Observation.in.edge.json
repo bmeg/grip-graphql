@@ -1,4 +1,5 @@
 {"_id":"f043f4b2-6eed-5431-aed9-f875390799c2","_label":"focus_DocumentReference","_from":"cec32723-9ede-5f24-ba63-63cb8c6a02cf","_to":"9ae7e542-767f-4b03-a854-7ceed17152cb"}
+{"_id":"f143f4b2-6eed-5431-aed9-f875390799c2","_label":"focus_Condition","_from":"cec32723-9ede-5f24-ba63-63cb8c6a02cf","_to":"43c1dc2d-0d3c-56a7-aaf7-95424503b22b"}
 {"_id":"0130767a-71ff-5677-aeb9-b1ce9f37f25c","_label":"specimen_Specimen","_from":"cec32723-9ede-5f24-ba63-63cb8c6a02cf","_to":"60c67a06-ea2d-4d24-9249-418dc77a16a9"}
 {"_id":"7471e5a6-d026-5311-b79a-0a3f7b9e9893","_label":"subject_Patient","_from":"cec32723-9ede-5f24-ba63-63cb8c6a02cf","_to":"bc4e1aa6-cb52-40e9-8f20-594d9c84f920"}
 {"_id":"4d3335be-7333-5c61-a534-57e2148f3df0","_label":"focus_Specimen","_from":"4e3c6b59-b1fd-5c26-a611-da4cde9fd061","_to":"60c67a06-ea2d-4d24-9249-418dc77a16a9"}

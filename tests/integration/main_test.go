@@ -43,6 +43,7 @@ func runTests(m *testing.M) int {
 		Test_GqlGen_Filter_Ok,
 		Test_GqlGen_Edge_Traversal_Ok,
 		Test_GqlGen_Nested_Edge_Traversal_Ok,
+		Test_GqlGen_Observation_Focus_Condition_Traversal_Ok,
 		Test_GqlGen_Nested_Edge_Traversal_Filter_Ok,
 	}
 
